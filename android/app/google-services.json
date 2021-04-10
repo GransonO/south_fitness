@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "605983637267",
+    "project_id": "southfitness-dash",
+    "storage_bucket": "southfitness-dash.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:605983637267:android:f2eb7a1d6c828ff93a24e6",
+        "android_client_info": {
+          "package_name": "com.fluid.south_fitness"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "605983637267-qtipmnp3e25g45iabdpj5tq3maqv6g7m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAca6HjQXKomkja7MHHtT9P3ICTt8MCVqQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "605983637267-qtipmnp3e25g45iabdpj5tq3maqv6g7m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
