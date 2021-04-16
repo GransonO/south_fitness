@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'dart:math';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/services/net.dart';
 
@@ -27,8 +30,12 @@ class _ChatsState extends State<Chats> {
   var groupTitle = "";
   var description = "";
   var groups = [];
-  var image =
-      "https://res.cloudinary.com/dolwj4vkq/image/upload/v1565367393/jade/profiles/user.jpg";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1565367393/jade/profiles/user.jpg";
+  var groupImage = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618138330/South_Fitness/ic_launcher.png";
+  var generalImage = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618138330/South_Fitness/ic_launcher.png";
+
+  File groupImageFile;
+  bool isUploading = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
@@ -54,6 +61,29 @@ class _ChatsState extends State<Chats> {
       groups = results;
       loading = false;
       posting = false;
+    });
+  }
+
+  getImage() async {
+    File image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    var path = image.path;
+    setState(() {
+      groupImageFile = image;
+      isUploading = true;
+    });
+    cloudReviewUpload(path,"group_image");
+  }
+
+  cloudReviewUpload(var path, var name) async {
+    FormData formData = new FormData.fromMap({
+      "upload_preset": "South_Fitness_Groups",
+      "cloud_name": "dolwj4vkq",
+      "file": await MultipartFile.fromFile(path,filename: name),
+    });
+    var imageUrl = await Authentication().uploadImage(formData);
+    setState(() {
+      groupImage = imageUrl;
+      isUploading = false;
     });
   }
 
@@ -196,131 +226,179 @@ class _ChatsState extends State<Chats> {
               color: Colors.black54,
               child: Center(
                 child: Container(
-                  height: _height(55),
+                  height: _height(70),
                   width: _width(100),
                   margin: EdgeInsets.all(15),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(10))
                   ),
-                  child: Column(
-                    children: [
-
-                      Container(
-                        width: _width(80),
-                        margin: EdgeInsets.only(right: _width(1), top: _width(3)),
-                        child: Row(
-                          children: [
-                            Spacer(),
-                            InkWell(
-                              onTap: (){
-                                setState(() {
-                                  addGroup = false;
-                                });
-                              },
-                                child: Icon(Icons.close, color: Colors.grey,)
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Container(
+                          width: _width(80),
+                          margin: EdgeInsets.only(right: _width(1), top: _width(3)),
+                          child: Row(
+                            children: [
+                              Spacer(),
+                              InkWell(
+                                onTap: (){
+                                  setState(() {
+                                    addGroup = false;
+                                  });
+                                },
+                                  child: Icon(Icons.close, color: Colors.grey,)
+                              ),
+                            ],
+                          )
+                        ),
+                        InkWell(
+                          onTap: (){
+                            getImage();
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.all(Radius.circular(50)),
+                            child: Stack(
+                              children: [
+                                Container(
+                                  height: _height(15),
+                                  width: _height(15),
+                                  child: SpinKitCircle(color: Colors.lightGreen,),
+                                ),
+                                groupImageFile != null ? Container(
+                                  height: _height(15),
+                                  width: _height(15),
+                                  child: Image.file(
+                                    groupImageFile,
+                                    height: _height(17),
+                                    width: _height(17),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ) : Container(
+                                  height: _height(17),
+                                  width: _height(17),
+                                  child: Image.network(
+                                    groupImage,
+                                    height: _height(17),
+                                    width: _height(17),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                Container(
+                                  height: _height(15),
+                                  width: _height(15),
+                                  child: Center(
+                                    child: Icon(Icons.camera_alt, color: Colors.black54, size: 35,),
+                                  )
+                                ),
+                              ],
                             ),
-                          ],
-                        )
-                      ),
-                      Container(
-                        width: _width(80),
-                        margin: EdgeInsets.only(right: _width(2), top: _height(3),  bottom: _height(1)),
-                        child: Text(
-                          "Group Title: ",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black
                           ),
                         ),
-                      ),
-                      Container(
-                        height: _height(5),
-                        width: _width(80),
-                        margin: EdgeInsets.only(right: _width(2),),
-                        padding: EdgeInsets.only(left: 10),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(15)),
-                            border: Border.all(
-                                width: 0.5,
-                                color: Colors.grey
-                            )
-                        ),
-                        child: Container(
+
+                        Container(
                           width: _width(80),
+                          margin: EdgeInsets.only(right: _width(2), top: _height(3),  bottom: _height(1)),
+                          child: Text(
+                            "Group Title: ",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black
+                            ),
+                          ),
+                        ),
+                        Container(
+                          height: _height(5),
+                          width: _width(80),
+                          margin: EdgeInsets.only(right: _width(2),),
+                          padding: EdgeInsets.only(left: 10),
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.all(Radius.circular(15)),
+                              border: Border.all(
+                                  width: 0.5,
+                                  color: Colors.grey
+                              )
+                          ),
+                          child: Container(
+                            height: _height(5),
+                            width: _width(80),
+                            child: Center(
+                              child: TextField(
+                                onChanged: (value){
+                                  setState(() {
+                                    groupTitle = value;
+                                  });
+                                },
+                                keyboardType: TextInputType.name,
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
+                                ),
+                                style: TextStyle(fontSize: 14, color: Color.fromARGB(255, 0, 0, 0)),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          height: _height(25),
+                          width: _width(80),
+                          margin: EdgeInsets.only(right: _width(2), top: _height(3)),
+                          padding: EdgeInsets.only(left: 10),
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.all(Radius.circular(15)),
+                              border: Border.all(
+                                  width: 0.5,
+                                  color: Colors.grey
+                              )
+                          ),
                           child: TextField(
+                            maxLines: 5,
                             onChanged: (value){
                               setState(() {
-                                groupTitle = value;
+                                description = value;
                               });
                             },
                             keyboardType: TextInputType.name,
                             decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
+                                border: InputBorder.none,
+                                hintStyle: TextStyle(fontSize: 14, color: Color.fromARGB(200, 169, 169, 169)),
+                                hintText: "Group description"
                             ),
                             style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
                           ),
                         ),
-                      ),
-                      Container(
-                        height: _height(25),
-                        width: _width(80),
-                        margin: EdgeInsets.only(right: _width(2), top: _height(3)),
-                        padding: EdgeInsets.only(left: 10),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(15)),
-                            border: Border.all(
-                                width: 0.5,
-                                color: Colors.grey
-                            )
-                        ),
-                        child: TextField(
-                          maxLines: 5,
-                          onChanged: (value){
-                            setState(() {
-                              description = value;
-                            });
-                          },
-                          keyboardType: TextInputType.name,
-                          decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
-                              hintText: "Group description"
-                          ),
-                          style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
-                        ),
-                      ),
 
-                      SizedBox( height: _height(2)),
-                      Center(
-                        child: InkWell(
-                          onTap: (){
-                            createGroup();
-                          },
-                          child: Container(
-                            height: _height(5),
-                            width: _width(80),
-                            decoration: BoxDecoration(
-                                color: Color.fromARGB(255,110,180,63),
-                                borderRadius: BorderRadius.all(Radius.circular(15))
-                            ),
-                            child: Center(
-                              child: creating ? SpinKitThreeBounce(color: Colors.white, size: 20,) : Text(
-                                "Create",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold
+                        SizedBox( height: _height(2)),
+                        Center(
+                          child: InkWell(
+                            onTap: (){
+                              createGroup();
+                            },
+                            child: Container(
+                              height: _height(5),
+                              width: _width(80),
+                              decoration: BoxDecoration(
+                                  color: Color.fromARGB(255,110,180,63),
+                                  borderRadius: BorderRadius.all(Radius.circular(15))
+                              ),
+                              child: Center(
+                                child: creating ? SpinKitThreeBounce(color: Colors.white, size: 20,) : Text(
+                                  "Create",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -355,12 +433,18 @@ class _ChatsState extends State<Chats> {
             color: Colors.white,
             borderRadius: BorderRadius.all(Radius.circular(15))),
         child: Row(children: [
-          Container(
-            height: _height(7),
-            width: _height(7),
-            decoration: BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.all(Radius.circular(50))),
+          ClipRRect(
+            borderRadius: BorderRadius.all(Radius.circular(50)),
+            child: Container(
+              height: _height(7),
+              width: _height(7),
+              child: Image.network(
+                element["group_image"],
+                height: _height(7),
+                width: _height(7),
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
           SizedBox(
             width: _width(3),
@@ -448,13 +532,18 @@ class _ChatsState extends State<Chats> {
               borderRadius:
               BorderRadius.all(Radius.circular(15))),
           child: Row(children: [
-            Container(
-              height: _height(7),
-              width: _height(7),
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(
-                      Radius.circular(50))),
+            ClipRRect(
+              borderRadius: BorderRadius.all(Radius.circular(50)),
+              child: Container(
+                height: _height(7),
+                width: _height(7),
+                child: Image.network(
+                  generalImage,
+                  height: _height(7),
+                  width: _height(7),
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
             SizedBox(
               width: _width(3),
@@ -534,8 +623,10 @@ class _ChatsState extends State<Chats> {
       "user_id": email,
       "group_title":groupTitle,
       "creator_name":username,
-      "group_slogan": description
+      "group_slogan": description,
+      "group_image": groupImage
     };
+
     bool posted = await ChatService().createGroup(group);
     if(posted){
       Fluttertoast.showToast(msg: "Group created");

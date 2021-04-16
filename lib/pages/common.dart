@@ -23,6 +23,7 @@ import 'package:south_fitness/pages/blogs/Notes.dart';
 import 'package:south_fitness/pages/home/video.dart';
 import 'package:south_fitness/pages/run/history.dart';
 
+import 'googleHealth/healthPage.dart';
 import 'home/performance.dart';
 
 class Common{
@@ -39,7 +40,7 @@ class Common{
   dateStringFormatter(dateTimeString) {
     DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
     DateTime dateTime = dateFormat.parse(dateTimeString);
-    var formattedDate = DateFormat.yMEd().add_jms().format(dateTime);
+    var formattedDate = DateFormat('EEE d MMM, yy hh:mm aaa').format(dateTime);
     return formattedDate;
   }
 
@@ -298,6 +299,22 @@ class Common{
               onTap: (){
                 Navigator.pop(context);
                 newActivity(context, History());
+              }),
+          ListTile(
+              tileColor: Colors.white,
+              leading: Container(
+                height: componentHeight(context, 2.5),
+                width: componentHeight(context, 2.5),
+                child: SvgPicture.asset(
+                  'assets/images/nav/medical.svg',
+                  fit: BoxFit.fill,
+                  color: _colorScheme(state == "history"),
+                ),
+              ),
+              title: Text('Google Health'),
+              onTap: (){
+                Navigator.pop(context);
+                newActivity(context, GoogleHealth());
               }),
           InkWell(
             onTap: (){

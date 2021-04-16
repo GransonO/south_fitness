@@ -81,6 +81,8 @@ class _HomeState extends State<HomeView> {
     bool microphone = await Permission.microphone.isGranted;
     bool phone = await Permission.phone.isGranted;
     bool storage = await Permission.storage.isGranted;
+    bool activityRecognition = await Permission.activityRecognition.isGranted;
+    print("------- activityRecognition ------------------------ $activityRecognition");
     if (!camera) {
       await Permission.camera.request();
     }
@@ -92,6 +94,9 @@ class _HomeState extends State<HomeView> {
     }
     if (!storage) {
       await Permission.storage.request();
+    }
+    if (!activityRecognition) {
+      await Permission.activityRecognition.request();
     }
   }
 
@@ -788,19 +793,24 @@ class _HomeState extends State<HomeView> {
                           Spacer(),
                           Container(
                             child: Text(
-                              "${convertDateTime(element["scheduledTime"])}",
+                              "${dateTimeString("${element["scheduledDate"]} ${element["scheduledTime"]}")}",
                               style: TextStyle(
                                   color: Colors.lightGreen,
-                                  fontSize: 16
+                                  fontSize: 12
                               ),
                               textAlign: TextAlign.left,
                             ),
                           ),
-                          SizedBox(height: _height(2),),
+                          Spacer(),
                           Container(
                               width: _width(10),
                               child: Text(
-                                  ""
+                                  "${convertDateTime("${element["scheduledDate"]} ${element["scheduledTime"]}")}",
+                                  style: TextStyle(
+                                      color: Colors.lightGreen,
+                                      fontSize: 10
+                                  ),
+                                  textAlign: TextAlign.left,
                               )
                           ),
                           Spacer(),
@@ -857,7 +867,12 @@ class _HomeState extends State<HomeView> {
   }
 
   convertDateTime(date) {
-    var theDate =  DateTime.parse(date);
-    return DateFormat.jm().format(theDate);
+    DateTime lel = DateTime.parse(date);
+    return DateFormat.jm().format(lel);
+  }
+
+  dateTimeString(date) {
+    DateTime lel = DateTime.parse(date);
+    return DateFormat.MMMMd().format(lel);
   }
 }

@@ -2,10 +2,8 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/auth/login.dart';
@@ -71,29 +69,6 @@ class _DashboardState extends State<Dashboard> {
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
-  getImage() async {
-    File image = await ImagePicker.pickImage(source: ImageSource.gallery);
-    var path = image.path;
-    setState(() {
-      avatarImageFile = image;
-      isUploading = true;
-    });
-    cloudReviewUpload(path,"profile_image");
-  }
-
-  cloudReviewUpload(var path, var name) async {
-    FormData formData = new FormData.fromMap({
-      "upload_preset": "South_Fitness",
-      "cloud_name": "dolwj4vkq",
-      "file": await MultipartFile.fromFile(path,filename: name),
-    });
-    var imageUrl = await Authentication().uploadImage(formData);
-    setState(() {
-      image = imageUrl;
-      isUploading = false;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -560,56 +535,32 @@ class _DashboardState extends State<Dashboard> {
                                       height: _height(17),
                                       width: _height(17),
                                       margin: EdgeInsets.all(_width(2)),
-                                      child: Stack(
-                                        children: [
-                                          ClipRRect(
-                                            borderRadius: BorderRadius.all(Radius.circular(50)),
-                                            child: Stack(
-                                              children: [
-                                                avatarImageFile != null ? Container(
-                                                  height: _height(17),
-                                                  width: _height(17),
-                                                  child: Image.file(
-                                                    avatarImageFile,
-                                                    height: _height(17),
-                                                    width: _height(17),
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ) : Container(
-                                                  height: _height(17),
-                                                  width: _height(17),
-                                                  child: Image.network(
-                                                    image,
-                                                    height: _height(17),
-                                                    width: _height(17),
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
-                                              ],
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.all(Radius.circular(50)),
+                                        child: Stack(
+                                          children: [
+                                            avatarImageFile != null ? Container(
+                                              height: _height(17),
+                                              width: _height(17),
+                                              child: Image.file(
+                                                avatarImageFile,
+                                                height: _height(17),
+                                                width: _height(17),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ) : Container(
+                                              height: _height(17),
+                                              width: _height(17),
+                                              child: Image.network(
+                                                image,
+                                                height: _height(17),
+                                                width: _height(17),
+                                                fit: BoxFit.cover,
+                                              ),
                                             ),
-                                          ),
-                                          Align(
-                                              alignment: Alignment.bottomRight,
-                                              child: InkWell(
-                                                onTap: (){
-                                                  getImage();
-                                                },
-                                                child: Container(
-                                                  margin: EdgeInsets.all(_width(1)),
-                                                  height: _width(7),
-                                                  width: _width(7),
-                                                  decoration: BoxDecoration(
-                                                      color: Colors.green,
-                                                      borderRadius: BorderRadius.all(Radius.circular(50))
-                                                  ),
-                                                  child: Center(
-                                                      child: Icon(Icons.add, color: Colors.white, size: 15,)
-                                                  ),
-                                                ),
-                                              )
-                                          ),
-                                        ],
-                                      )
+                                          ],
+                                        ),
+                                      ),
                                   ),
                                 ),
                             ),

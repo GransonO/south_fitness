@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
@@ -19,7 +23,7 @@ class _ProfileState extends State<Profile> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   bool teamClicked = false;
 
-  var birthDate;
+  var birthDate = DateTime.now();
   var team = "FINANCE DIVISION";
   var code;
   bool login = false;
@@ -31,7 +35,10 @@ class _ProfileState extends State<Profile> {
   var fullname = "";
   var email = "";
   var posting = false;
+  bool isUploading = false;
 
+  String id = '';
+  File avatarImageFile;
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1565367393/jade/profiles/user.jpg";
 
   @override
@@ -48,6 +55,29 @@ class _ProfileState extends State<Profile> {
       fullname = prefs.getString("username");
       email = prefs.getString("email");
       image = prefs.getString("image");
+    });
+  }
+
+  getImage() async {
+    File image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    var path = image.path;
+    setState(() {
+      avatarImageFile = image;
+      isUploading = true;
+    });
+    cloudReviewUpload(path,"profile_image");
+  }
+
+  cloudReviewUpload(var path, var name) async {
+    FormData formData = new FormData.fromMap({
+      "upload_preset": "South_Fitness",
+      "cloud_name": "dolwj4vkq",
+      "file": await MultipartFile.fromFile(path,filename: name),
+    });
+    var imageUrl = await Authentication().uploadProfileImage(formData);
+    setState(() {
+      image = imageUrl;
+      isUploading = false;
     });
   }
 
@@ -70,6 +100,69 @@ class _ProfileState extends State<Profile> {
                       Container(
                         width: _width(80),
                         child: Text("Complete your member profile and get first access to the very best of Products, Inspiration and community."),
+                      ),
+
+                      Container(
+                        height: _height(17),
+                        width: _height(17),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                              height: _height(17),
+                              width: _height(17),
+                              margin: EdgeInsets.all(_width(2)),
+                              child: Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.all(Radius.circular(50)),
+                                    child: Stack(
+                                      children: [
+                                        avatarImageFile != null ? Container(
+                                          height: _height(17),
+                                          width: _height(17),
+                                          child: Image.file(
+                                            avatarImageFile,
+                                            height: _height(17),
+                                            width: _height(17),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ) : Container(
+                                          height: _height(17),
+                                          width: _height(17),
+                                          child: Image.network(
+                                            image,
+                                            height: _height(17),
+                                            width: _height(17),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: InkWell(
+                                        onTap: (){
+                                          getImage();
+                                        },
+                                        child: Container(
+                                          margin: EdgeInsets.all(_width(1)),
+                                          height: _width(7),
+                                          width: _width(7),
+                                          decoration: BoxDecoration(
+                                              color: Colors.green,
+                                              borderRadius: BorderRadius.all(Radius.circular(50))
+                                          ),
+                                          child: Center(
+                                              child: Icon(Icons.add, color: Colors.white, size: 15,)
+                                          ),
+                                        ),
+                                      )
+                                  ),
+                                ],
+                              )
+                          ),
+                        ),
                       ),
 
                       Container(
@@ -185,7 +278,7 @@ class _ProfileState extends State<Profile> {
                                 format: format,
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
-                                  hintText: '',
+                                  hintText: '${birthDate.toString()}',
                                   hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(175, 169, 169, 169)),
                                 ),
                                 style: TextStyle(fontSize: 13, color: Color.fromARGB(175, 0, 0, 0)),
@@ -194,11 +287,11 @@ class _ProfileState extends State<Profile> {
                                     context: context,
                                     firstDate: DateTime(date.year - 120),
                                     initialDate: currentValue ?? DateTime.now(),
-                                    lastDate: DateTime(date.year + 1),
+                                    lastDate: DateTime.now(),
                                   );
                                 },
                                 onChanged: ((value){
-                                  birthDate = value.toString();
+                                  birthDate = value;
                                 }),
                               ),
                             ),
@@ -397,7 +490,9 @@ class _ProfileState extends State<Profile> {
                                   ),
                                 ],
                                 onChanged: (String value) {
-                                  team = value;
+                                  setState(() {
+                                    team = value;
+                                  });
                                 },
                                 hint: Text(
                                   'Select Team',
@@ -437,7 +532,8 @@ class _ProfileState extends State<Profile> {
                                 "fullname": fullname,
                                 "email": email,
                                 "birthDate": birthDate.toString(),
-                                "team": team
+                                "team": team,
+                                "image": image
                               };
                               var result = await Authentication().updateProfile(profileData);
                               if(result["success"]){
@@ -479,16 +575,18 @@ class _ProfileState extends State<Profile> {
                 ),
                 Container(
                   height: _height(7),
+                  color: Colors.white,
                   child: Row(
                     children: [
-                      SizedBox(width: _width(3),),
-                      Text(
-                        "Complete profile",
-                        style: TextStyle(
-                            fontSize: 16
-                        ),
+                      Common().logoOnBar(context),
+                      Spacer(),
+                      InkWell(
+                        onTap: (){
+                          _scaffoldKey.currentState.openDrawer();
+                        },
+                        child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
                       ),
-                      Spacer()
+                      SizedBox(width: _width(4),),
                     ],
                   ),
                 ),

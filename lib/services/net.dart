@@ -122,12 +122,22 @@ class Authentication {
     }
   }
 
-  uploadImage(formData) async {
+  uploadProfileImage(formData) async {
     prefs = await SharedPreferences.getInstance();
     try {
       Response response = await dio.post(uploadUrl, data: formData);
       print("----------------------------------------------- ${response.data["secure_url"]}");
       prefs.setString("image", response.data["secure_url"]);
+      return response.data["secure_url"];
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  uploadImage(formData) async {
+    try {
+      Response response = await dio.post(uploadUrl, data: formData);
+      print("----------------------------------------------- ${response.data["secure_url"]}");
       return response.data["secure_url"];
     } catch (e) {
       print(e);

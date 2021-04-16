@@ -54,6 +54,7 @@ dependencies:
 
   cloud_firestore: any
   uuid: any
+  fit_kit: ^1.1.2
 
 dev_dependencies:
   flutter_test:
