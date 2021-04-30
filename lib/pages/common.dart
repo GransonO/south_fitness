@@ -14,14 +14,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/auth/login.dart';
 import 'package:south_fitness/pages/challenges/challenges.dart';
 import 'package:south_fitness/pages/challenges/gym.dart';
-import 'package:south_fitness/pages/challenges/tbt_challenges.dart';
+import 'package:south_fitness/pages/challenges/all_activities.dart';
 import 'package:south_fitness/pages/chats/chats.dart';
 import 'package:south_fitness/pages/history/history.dart';
 import 'package:south_fitness/pages/profile/Dashboard.dart';
 import 'package:south_fitness/pages/home/Home.dart';
 import 'package:south_fitness/pages/blogs/Notes.dart';
 import 'package:south_fitness/pages/home/video.dart';
-import 'package:south_fitness/pages/run/history.dart';
 
 import 'googleHealth/healthPage.dart';
 import 'home/performance.dart';
@@ -42,6 +41,13 @@ class Common{
     DateTime dateTime = dateFormat.parse(dateTimeString);
     var formattedDate = DateFormat('EEE d MMM, yy hh:mm aaa').format(dateTime);
     return formattedDate;
+  }
+
+  getDateTimeDifference(date){
+    var theDate =  DateTime.parse(date);
+    var diff = theDate.difference(DateTime.now()).inMinutes;
+    print("------diff---------------------- $diff");
+    return diff;
   }
 
   logoOnBar(BuildContext context){
@@ -167,7 +173,7 @@ class Common{
                   color: _colorScheme(state == "video"),
                 ),
               ),
-              title: Text('Videos'),
+              title: Text('Live Videos'),
               onTap: (){
                 Navigator.pop(context);
                 newActivity(context, ReadyVideo());
@@ -260,13 +266,13 @@ class Common{
                 child: SvgPicture.asset(
                   'assets/images/nav/goal.svg',
                   fit: BoxFit.fill,
-                  color: _colorScheme(state == "tbt"),
+                  color: _colorScheme(state == "activities"),
                 ),
               ),
-              title: Text('TBT'),
+              title: Text('Activities'),
               onTap: (){
                 Navigator.pop(context);
-                newActivity(context, TBT());
+                newActivity(context, AllActivities());
               }),
           ListTile(
               tileColor: Colors.white,

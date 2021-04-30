@@ -18,7 +18,7 @@ class _SuggestedActivitiesState extends State<SuggestedActivities> {
   SharedPreferences prefs;
   var username = "";
   var email = "";
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1565367393/jade/profiles/user.jpg";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 

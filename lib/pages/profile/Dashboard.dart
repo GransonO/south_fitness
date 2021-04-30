@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/auth/login.dart';
@@ -32,7 +34,7 @@ class _DashboardState extends State<Dashboard> {
   var personalData = {};
 
   String id = '';
-  String image = 'https://res.cloudinary.com/dolwj4vkq/image/upload/v1611063420/jade/profiles/avatar.jpg';
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
   File avatarImageFile;
 
   var caloriesCount = 0.0;
@@ -913,7 +915,14 @@ class _DashboardState extends State<Dashboard> {
                       ),
                       InkWell(
                         onTap: (){
-                          Common().newActivity(context, Login());
+                          Fluttertoast.showToast(
+                              msg: "Logging you out",
+                              toastLength: Toast.LENGTH_LONG,
+                              gravity: ToastGravity.CENTER,
+                              backgroundColor: Colors.orange,
+                              textColor: Colors.white,
+                              fontSize: 16.0);
+                          Timer(Duration(seconds: 3), () => handleSignOut(context));
                         },
                         child: Container(
                             width: _width(90),
@@ -979,5 +988,13 @@ class _DashboardState extends State<Dashboard> {
 
   _width(size){
     return Common().componentWidth(context, size);
+  }
+
+  handleSignOut(context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.clear();
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => Login()),
+            (Route<dynamic> route) => false);
   }
 }

@@ -1,6 +1,7 @@
 import 'package:agora_rtc_engine/rtc_engine.dart' as rtc_engine_x;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/pages/video_call/videoPlayer.dart' as videoStuff;
@@ -14,14 +15,18 @@ class Session extends StatefulWidget {
   var link = "";
   var id = "";
   var participants = "";
-  Session(value, url, uid, all){
+  var channel = "";
+  var isTimeDue = 0;
+  Session(value, url, uid, all, title, isTime){
     type = value;
     link = url;
     id = uid;
     participants = all;
+    channel = title;
+    isTimeDue = isTime;
   }
   @override
-  _SessionState createState() => _SessionState(type, link, id, participants);
+  _SessionState createState() => _SessionState(type, link, id, participants, channel, isTimeDue);
 }
 
 class _SessionState extends State<Session> {
@@ -43,17 +48,21 @@ class _SessionState extends State<Session> {
   var email = "";
   var link = "";
   var uid = "";
+  var channel = "";
   var participants = [];
   var videoCall = {};
-  bool showCall = false;
+  bool showCall = true;
+  var isTime = 0;
 
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1565367393/jade/profiles/user.jpg";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
 
-  _SessionState(value, url, id, all){
+  _SessionState(value, url, id, all, _channel, state){
     type = value;
     link = url;
     uid = id;
+    channel = _channel;
     participants = all.split(",");
+    isTime = state;
   }
 
   @override
@@ -64,7 +73,6 @@ class _SessionState extends State<Session> {
     );
 
     _initializeVideoPlayerFuture = _controller.initialize();
-    super.initState();
     getTeam();
     getVideoCallDetails();
   }
@@ -81,13 +89,10 @@ class _SessionState extends State<Session> {
 
   getVideoCallDetails() async {
     // Fetch the passed video detail
-    var videoData = await HomeResources().getVideoCallDetails(uid);
+    var videoData = await HomeResources().getVideoCallDetails(uid, channel);
     setState(() {
       videoCall = videoData;
-      if(videoCall["video_call_token"] != null){
-        // call exists
-        showCall = true;
-      }
+      print("0 ===========================: $videoCall");
     });
   }
 
@@ -440,13 +445,23 @@ class _SessionState extends State<Session> {
                       showCall ? Center(
                         child: InkWell(
                           onTap: (){
-                            HomeResources().updateVideoViews({"video_id": uid, "team": team});
-                            Common().newActivity(context, videoStuff.VideoPlayer(
-                                videoCall["video_call_token"],
-                                videoCall["video_call_id"],
-                                videoCall["video_channel_name"]
+                            var data = {
+                              "token": videoCall["video"]["token"],
+                              "appID": videoCall["video"]["appID"],
+                              "channel": channel,
+                              "uid": videoCall["uid"]
+                            };
+                            print("Returned Data ================================= $data");
+                            if(displayTimeMessage(isTime)){
+                              HomeResources().updateVideoViews({"video_id": uid, "team": team});
+                              Common().newActivity(context, videoStuff.VideoPlayer(
+                                  videoCall["video"]["token"],
+                                  videoCall["video"]["appID"],
+                                  channel,
+                                  videoCall["uid"]
                               )
-                            );
+                              );
+                            }
                           },
                           child: Container(
                             height: _height(5),
@@ -496,6 +511,17 @@ class _SessionState extends State<Session> {
       ),
       drawer: Common().navDrawer(context, username, email, "list", image),
     );
+  }
+
+  displayTimeMessage(diff) {
+    if( 0 > diff){
+      Fluttertoast.showToast(msg: "The scheduled time is past");
+    }
+    if( 15 < diff){
+      Fluttertoast.showToast(msg: "You can access the video 15 mins or less to scheduled time");
+    }
+
+    return false;
   }
 
   _height(size){

@@ -325,6 +325,14 @@ class _ResetPageState extends State<ResetPage> {
     if(email == "" || confPass == "" || newPass == "" || resetCode == ""){
       Fluttertoast.showToast(msg: "Please fill in all the entries", backgroundColor: Colors.red);
     }else{
+      if(newPass.length < 6){
+        Fluttertoast.showToast(msg: "Password should have at least six characters", backgroundColor: Colors.red);
+        return;
+      }
+      if(newPass.contains(new RegExp(r'[0-9]'))){
+        Fluttertoast.showToast(msg: "Password should have at least one number", backgroundColor: Colors.red);
+        return;
+      }
       if(confPass != newPass){
         Fluttertoast.showToast(msg: "Passwords don't match error", backgroundColor: Colors.red);
       }else{
@@ -336,18 +344,18 @@ class _ResetPageState extends State<ResetPage> {
           "password": newPass.trim(),
           "code": resetCode.trim()
         });
-        if(result["success"]){
-          Fluttertoast.showToast(msg: "Reset successful", backgroundColor: Colors.green);
+        if(result){
+          Fluttertoast.showToast(msg: "Reset successful", backgroundColor: Colors.green,  textColor: Colors.white);
           setState(() {
             login = false;
             reset = false;
           });
           Common().newActivity(context, Login());
         }else{
+          Fluttertoast.showToast(msg: "Reset failed. Invalid reset code ", backgroundColor: Colors.red, textColor: Colors.white);
           setState(() {
             login = false;
           });
-
         }
       }
     }

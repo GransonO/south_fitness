@@ -38,9 +38,10 @@ class _chatViewState extends State<chatView> {
 
   var username = "";
   var email = "";
+  var user_id = "";
   SharedPreferences prefs;
   bool clubs = false;
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1565367393/jade/profiles/user.jpg";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   String message;
@@ -70,6 +71,7 @@ class _chatViewState extends State<chatView> {
       username = prefs.getString("username");
       email = prefs.getString("email");
       image = prefs.getString("image");
+      user_id = prefs.getString("user_id");
     });
     // getGroupChats();
   }
@@ -127,21 +129,6 @@ class _chatViewState extends State<chatView> {
                               textAlign: TextAlign.left,
                             ),
                             Spacer(),
-                            InkWell(
-                              onTap: (){
-                                setState(() {
-                                  chatImage = !chatImage;
-                                });
-                              },
-                              child: Container(
-                                height: _height(3),
-                                width: _width(3),
-                                margin: EdgeInsets.only(right: 2),
-                                child: Center(
-                                    child: Icon(chatImage ? Icons.close_outlined : Icons.add_photo_alternate )
-                                ),
-                              ),
-                            )
                           ]
                       ),
                     ),
@@ -199,59 +186,90 @@ class _chatViewState extends State<chatView> {
                             padding: EdgeInsets.only(bottom: _height(3), left: _width(4), right: _width(4)),
                             width: _width(100),
                             color: Colors.grey[300],
-                            child: Container(
-                              height: _height(6),
-                              width: _width(100),
-                              padding: EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.all(Radius.circular(15)),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 2,
-                                    blurRadius: 7,
-                                    offset: Offset(0, 3), // changes position of shadow
-                                  ),
-                                ],
-                              ),
-
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: _width(80),
-                                    child: TextField(
-                                      controller: _controller,
-                                      onChanged: (value){
-                                        setState(() {
-                                          message = value;
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                          border: InputBorder.none,
-                                          hintStyle: TextStyle(fontSize: 15, color: Color.fromARGB(200, 169, 169, 169)),
-                                          hintText: "Write something..."
-                                      ),
-                                      style: TextStyle(fontSize: 15, color: Color.fromARGB(255, 0, 0, 0)),
+                            child: Row(
+                              children: [
+                                InkWell(
+                                  onTap: (){
+                                    setState(() {
+                                      chatImage = !chatImage;
+                                    });
+                                  },
+                                  child: Container(
+                                    height: _height(6),
+                                    width: _height(6),
+                                    margin: EdgeInsets.only(right: 2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.all(Radius.circular(15)),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.5),
+                                          spreadRadius: 2,
+                                          blurRadius: 7,
+                                          offset: Offset(0, 3), // changes position of shadow
+                                        ),
+                                      ],
+                                    ),
+                                    child: Center(
+                                        child: Icon(chatImage ? Icons.close_outlined : Icons.add, color: Colors.lightGreen,)
                                     ),
                                   ),
-                                  Spacer(),
-                                  InkWell(
-                                      onTap: (){
-                                        setState(() {
-                                          postChat();
-                                        });
-                                      },
-                                      child: Container(
-                                          width: _width(5),
-                                          child: posting ? SpinKitThreeBounce(color: Colors.lightGreen, size: 12,) : Icon(
-                                            Icons.send, size: 25, color: Colors.lightGreen,
-                                          )
-                                      )),
-                                  Spacer()
-                                ],
-                              ),
+                                ),
+                                Spacer(),
+                                Container(
+                                  height: _height(6),
+                                  width: _width(77),
+                                  padding: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        spreadRadius: 2,
+                                        blurRadius: 7,
+                                        offset: Offset(0, 3), // changes position of shadow
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: _width(65),
+                                        child: TextField(
+                                          controller: _controller,
+                                          onChanged: (value){
+                                            setState(() {
+                                              message = value;
+                                            });
+                                          },
+                                          decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                              hintStyle: TextStyle(fontSize: 15, color: Color.fromARGB(200, 169, 169, 169)),
+                                              hintText: "Write something..."
+                                          ),
+                                          style: TextStyle(fontSize: 15, color: Color.fromARGB(255, 0, 0, 0)),
+                                        ),
+                                      ),
+                                      Spacer(),
+                                      InkWell(
+                                          onTap: (){
+                                            setState(() {
+                                              postChat();
+                                            });
+                                          },
+                                          child: Container(
+                                              width: _width(5),
+                                              child: posting ? SpinKitThreeBounce(color: Colors.lightGreen, size: 12,) : Icon(
+                                                Icons.send, size: 25, color: Colors.lightGreen,
+                                              )
+                                          )),
+                                      Spacer()
+                                    ],
+                                  ),
 
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -287,61 +305,92 @@ class _chatViewState extends State<chatView> {
                             Align(
                               alignment: Alignment.bottomCenter,
                               child: Container(
-                                padding: EdgeInsets.only(top: _height(1), bottom: _height(3), left: _width(4), right: _width(4)),
+                                padding: EdgeInsets.only(top: _height(1), bottom: _height(3), left: _width(2), right: _width(2)),
                                 width: _width(100),
                                 color: Colors.grey[300],
-                                child: Container(
-                                  height: _height(7),
-                                  width: _width(100),
-                                  padding: EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.5),
-                                        spreadRadius: 2,
-                                        blurRadius: 7,
-                                        offset: Offset(0, 3), // changes position of shadow
-                                      ),
-                                    ],
-                                  ),
-
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: _width(80),
-                                        child: TextField(
-                                          maxLines: 5,
-                                          controller: _controller,
-                                          onChanged: (value){
-                                            setState(() {
-                                              message = value;
-                                            });
-                                          },
-                                          decoration: InputDecoration(
-                                              border: InputBorder.none,
-                                              hintStyle: TextStyle(fontSize: 15, color: Color.fromARGB(200, 169, 169, 169)),
-                                              hintText: "Write something..."
-                                          ),
-                                          style: TextStyle(fontSize: 15, color: Color.fromARGB(255, 0, 0, 0)),
+                                child: Row(
+                                  children: [
+                                    InkWell(
+                                      onTap: (){
+                                        setState(() {
+                                          chatImage = !chatImage;
+                                        });
+                                      },
+                                      child: Container(
+                                        height: _height(7),
+                                        width: _height(7),
+                                        margin: EdgeInsets.only(right: 2),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.all(Radius.circular(15)),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.grey.withOpacity(0.5),
+                                              spreadRadius: 2,
+                                              blurRadius: 7,
+                                              offset: Offset(0, 3), // changes position of shadow
+                                            ),
+                                          ],
+                                        ),
+                                        child: Center(
+                                            child: Icon(chatImage ? Icons.close_outlined : Icons.add, color: Colors.lightGreen,)
                                         ),
                                       ),
-                                      Spacer(),
-                                      InkWell(
-                                          onTap: (){
-                                              postChat();
-                                          },
-                                          child: Container(
-                                              width: _width(5),
-                                              child: posting ? SpinKitThreeBounce(color: Colors.lightGreen, size: 12,) : Icon(
-                                                Icons.send, size: 25, color: Colors.lightGreen,
-                                              )
-                                          )),
-                                      Spacer()
-                                    ],
-                                  ),
+                                    ),
+                                    Spacer(),
+                                    Container(
+                                      height: _height(7),
+                                      width: _width(80),
+                                      padding: EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withOpacity(0.5),
+                                            spreadRadius: 2,
+                                            blurRadius: 7,
+                                            offset: Offset(0, 3), // changes position of shadow
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: _width(70),
+                                            child: TextField(
+                                              maxLines: 5,
+                                              controller: _controller,
+                                              onChanged: (value){
+                                                setState(() {
+                                                  message = value;
+                                                });
+                                              },
+                                              decoration: InputDecoration(
+                                                  border: InputBorder.none,
+                                                  hintStyle: TextStyle(fontSize: 15, color: Color.fromARGB(200, 169, 169, 169)),
+                                                  hintText: "Write something..."
+                                              ),
+                                              style: TextStyle(fontSize: 15, color: Color.fromARGB(255, 0, 0, 0)),
+                                            ),
+                                          ),
+                                          Spacer(),
+                                          InkWell(
+                                              onTap: (){
+                                                  postChat();
+                                              },
+                                              child: Container(
+                                                  width: _width(5),
+                                                  child: posting ? SpinKitThreeBounce(color: Colors.lightGreen, size: 12,) : Icon(
+                                                    Icons.send, size: 25, color: Colors.lightGreen,
+                                                  )
+                                              )),
+                                          Spacer()
+                                        ],
+                                      ),
 
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -548,8 +597,8 @@ class _chatViewState extends State<chatView> {
     );
   }
 
-  checkUser(theEmail){
-    return(theEmail == email);
+  checkUser(theUserID){
+    return(theUserID == user_id);
   }
 
   dateChecker(dateTimeString) {
@@ -568,7 +617,7 @@ class _chatViewState extends State<chatView> {
 
       await chats.add({
         "group_id": groupId,
-        "user_id":email,
+        "user_id":user_id,
         "message":message,
         "reply_body":"",
         "image": chatImageUrl,

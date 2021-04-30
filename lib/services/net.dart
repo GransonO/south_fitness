@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -31,6 +33,8 @@ class Authentication {
         prefs.setDouble("weight", result["profile"]["weight"]);
         prefs.setDouble("height", result["profile"]["height"]);
         prefs.setString("image", result["profile"]["image"]);
+        prefs.setString("institution", result["profile"]["institution"]);
+        prefs.setString("user_id", result["profile"]["user_id"]);
         return {"success": true, "payload": result, "status": 200};
       } else{
         // Unauthorised
@@ -69,6 +73,18 @@ class Authentication {
       return {"success": true, "payload": result["message"]};
     } else {
       return {"success": false, "payload": ""};
+    }
+  }
+
+  verifyActivationCode(codeData) async {
+    var profile = await dio.post(
+        baseUrl + "/profiles/code/", data: codeData);
+    var result = profile.data;
+    print("------------------------ $result");
+    if (result["status"] == "success") {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -113,12 +129,12 @@ class Authentication {
       var result = forgot.data;
       print("------------------------ $result");
       if (result["status"] == "success") {
-        return {"success": true};
+        return true;
       } else {
-        return {"success": false};
+        return false;
       }
     } catch (e) {
-      return {"success": false, "payload": []};
+      return false;
     }
   }
 
@@ -162,13 +178,19 @@ class HomeResources {
     return videos;
   }
 
-  getVideoCallDetails(videoId) async {
+  getVideoCallDetails(videoId, channelName) async {
+    var random = new Random();
+    var uid = random.nextInt(1000000) + 1000;
     print("-------videoId----------------- $videoId");
-    var result = await dio.get(baseUrl + "/videos/$videoId");
-    var videos = result.data;
+    var result = await dio.post(baseUrl + "/videos/access_token/", data: {
+      "channel_name": channelName,
+      "video_id": videoId,
+      "username": uid
+    });
+    var videoCall = result.data;
 
-    print("-------videos----------------- $videos");
-    return videos[0];
+    print("-------videos----------------- $videoCall");
+    return {"video": videoCall, "uid": uid};
   }
 
   updateVideoViews(videoData) async {
@@ -202,6 +224,26 @@ class HomeResources {
     return videos[0];
   }
 
+  getBlogComments(blogId) async {
+    var result = await dio.get(baseUrl + "/blog/comments/all/$blogId");
+    return result.data;
+  }
+
+  postBlogComment(blogData) async {
+    try {
+      var comment = await dio.post(baseUrl + "/blog/comments/", data: blogData);
+      var result = comment.data;
+      print("------------------------ $result");
+      if (result["status"] == "success") {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
+    }
+  }
+
   updateBlogViews(blogData) async {
     try {
       var viewed = await dio.put(
@@ -226,16 +268,43 @@ class HomeResources {
         data: challengeData,
       );
       var result = user.data;
-
       if (result["status"] == "success") {
-
         return {"success": true, "payload": result, "status": 200};
       } else{
-        // Unauthorised
         return {"success": false, "payload": {}, "status": 401};
       }
     } catch (e) {
       return {"success": false, "payload": {}, "status": 400};
+    }
+  }
+
+  joinChallenge(challengeData) async {
+    try {
+      var user = await dio.post(
+        baseUrl + "/challenge/join/",
+        data: challengeData,
+      );
+      var result = user.data;
+
+      return result["state"];
+
+    } catch (e) {
+      return false;
+    }
+  }
+
+  joinConfirmChallenge(challengeData) async {
+    try {
+      var user = await dio.put(
+        baseUrl + "/challenge/join/",
+        data: challengeData,
+      );
+      var result = user.data;
+
+      return result["state"];
+
+    } catch (e) {
+      return false;
     }
   }
 }

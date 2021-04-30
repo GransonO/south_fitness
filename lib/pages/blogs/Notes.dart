@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/pages/blogs/reader.dart';
 import 'package:south_fitness/services/net.dart';
@@ -20,7 +21,7 @@ class _NotesState extends State<Notes> {
   SharedPreferences prefs;
   var blogList = [];
   bool loading = true;
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1565367393/jade/profiles/user.jpg";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
 
   @override
   void initState() {
@@ -97,12 +98,22 @@ class _NotesState extends State<Notes> {
                               fontWeight: FontWeight.bold
                             ),
                           ),
+                          SizedBox(height: 3,),
                           Text(
                             "by ${element["uploaded_by"]}",
                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w400
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w400
+                            ),
+                          ),
+                          SizedBox(height: 5,),
+                          Text(
+                            convertDate(element["updatedAt"]),
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w400
                             ),
                           ),
                           Spacer(),
@@ -197,6 +208,11 @@ class _NotesState extends State<Notes> {
 
   _width(size){
     return Common().componentWidth(context, size);
+  }
+
+  convertDate(date) {
+    var dateItem = DateTime.parse(date);
+    return DateFormat('EEE d MMM, yyyy').format(dateItem);
   }
 
 }

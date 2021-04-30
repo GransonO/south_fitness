@@ -32,14 +32,16 @@ class _ProfileState extends State<Profile> {
   final format = DateFormat("yyyy-MM-dd");
   var date = new DateTime.now();
 
-  var fullname = "";
+  var username = "";
+  var firstname = "";
+  var lastname = "";
   var email = "";
   var posting = false;
   bool isUploading = false;
 
   String id = '';
   File avatarImageFile;
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1565367393/jade/profiles/user.jpg";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
 
   @override
   void initState() {
@@ -52,7 +54,9 @@ class _ProfileState extends State<Profile> {
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      fullname = prefs.getString("username");
+      firstname = prefs.getString("firstname");
+      lastname = prefs.getString("lastname");
+      username = prefs.getString("username");
       email = prefs.getString("email");
       image = prefs.getString("image");
     });
@@ -181,7 +185,7 @@ class _ProfileState extends State<Profile> {
                         child: Row(
                           children: [
                             Text(
-                              "Full Name: ",
+                              "First Name: ",
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black
@@ -192,14 +196,98 @@ class _ProfileState extends State<Profile> {
                               child: TextField(
                                 onChanged: (value){
                                   setState(() {
-                                    fullname = value;
+                                    firstname = value;
                                   });
                                 },
                                 keyboardType: TextInputType.name,
                                 decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
-                                  hintText: fullname
+                                    border: InputBorder.none,
+                                    hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
+                                    hintText: firstname
+                                ),
+                                style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Container(
+                        height: _height(7),
+                        width: _width(80),
+                        margin: EdgeInsets.only(right: _width(2), top: _height(2)),
+                        padding: EdgeInsets.only(left: 10),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(Radius.circular(15)),
+                            border: Border.all(
+                                width: 0.5,
+                                color: Colors.grey
+                            )
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              "Last Name: ",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black
+                              ),
+                            ),
+                            Container(
+                              width: _width(40),
+                              child: TextField(
+                                onChanged: (value){
+                                  setState(() {
+                                    lastname = value;
+                                  });
+                                },
+                                keyboardType: TextInputType.name,
+                                decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
+                                    hintText: lastname
+                                ),
+                                style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Container(
+                        height: _height(7),
+                        width: _width(80),
+                        margin: EdgeInsets.only(right: _width(2), top: _height(2)),
+                        padding: EdgeInsets.only(left: 10),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(Radius.circular(15)),
+                            border: Border.all(
+                                width: 0.5,
+                                color: Colors.grey
+                            )
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              "Username: ",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black
+                              ),
+                            ),
+                            Container(
+                              width: _width(40),
+                              child: TextField(
+                                onChanged: (value){
+                                  setState(() {
+                                    username = value;
+                                  });
+                                },
+                                keyboardType: TextInputType.name,
+                                decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
+                                    hintText: username
                                 ),
                                 style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
                               ),
@@ -232,6 +320,7 @@ class _ProfileState extends State<Profile> {
                             Container(
                               width: _width(40),
                               child: TextField(
+                                enabled: false,
                                 onChanged: (value){
                                   setState(() {
                                     email = value;
@@ -299,223 +388,223 @@ class _ProfileState extends State<Profile> {
                           ],
                         ),
                       ),
-                      Container(
-                        height: _height(7),
-                        width: _width(80),
-                        margin: EdgeInsets.only(right: _width(2), top: _height(2)),
-                        padding: EdgeInsets.only(left: 10),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(15)),
-                            border: Border.all(
-                                width: 0.5,
-                                color: Colors.grey
-                            )
-                        ),
-                        child: Row(
-                          children: [
-                            Text(
-                              "Team: ",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black
-                              ),
-                            ),
-                            Spacer(),
-                            Container(
-                              width: _width(60),
-                              child: DropdownButton<String>(
-                                isExpanded: true,
-                                style: TextStyle(
-                                  color: Color.fromARGB(255, 137, 138, 143),
-                                  fontSize: 12,
-                                  fontFamily: ".SF NS Text",
-                                ),
-                                items: [
-                                  DropdownMenuItem<String>(
-                                    child: Text(
-                                      'FINANCE DIVISION',
-                                      style: TextStyle(
-                                          color: Color.fromARGB(255, 137, 138, 143),
-                                          fontSize: 14,
-                                          fontFamily: ".SF NS Text",
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    value: 'FINANCE DIVISION',
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    child: Text(
-                                      'BUSINESS DEVELOPMENT',
-                                      style: TextStyle(
-                                          color: Color.fromARGB(255, 137, 138, 143),
-                                          fontSize: 14,
-                                          fontFamily: ".SF NS Text",
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    value: 'BUSINESS DEVELOPMENT',
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    child: Text(
-                                      'CORPORATE SECURITY DIVISION',
-                                      style: TextStyle(
-                                          color: Color.fromARGB(255, 137, 138, 143),
-                                          fontSize: 14,
-                                          fontFamily: ".SF NS Text",
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    value: 'CORPORATE SECURITY DIVISION',
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    child: Text(
-                                      'COPs - COMMERCIAL',
-                                      style: TextStyle(
-                                          color: Color.fromARGB(255, 137, 138, 143),
-                                          fontSize: 14,
-                                          fontFamily: ".SF NS Text",
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    value: 'COPs - COMMERCIAL',
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    child: Text(
-                                      'GREATER WESTERN & RIFT - COMMERCIAL',
-                                      style: TextStyle(
-                                          color: Color.fromARGB(255, 137, 138, 143),
-                                          fontSize: 14,
-                                          fontFamily: ".SF NS Text",
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    value: 'GREATER WESTERN & RIFT - COMMERCIAL',
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    child: Text(
-                                      'FINANCIAL SERVICES DIVISION',
-                                      style: TextStyle(
-                                          color: Color.fromARGB(255, 137, 138, 143),
-                                          fontSize: 14,
-                                          fontFamily: ".SF NS Text",
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    value: 'FINANCIAL SERVICES DIVISION',
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    child: Text(
-                                      'RESOURCES DIVISION',
-                                      style: TextStyle(
-                                          color: Color.fromARGB(255, 137, 138, 143),
-                                          fontSize: 14,
-                                          fontFamily: ".SF NS Text",
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    value: 'RESOURCES DIVISION',
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    child: Text(
-                                      'TECHNOLOGY DIVISION',
-                                      style: TextStyle(
-                                          color: Color.fromARGB(255, 137, 138, 143),
-                                          fontSize: 14,
-                                          fontFamily: ".SF NS Text",
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    value: 'TECHNOLOGY DIVISION',
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    child: Text(
-                                      'NAIROBI EAST COAST REGION - COMMERCIAL',
-                                      style: TextStyle(
-                                          color: Color.fromARGB(255, 137, 138, 143),
-                                          fontSize: 14,
-                                          fontFamily: ".SF NS Text",
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    value: 'NAIROBI EAST COAST REGION - COMMERCIAL',
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    child: Text(
-                                      'CEOs OFFICE',
-                                      style: TextStyle(
-                                          color: Color.fromARGB(255, 137, 138, 143),
-                                          fontSize: 14,
-                                          fontFamily: ".SF NS Text",
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    value: 'CEOs OFFICE',
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    child: Text(
-                                      'NAIROBI WEST & MOUNTAIN - COMMERCIAL',
-                                      style: TextStyle(
-                                          color: Color.fromARGB(255, 137, 138, 143),
-                                          fontSize: 14,
-                                          fontFamily: ".SF NS Text",
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    value: 'NAIROBI WEST & MOUNTAIN - COMMERCIAL',
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    child: Text(
-                                      'CORPORATE AFFAIRS DIVISION',
-                                      style: TextStyle(
-                                          color: Color.fromARGB(255, 137, 138, 143),
-                                          fontSize: 14,
-                                          fontFamily: ".SF NS Text",
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    value: 'CORPORATE AFFAIRS DIVISION',
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    child: Text(
-                                      'ENTERPRISE BUSINESS UNIT',
-                                      style: TextStyle(
-                                          color: Color.fromARGB(255, 137, 138, 143),
-                                          fontSize: 14,
-                                          fontFamily: ".SF NS Text",
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                    value: 'ENTERPRISE BUSINESS UNIT',
-                                  ),
-                                ],
-                                onChanged: (String value) {
-                                  setState(() {
-                                    team = value;
-                                  });
-                                },
-                                hint: Text(
-                                  'Select Team',
-                                  style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 14,
-                                      fontFamily: ".SF NS Text",
-                                      fontWeight: FontWeight.w400),
-                                  textAlign: TextAlign.left,
-                                ),
-                                value: team,
-                              ),
-                            ),
-                            Spacer()
-                          ],
-                        ),
-                      ),
+                      // Container(
+                      //   height: _height(7),
+                      //   width: _width(80),
+                      //   margin: EdgeInsets.only(right: _width(2), top: _height(2)),
+                      //   padding: EdgeInsets.only(left: 10),
+                      //   decoration: BoxDecoration(
+                      //       color: Colors.white,
+                      //       borderRadius: BorderRadius.all(Radius.circular(15)),
+                      //       border: Border.all(
+                      //           width: 0.5,
+                      //           color: Colors.grey
+                      //       )
+                      //   ),
+                      //   child: Row(
+                      //     children: [
+                      //       Text(
+                      //         "Team: ",
+                      //         style: TextStyle(
+                      //             fontWeight: FontWeight.bold,
+                      //             color: Colors.black
+                      //         ),
+                      //       ),
+                      //       Spacer(),
+                      //       Container(
+                      //         width: _width(60),
+                      //         child: DropdownButton<String>(
+                      //           isExpanded: true,
+                      //           style: TextStyle(
+                      //             color: Color.fromARGB(255, 137, 138, 143),
+                      //             fontSize: 12,
+                      //             fontFamily: ".SF NS Text",
+                      //           ),
+                      //           items: [
+                      //             DropdownMenuItem<String>(
+                      //               child: Text(
+                      //                 'FINANCE DIVISION',
+                      //                 style: TextStyle(
+                      //                     color: Color.fromARGB(255, 137, 138, 143),
+                      //                     fontSize: 14,
+                      //                     fontFamily: ".SF NS Text",
+                      //                     fontWeight: FontWeight.w400),
+                      //                 textAlign: TextAlign.left,
+                      //               ),
+                      //               value: 'FINANCE DIVISION',
+                      //             ),
+                      //             DropdownMenuItem<String>(
+                      //               child: Text(
+                      //                 'BUSINESS DEVELOPMENT',
+                      //                 style: TextStyle(
+                      //                     color: Color.fromARGB(255, 137, 138, 143),
+                      //                     fontSize: 14,
+                      //                     fontFamily: ".SF NS Text",
+                      //                     fontWeight: FontWeight.w400),
+                      //                 textAlign: TextAlign.left,
+                      //               ),
+                      //               value: 'BUSINESS DEVELOPMENT',
+                      //             ),
+                      //             DropdownMenuItem<String>(
+                      //               child: Text(
+                      //                 'CORPORATE SECURITY DIVISION',
+                      //                 style: TextStyle(
+                      //                     color: Color.fromARGB(255, 137, 138, 143),
+                      //                     fontSize: 14,
+                      //                     fontFamily: ".SF NS Text",
+                      //                     fontWeight: FontWeight.w400),
+                      //                 textAlign: TextAlign.left,
+                      //               ),
+                      //               value: 'CORPORATE SECURITY DIVISION',
+                      //             ),
+                      //             DropdownMenuItem<String>(
+                      //               child: Text(
+                      //                 'COPs - COMMERCIAL',
+                      //                 style: TextStyle(
+                      //                     color: Color.fromARGB(255, 137, 138, 143),
+                      //                     fontSize: 14,
+                      //                     fontFamily: ".SF NS Text",
+                      //                     fontWeight: FontWeight.w400),
+                      //                 textAlign: TextAlign.left,
+                      //               ),
+                      //               value: 'COPs - COMMERCIAL',
+                      //             ),
+                      //             DropdownMenuItem<String>(
+                      //               child: Text(
+                      //                 'GREATER WESTERN & RIFT - COMMERCIAL',
+                      //                 style: TextStyle(
+                      //                     color: Color.fromARGB(255, 137, 138, 143),
+                      //                     fontSize: 14,
+                      //                     fontFamily: ".SF NS Text",
+                      //                     fontWeight: FontWeight.w400),
+                      //                 textAlign: TextAlign.left,
+                      //               ),
+                      //               value: 'GREATER WESTERN & RIFT - COMMERCIAL',
+                      //             ),
+                      //             DropdownMenuItem<String>(
+                      //               child: Text(
+                      //                 'FINANCIAL SERVICES DIVISION',
+                      //                 style: TextStyle(
+                      //                     color: Color.fromARGB(255, 137, 138, 143),
+                      //                     fontSize: 14,
+                      //                     fontFamily: ".SF NS Text",
+                      //                     fontWeight: FontWeight.w400),
+                      //                 textAlign: TextAlign.left,
+                      //               ),
+                      //               value: 'FINANCIAL SERVICES DIVISION',
+                      //             ),
+                      //             DropdownMenuItem<String>(
+                      //               child: Text(
+                      //                 'RESOURCES DIVISION',
+                      //                 style: TextStyle(
+                      //                     color: Color.fromARGB(255, 137, 138, 143),
+                      //                     fontSize: 14,
+                      //                     fontFamily: ".SF NS Text",
+                      //                     fontWeight: FontWeight.w400),
+                      //                 textAlign: TextAlign.left,
+                      //               ),
+                      //               value: 'RESOURCES DIVISION',
+                      //             ),
+                      //             DropdownMenuItem<String>(
+                      //               child: Text(
+                      //                 'TECHNOLOGY DIVISION',
+                      //                 style: TextStyle(
+                      //                     color: Color.fromARGB(255, 137, 138, 143),
+                      //                     fontSize: 14,
+                      //                     fontFamily: ".SF NS Text",
+                      //                     fontWeight: FontWeight.w400),
+                      //                 textAlign: TextAlign.left,
+                      //               ),
+                      //               value: 'TECHNOLOGY DIVISION',
+                      //             ),
+                      //             DropdownMenuItem<String>(
+                      //               child: Text(
+                      //                 'NAIROBI EAST COAST REGION - COMMERCIAL',
+                      //                 style: TextStyle(
+                      //                     color: Color.fromARGB(255, 137, 138, 143),
+                      //                     fontSize: 14,
+                      //                     fontFamily: ".SF NS Text",
+                      //                     fontWeight: FontWeight.w400),
+                      //                 textAlign: TextAlign.left,
+                      //               ),
+                      //               value: 'NAIROBI EAST COAST REGION - COMMERCIAL',
+                      //             ),
+                      //             DropdownMenuItem<String>(
+                      //               child: Text(
+                      //                 'CEOs OFFICE',
+                      //                 style: TextStyle(
+                      //                     color: Color.fromARGB(255, 137, 138, 143),
+                      //                     fontSize: 14,
+                      //                     fontFamily: ".SF NS Text",
+                      //                     fontWeight: FontWeight.w400),
+                      //                 textAlign: TextAlign.left,
+                      //               ),
+                      //               value: 'CEOs OFFICE',
+                      //             ),
+                      //             DropdownMenuItem<String>(
+                      //               child: Text(
+                      //                 'NAIROBI WEST & MOUNTAIN - COMMERCIAL',
+                      //                 style: TextStyle(
+                      //                     color: Color.fromARGB(255, 137, 138, 143),
+                      //                     fontSize: 14,
+                      //                     fontFamily: ".SF NS Text",
+                      //                     fontWeight: FontWeight.w400),
+                      //                 textAlign: TextAlign.left,
+                      //               ),
+                      //               value: 'NAIROBI WEST & MOUNTAIN - COMMERCIAL',
+                      //             ),
+                      //             DropdownMenuItem<String>(
+                      //               child: Text(
+                      //                 'CORPORATE AFFAIRS DIVISION',
+                      //                 style: TextStyle(
+                      //                     color: Color.fromARGB(255, 137, 138, 143),
+                      //                     fontSize: 14,
+                      //                     fontFamily: ".SF NS Text",
+                      //                     fontWeight: FontWeight.w400),
+                      //                 textAlign: TextAlign.left,
+                      //               ),
+                      //               value: 'CORPORATE AFFAIRS DIVISION',
+                      //             ),
+                      //             DropdownMenuItem<String>(
+                      //               child: Text(
+                      //                 'ENTERPRISE BUSINESS UNIT',
+                      //                 style: TextStyle(
+                      //                     color: Color.fromARGB(255, 137, 138, 143),
+                      //                     fontSize: 14,
+                      //                     fontFamily: ".SF NS Text",
+                      //                     fontWeight: FontWeight.w400),
+                      //                 textAlign: TextAlign.left,
+                      //               ),
+                      //               value: 'ENTERPRISE BUSINESS UNIT',
+                      //             ),
+                      //           ],
+                      //           onChanged: (String value) {
+                      //             setState(() {
+                      //               team = value;
+                      //             });
+                      //           },
+                      //           hint: Text(
+                      //             'Select Team',
+                      //             style: TextStyle(
+                      //                 color: Colors.white70,
+                      //                 fontSize: 14,
+                      //                 fontFamily: ".SF NS Text",
+                      //                 fontWeight: FontWeight.w400),
+                      //             textAlign: TextAlign.left,
+                      //           ),
+                      //           value: team,
+                      //         ),
+                      //       ),
+                      //       Spacer()
+                      //     ],
+                      //   ),
+                      // ),
 
                       SizedBox(height: _height(10)),
                       Center(
                         child: InkWell(
                           onTap: () async {
-                            if(email == null || fullname == null || birthDate == null || team == null){
+                            if(email == null || firstname == null|| lastname == null ||username == null || birthDate == null || team == null){
                               Fluttertoast.showToast(msg: "Please fill all entries", backgroundColor: Colors.red);
                             }else{
                               setState(() {
@@ -523,22 +612,25 @@ class _ProfileState extends State<Profile> {
                               });
                               prefs = await SharedPreferences.getInstance();
 
-                              prefs.setString("fullname", fullname);
+                              prefs.setString("username", username);
+                              prefs.setString("lastname", lastname);
+                              prefs.setString("firstname", firstname);
                               prefs.setString("email", email);
                               prefs.setString("birthDate", birthDate.toString());
-                              prefs.setString("team", team);
+                              // prefs.setString("team", team);
 
                               var profileData = {
-                                "fullname": fullname,
+                                "fullname": "$firstname $lastname",
+                                "username": username,
                                 "email": email,
                                 "birthDate": birthDate.toString(),
-                                "team": team,
+                                // "team": "team",
                                 "image": image
                               };
                               var result = await Authentication().updateProfile(profileData);
                               if(result["success"]){
                                 prefs.setString("email", email);
-                                prefs.setString("username", fullname);
+                                prefs.setString("username", username);
                                 Fluttertoast.showToast(msg: "Profile updated successfully", backgroundColor: Colors.green);
                                 Common().newActivity(context, HomeView());
                               }else{
@@ -594,7 +686,7 @@ class _ProfileState extends State<Profile> {
             )
         ),
       ),
-      drawer: Common().navDrawer(context, fullname, email, "profile", image),
+      drawer: Common().navDrawer(context, username, email, "profile", image),
     );
   }
 

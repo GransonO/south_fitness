@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/pages/steps/gender.dart';
+import 'package:south_fitness/services/net.dart';
 
 import '../common.dart';
 
@@ -15,7 +16,9 @@ class EntryOne extends StatefulWidget {
 
 class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin {
 
-  var fullname;
+  var firstname;
+  var lastname;
+  var username;
   var email;
   var birthDate;
   var team = "FINANCE DIVISION";
@@ -39,7 +42,9 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      fullname = prefs.getString("username");
+      username = prefs.getString("username");
+      lastname = prefs.getString("lastname");
+      firstname = prefs.getString("firstname");
       email = prefs.getString("email");
     });
   }
@@ -275,7 +280,7 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
                                     child: Row(
                                       children: [
                                         Text(
-                                          "Full Name: ",
+                                          "First Name: ",
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               color: Colors.black
@@ -286,14 +291,98 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
                                           child: TextField(
                                             onChanged: (value){
                                               setState(() {
-                                                fullname = value;
+                                                firstname = value;
                                               });
                                             },
                                             keyboardType: TextInputType.name,
                                             decoration: InputDecoration(
-                                              border: InputBorder.none,
-                                              hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
-                                              hintText: fullname
+                                                border: InputBorder.none,
+                                                hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
+                                                hintText: firstname
+                                            ),
+                                            style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    height: _height(7),
+                                    width: _width(80),
+                                    margin: EdgeInsets.only(right: _width(2), top: _height(2)),
+                                    padding: EdgeInsets.only(left: 10),
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                                        border: Border.all(
+                                            width: 0.5,
+                                            color: Colors.grey
+                                        )
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          "Last Name: ",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black
+                                          ),
+                                        ),
+                                        Container(
+                                          width: _width(40),
+                                          child: TextField(
+                                            onChanged: (value){
+                                              setState(() {
+                                                lastname = value;
+                                              });
+                                            },
+                                            keyboardType: TextInputType.name,
+                                            decoration: InputDecoration(
+                                                border: InputBorder.none,
+                                                hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
+                                                hintText: lastname
+                                            ),
+                                            style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    height: _height(7),
+                                    width: _width(80),
+                                    margin: EdgeInsets.only(right: _width(2), top: _height(2)),
+                                    padding: EdgeInsets.only(left: 10),
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                                        border: Border.all(
+                                            width: 0.5,
+                                            color: Colors.grey
+                                        )
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          "Username: ",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black
+                                          ),
+                                        ),
+                                        Container(
+                                          width: _width(40),
+                                          child: TextField(
+                                            onChanged: (value){
+                                              setState(() {
+                                                username = value;
+                                              });
+                                            },
+                                            keyboardType: TextInputType.name,
+                                            decoration: InputDecoration(
+                                                border: InputBorder.none,
+                                                hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
+                                                hintText: username
                                             ),
                                             style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
                                           ),
@@ -644,24 +733,39 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
                                     ),
                                   ),
 
-                                  SizedBox(height: _height(10)),
+                                  SizedBox(height: _height(7)),
                                   Center(
                                     child: InkWell(
                                       onTap: () async {
-                                        if(email == null || fullname == null || birthDate == null || team == null){
+                                        if(email == null || username == null || firstname == null || birthDate == null || team == null){
                                           Fluttertoast.showToast(msg: "Please fill all entries", backgroundColor: Colors.red);
                                         }else{
                                           setState(() {
                                             login = true;
                                           });
-                                          prefs = await SharedPreferences.getInstance();
-
-                                          prefs.setString("fullname", fullname);
-                                          prefs.setString("email", email);
-                                          prefs.setString("birthDate", birthDate.toString());
-                                          prefs.setString("team", team);
-                                          prefs.setString("code", code.toString());
-                                          Common().newActivity(context, Gender());
+                                          bool isCorrect = await Authentication().verifyActivationCode(
+                                            {
+                                              "email": email,
+                                              "activation_code": code
+                                            }
+                                          );
+                                          if(isCorrect){
+                                            prefs = await SharedPreferences.getInstance();
+                                            prefs.setString("username", username);
+                                            prefs.setString("lastname", lastname);
+                                            prefs.setString("firstname", firstname);
+                                            prefs.setString("email", email);
+                                            prefs.setString("birthDate", birthDate.toString());
+                                            prefs.setString("team", team);
+                                            prefs.setString("code", code.toString());
+                                            Common().newActivity(context, Gender());
+                                          }else{
+                                            Fluttertoast.showToast(
+                                                msg: "The activation code entered is incorrect",
+                                                backgroundColor: Colors.red,
+                                                textColor: Colors.white
+                                            );
+                                          }
                                         }
                                       },
                                       child: Container(

@@ -58,7 +58,7 @@ class _DailyRunState extends State<DailyRun> {
   PolylinePoints polylinePoints = PolylinePoints();
   String googleAPiKey = "AIzaSyAl_2qJ7T8UFxRRz_TZAs0hoW6vflnJ8ug";
 
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1565367393/jade/profiles/user.jpg";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
 
   Stream<StepCount> _stepCountStream;
   Stream<PedestrianStatus> _pedestrianStatusStream;

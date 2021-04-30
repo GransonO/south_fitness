@@ -28,7 +28,7 @@ class _HomeState extends State<HomeView> {
   var email = "";
   SharedPreferences prefs;
   var dayName = "";
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1616823044/South_Fitness/profile_images/user_1_1.png";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
 
   bool serviceEnabled;
   LocationPermission permission;
@@ -575,7 +575,7 @@ class _HomeState extends State<HomeView> {
                           ),
                         ),
 
-                        SizedBox( height: _height(8))
+                        SizedBox( height: _height(3))
                       ],
                     ),
                   ),
@@ -714,7 +714,16 @@ class _HomeState extends State<HomeView> {
         children.add(
             InkWell(
               onTap: (){
-                Common().newActivity(context, Session(element["type"], element["video_url"], element["video_id"], element["participants"]));
+                Common().newActivity(
+                    context,
+                    Session(
+                        element["type"],
+                        element["video_url"],
+                        element["video_id"],
+                        element["participants"],
+                        element["title"].toString().replaceAll(" ", "_"),
+                        Common().getDateTimeDifference("${element["scheduledDate"]} ${element["scheduledTime"]}")
+                    ));
               },
               child: Container(
                   height: _height(10),
@@ -828,41 +837,83 @@ class _HomeState extends State<HomeView> {
 
   displaySuggestions() {
     var children = <Widget>[];
-    activityList.forEach((element) {
-      children.add(
-          InkWell(
-            onTap: (){
-              Common().newActivity(context, SuggestedDetails(element));
-            },
-            child: Container(
-                height: _height(15),
-                width: _height(25),
-                margin: EdgeInsets.only(right: _width(4)),
-                child: Stack(
-                  children: [
-                    Center(
-                      child: SpinKitThreeBounce(
-                        color: Colors.lightGreen,
-                        size: 20,
-                      ),
-                    ),
-                    Container(
-                      height: _height(15),
-                      width: _height(25),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(15)),
-                        child: Image.network(
-                          "${element["image"]}",
-                          fit: BoxFit.cover,
+    var anotherList = [];
+    if(activityList.length > 2){
+      anotherList.add(activityList[0]);
+      anotherList.add(activityList[1]);
+
+      anotherList.forEach((element) {
+        children.add(
+            InkWell(
+              onTap: (){
+                Common().newActivity(context, SuggestedDetails(element));
+              },
+              child: Container(
+                  height: _height(15),
+                  width: _height(25),
+                  margin: EdgeInsets.only(right: _width(4)),
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: SpinKitThreeBounce(
+                          color: Colors.lightGreen,
+                          size: 20,
                         ),
                       ),
-                    ),
-                  ],
-                )
-            ),
-          )
-      );
-    });
+                      Container(
+                        height: _height(15),
+                        width: _height(25),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.all(Radius.circular(15)),
+                          child: Image.network(
+                            "${element["image"]}",
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+              ),
+            )
+        );
+      });
+    }else{
+      activityList.forEach((element) {
+        children.add(
+            InkWell(
+              onTap: (){
+                Common().newActivity(context, SuggestedDetails(element));
+              },
+              child: Container(
+                  height: _height(15),
+                  width: _height(25),
+                  margin: EdgeInsets.only(right: _width(4)),
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: SpinKitThreeBounce(
+                          color: Colors.lightGreen,
+                          size: 20,
+                        ),
+                      ),
+                      Container(
+                        height: _height(15),
+                        width: _height(25),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.all(Radius.circular(15)),
+                          child: Image.network(
+                            "${element["image"]}",
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+              ),
+            )
+        );
+      });
+    }
     return children;
   }
 

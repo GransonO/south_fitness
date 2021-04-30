@@ -30,7 +30,7 @@ class _ChatsState extends State<Chats> {
   var groupTitle = "";
   var description = "";
   var groups = [];
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1565367393/jade/profiles/user.jpg";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
   var groupImage = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618138330/South_Fitness/ic_launcher.png";
   var generalImage = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618138330/South_Fitness/ic_launcher.png";
 
@@ -138,8 +138,8 @@ class _ChatsState extends State<Chats> {
                         InkWell(
                           onTap: () {
                             setState(() {
-                              clubs = false;
-                              chats = true;
+                              clubs = true;
+                              chats = false;
                             });
                           },
                           child: Text(
@@ -147,32 +147,32 @@ class _ChatsState extends State<Chats> {
                             style: TextStyle(
                                 fontSize: 25,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black),
+                                color: clubs ? Colors.green : Colors.black),
                             textAlign: TextAlign.left,
                           ),
                         ),
                         Spacer(),
-                        InkWell(
-                          onTap: (){
-                            setState(() {
-                              addGroup = true;
-                            });
-                          },
-                          child: Container(
-                              height: _height(6),
-                              width: _height(6),
-                              decoration: BoxDecoration(
-                                  color: Colors.green,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(50))),
-                              child: Center(
-                                child: Icon(
-                                  Icons.add,
-                                  color: Colors.white,
-                                  size: 30,
-                                ),
-                              )),
-                        )
+                        // InkWell(
+                        //   onTap: (){
+                        //     setState(() {
+                        //       addGroup = true;
+                        //     });
+                        //   },
+                        //   child: Container(
+                        //       height: _height(6),
+                        //       width: _height(6),
+                        //       decoration: BoxDecoration(
+                        //           color: Colors.green,
+                        //           borderRadius:
+                        //               BorderRadius.all(Radius.circular(50))),
+                        //       child: Center(
+                        //         child: Icon(
+                        //           Icons.add,
+                        //           color: Colors.white,
+                        //           size: 30,
+                        //         ),
+                        //       )),
+                        // )
                       ]),
                     ),
                     SizedBox(height: _height(2)),
@@ -450,23 +450,31 @@ class _ChatsState extends State<Chats> {
             width: _width(3),
           ),
           Container(
-            height: _height(5),
             width: _width(55),
             child: Column(
               children: [
+                Spacer(),
                 Container(
                     width: _width(55),
                     child: Text(
                       "${element["group_title"]}",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     )),
-                Spacer(),
+                SizedBox(
+                  height: 3,
+                ),
                 Container(
                     width: _width(55),
                     child: Text(
                       "${element["group_slogan"]}",
+                      maxLines: 3,
                       overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.black45
+                      ),
                     )),
+                Spacer(),
               ],
             ),
           ),
@@ -620,11 +628,12 @@ class _ChatsState extends State<Chats> {
 
     var group = {
       "created_by": email,
-      "user_id": email,
+      "user_id":prefs.getString("user_id"),
       "group_title":groupTitle,
       "creator_name":username,
       "group_slogan": description,
-      "group_image": groupImage
+      "group_image": groupImage,
+      "institution": prefs.getString("institution")
     };
 
     bool posted = await ChatService().createGroup(group);

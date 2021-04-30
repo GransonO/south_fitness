@@ -12,17 +12,19 @@ class VideoPlayer extends StatefulWidget {
   String channelName;
   String passedToken;
   String appID;
+  int theUid;
 
   /// Creates a call page with given channel name.
   /// ("token", "appId", "channelName")
-  VideoPlayer(token, appId, channel){
+  VideoPlayer(token, appId, channel, uid){
     channelName = channel;
     passedToken = token;
     appID = appId;
+    theUid = uid;
   }
 
   @override
-  _VideoPlayerState createState() => _VideoPlayerState(channelName, passedToken, appID);
+  _VideoPlayerState createState() => _VideoPlayerState(channelName, passedToken, appID, theUid);
 }
 
 class _VideoPlayerState extends State<VideoPlayer> {
@@ -34,13 +36,14 @@ class _VideoPlayerState extends State<VideoPlayer> {
   var APP_ID;
   var Token;
   var channelName;
+  var userUID;
   rtc_engine_x.ClientRole _role = rtc_engine_x.ClientRole.Broadcaster;
 
-
-  _VideoPlayerState(channel, passedToken, appID){
+  _VideoPlayerState(channel, passedToken, appID, theUid){
     APP_ID = appID;
     Token = passedToken;
-    channelName = channel;
+    channelName = channel.toString().trim();
+    userUID = theUid;
   }
 
   @override
@@ -61,6 +64,10 @@ class _VideoPlayerState extends State<VideoPlayer> {
   }
 
   Future<void> initialize() async {
+    print("The channel Name is ------------------:---------------------------- $channelName");
+    print("The Token Name is ------------------:---------------------------- $Token");
+    print("The AppID Name is ------------------:---------------------------- $APP_ID");
+
     if (APP_ID.isEmpty) {
       setState(() {
         _infoStrings.add(
@@ -77,7 +84,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
     rtc_engine_x.VideoEncoderConfiguration configuration = rtc_engine_x.VideoEncoderConfiguration();
     configuration.dimensions = rtc_engine_x.VideoDimensions(1920, 1080);
     await _engine.setVideoEncoderConfiguration(configuration);
-    await _engine.joinChannel(Token, channelName, null, 0);
+    await _engine.joinChannel(Token, channelName, null, userUID);
   }
 
   /// Create agora sdk instance and initialize
@@ -92,7 +99,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
   void _addAgoraEventHandlers() {
     _engine.setEventHandler(rtc_engine_x.RtcEngineEventHandler(error: (code) {
       setState(() {
-        final info = 'onError: $code';
+        final info = 'The --- onError: $code';
         _infoStrings.add(info);
       });
     }, joinChannelSuccess: (channel, uid, elapsed) {
@@ -128,9 +135,9 @@ class _VideoPlayerState extends State<VideoPlayer> {
   /// Helper function to get list of native views
   List<Widget> _getRenderViews() {
     final List<StatefulWidget> list = [];
-    if (_role == rtc_engine_x.ClientRole.Broadcaster) {
-      list.add(RtcLocalView.SurfaceView());
-    }
+    // if (_role == rtc_engine_x.ClientRole.) {
+    list.add(RtcLocalView.SurfaceView());
+    // }
     _users.forEach((int uid) => list.add(RtcRemoteView.SurfaceView(uid: uid)));
     return list;
   }
