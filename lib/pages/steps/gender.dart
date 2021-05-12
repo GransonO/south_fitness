@@ -316,9 +316,7 @@ class _GenderState extends State<Gender> {
                   height: _height(7),
                   child: Row(
                     children: [
-                      SizedBox(width: _width(3),),
-                      Icon(Icons.arrow_back, color: Colors.black, size: 35,),
-                      SizedBox(width: _width(4),),
+                      SizedBox(width: _width(5),),
                       Text(
                         "Select Gender",
                         style: TextStyle(

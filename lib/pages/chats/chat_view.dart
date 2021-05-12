@@ -72,8 +72,13 @@ class _chatViewState extends State<chatView> {
       email = prefs.getString("email");
       image = prefs.getString("image");
       user_id = prefs.getString("user_id");
+      var alias = prefs.getString("alias");
+
+      if(groupId == "bb79a16c-8f40-11e-8dbb-f45c89b7cf75"){
+        // Is general chat
+        username = alias;
+      }
     });
-    // getGroupChats();
   }
 
 
@@ -298,7 +303,7 @@ class _chatViewState extends State<chatView> {
                                 return ListView.builder(
                                   padding: EdgeInsets.only(bottom: _height(12)),
                                   itemCount: querySnapshot != null ? querySnapshot.size : 0,
-                                  itemBuilder: (context, index) => chatItem(querySnapshot.docs[index]),
+                                  itemBuilder: (context, index) => chatItem(querySnapshot.docs[index], querySnapshot.size, index),
                                 );
                               },
                             ),
@@ -433,7 +438,8 @@ class _chatViewState extends State<chatView> {
     return Common().componentWidth(context, size);
   }
 
-  chatItem(element){
+  chatItem(element, size, index){
+    prefs.setInt(element["group_id"], index);
     return Row(
       children: [
         checkUser(element["user_id"]) ? Spacer() : Container(),

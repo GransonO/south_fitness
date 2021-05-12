@@ -847,6 +847,7 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
                             ),
                             Container(
                               height: _height(7),
+                              color: Colors.white,
                               child: Row(
                                 children: [
                                   SizedBox(width: _width(7),),
@@ -916,7 +917,6 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
       ),
     );
   }
-
 
   _handleTabSelection(){
     setState(() {

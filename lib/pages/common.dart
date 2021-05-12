@@ -43,10 +43,17 @@ class Common{
     return formattedDate;
   }
 
+
+  timeStringFormatter(dateTimeString) {
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
+    DateTime dateTime = dateFormat.parse(dateTimeString);
+    var formattedDate = DateFormat('hh:mm aaa').format(dateTime);
+    return formattedDate;
+  }
+
   getDateTimeDifference(date){
     var theDate =  DateTime.parse(date);
     var diff = theDate.difference(DateTime.now()).inMinutes;
-    print("------diff---------------------- $diff");
     return diff;
   }
 
@@ -306,22 +313,22 @@ class Common{
                 Navigator.pop(context);
                 newActivity(context, History());
               }),
-          ListTile(
-              tileColor: Colors.white,
-              leading: Container(
-                height: componentHeight(context, 2.5),
-                width: componentHeight(context, 2.5),
-                child: SvgPicture.asset(
-                  'assets/images/nav/medical.svg',
-                  fit: BoxFit.fill,
-                  color: _colorScheme(state == "history"),
-                ),
-              ),
-              title: Text('Google Health'),
-              onTap: (){
-                Navigator.pop(context);
-                newActivity(context, GoogleHealth());
-              }),
+          // ListTile(
+          //     tileColor: Colors.white,
+          //     leading: Container(
+          //       height: componentHeight(context, 2.5),
+          //       width: componentHeight(context, 2.5),
+          //       child: SvgPicture.asset(
+          //         'assets/images/nav/medical.svg',
+          //         fit: BoxFit.fill,
+          //         color: _colorScheme(state == "history"),
+          //       ),
+          //     ),
+          //     title: Text('Google Health'),
+          //     onTap: (){
+          //       Navigator.pop(context);
+          //       newActivity(context, GoogleHealth());
+          //     }),
           InkWell(
             onTap: (){
               Fluttertoast.showToast(

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/pages/home/Home.dart';
 import 'package:south_fitness/services/net.dart';
@@ -178,14 +179,7 @@ class _DurationState extends State<TrainDuration> {
                   margin: EdgeInsets.only(top: _height(1)),
                   child: Row(
                     children: [
-                      SizedBox(width: _width(3),),
-                      Column(
-                        children: [
-                          Icon(Icons.arrow_back, color: Colors.black, size: 35,),
-                          Spacer()
-                        ],
-                      ),
-                      SizedBox(width: _width(4),),
+                      SizedBox(width: _width(5),),
                       Container(
                         height: _height(5),
                         child: Column(
@@ -231,9 +225,13 @@ class _DurationState extends State<TrainDuration> {
   _goToDuration(value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt("duration", value);
-
-    Timer(Duration(seconds: 1), () => Common().newActivity(context, HomeView()));
-    Authentication().addProfileInfo();
+    var result = await Authentication().addProfileInfo();
+    if(result["success"]){
+      prefs.setString("user_id", result["user_id"]);
+      Common().newActivity(context, HomeView());
+    }else{
+      Fluttertoast.showToast(msg: "Profile Update failed");
+    }
   }
 
 

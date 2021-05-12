@@ -352,7 +352,7 @@ class _ResetPageState extends State<ResetPage> {
           });
           Common().newActivity(context, Login());
         }else{
-          Fluttertoast.showToast(msg: "Reset failed. Invalid reset code ", backgroundColor: Colors.red, textColor: Colors.white);
+          Fluttertoast.showToast(msg: "Reset failed. Check your details and the reset code ", backgroundColor: Colors.red, textColor: Colors.white);
           setState(() {
             login = false;
           });

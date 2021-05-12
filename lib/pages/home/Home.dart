@@ -26,6 +26,7 @@ class _HomeState extends State<HomeView> {
 
   var username = "";
   var email = "";
+  var user_id = "";
   SharedPreferences prefs;
   var dayName = "";
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
@@ -42,6 +43,7 @@ class _HomeState extends State<HomeView> {
   bool showPast = false;
 
   var allVideos = [];
+  var allPastActivities = [];
   var activityList = [
     {
       "image": "https://res.cloudinary.com/dolwj4vkq/image/upload/v1617201729/South_Fitness/suggested_activities/Rectangle_28.png",
@@ -82,7 +84,6 @@ class _HomeState extends State<HomeView> {
     bool phone = await Permission.phone.isGranted;
     bool storage = await Permission.storage.isGranted;
     bool activityRecognition = await Permission.activityRecognition.isGranted;
-    print("------- activityRecognition ------------------------ $activityRecognition");
     if (!camera) {
       await Permission.camera.request();
     }
@@ -102,14 +103,21 @@ class _HomeState extends State<HomeView> {
 
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
+    user_id = prefs.getString("user_id");
     var upcomingVideos = await HomeResources().getVideos();
+
+    print("----------User Id is ----------------------------- $user_id");
+
+    var pastActivities = await HomeResources().getTodayActivities(user_id);
     setState(() {
       username = prefs.getString("username");
       email = prefs.getString("email");
       image = prefs.getString("image");
+      user_id = prefs.getString("user_id");
       prefs.setBool("isLoggedIn", true);
       allVideos = upcomingVideos;
       loading = false;
+      allPastActivities = pastActivities;
     });
   }
 
@@ -228,8 +236,12 @@ class _HomeState extends State<HomeView> {
                                     height: _height(7),
                                     width: _width(12),
                                     decoration: BoxDecoration(
-                                      color: compareDate("Monday"),
+                                      color: compareDate("Monday", displayDates("Monday")),
                                       borderRadius: BorderRadius.all(Radius.circular(15)),
+                                        border: Border.all(
+                                            width: 0.5,
+                                            color: Colors.grey
+                                        )
                                     ),
                                     child: Center(
                                       child: Column(
@@ -238,10 +250,18 @@ class _HomeState extends State<HomeView> {
                                           Text(
                                             "${displayDates("Monday")}",
                                             style: TextStyle(
-                                                fontSize: 12
+                                                fontSize: 12,
+                                                color: compareText("Monday")
                                             ),
                                           ),
-                                          Text("Mon", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),),
+                                          Text(
+                                            "Mon",
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                color: compareText("Monday")
+                                            ),
+                                          ),
                                           Spacer(),
                                         ],
                                       ),
@@ -257,8 +277,12 @@ class _HomeState extends State<HomeView> {
                                     height: _height(7),
                                     width: _width(12),
                                     decoration: BoxDecoration(
-                                      color: compareDate("Tuesday"),
+                                      color: compareDate("Tuesday", displayDates("Tuesday")),
                                       borderRadius: BorderRadius.all(Radius.circular(15)),
+                                        border: Border.all(
+                                            width: 0.5,
+                                            color: Colors.grey
+                                        )
                                     ),
                                     child: Center(
                                       child: Column(
@@ -267,10 +291,18 @@ class _HomeState extends State<HomeView> {
                                           Text(
                                             "${displayDates("Tuesday")}",
                                             style: TextStyle(
-                                                fontSize: 12
+                                                fontSize: 12,
+                                                color: compareText("Tuesday")
                                             ),
                                           ),
-                                          Text("Tue", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),),
+                                          Text(
+                                            "Tue",
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                              color: compareText("Tuesday")
+                                          ),
+                                          ),
                                           Spacer(),
                                         ],
                                       ),
@@ -286,8 +318,12 @@ class _HomeState extends State<HomeView> {
                                     height: _height(7),
                                     width: _width(12),
                                     decoration: BoxDecoration(
-                                      color: compareDate("Wednesday"),
+                                      color: compareDate("Wednesday", displayDates("Wednesday")),
                                       borderRadius: BorderRadius.all(Radius.circular(15)),
+                                        border: Border.all(
+                                            width: 0.5,
+                                            color: Colors.grey
+                                        )
                                     ),
                                     child: Center(
                                       child: Column(
@@ -296,10 +332,14 @@ class _HomeState extends State<HomeView> {
                                           Text(
                                             "${displayDates("Wednesday")}",
                                             style: TextStyle(
-                                                fontSize: 12
+                                                fontSize: 12,
+                                                color: compareText("Wednesday")
                                             ),
                                           ),
-                                          Text("Wed", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),),
+                                          Text("Wed", style: TextStyle(
+                                              fontSize: 12,
+                                              color: compareText("Wednesday"),
+                                              fontWeight: FontWeight.bold),),
                                           Spacer(),
                                         ],
                                       ),
@@ -315,8 +355,12 @@ class _HomeState extends State<HomeView> {
                                     height: _height(7),
                                     width: _width(12),
                                     decoration: BoxDecoration(
-                                      color: compareDate("Thursday"),
+                                      color: compareDate("Thursday", displayDates("Thursday")),
                                       borderRadius: BorderRadius.all(Radius.circular(15)),
+                                        border: Border.all(
+                                            width: 0.5,
+                                            color: Colors.grey
+                                        )
                                     ),
                                     child: Center(
                                       child: Column(
@@ -325,10 +369,11 @@ class _HomeState extends State<HomeView> {
                                           Text(
                                             "${displayDates("Thursday")}",
                                             style: TextStyle(
-                                                fontSize: 12
+                                                fontSize: 12,
+                                                color: compareText("Thursday")
                                             ),
                                           ),
-                                          Text("Thu", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),),
+                                          Text("Thu", style: TextStyle(fontSize: 12,color: compareText("Thursday"), fontWeight: FontWeight.bold),),
                                           Spacer(),
                                         ],
                                       ),
@@ -344,8 +389,12 @@ class _HomeState extends State<HomeView> {
                                     height: _height(7),
                                     width: _width(12),
                                     decoration: BoxDecoration(
-                                      color: compareDate("Friday"),
+                                      color: compareDate("Friday", displayDates("Friday")),
                                       borderRadius: BorderRadius.all(Radius.circular(15)),
+                                      border: Border.all(
+                                        width: 0.5,
+                                        color: Colors.grey
+                                      )
                                     ),
                                     child: Center(
                                       child: Column(
@@ -354,10 +403,12 @@ class _HomeState extends State<HomeView> {
                                           Text(
                                             "${displayDates("Friday")}",
                                             style: TextStyle(
-                                                fontSize: 12
+                                                fontSize: 12,
+                                                color: compareText("Friday")
                                             ),
                                           ),
-                                          Text("Fri", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),),
+                                          Text("Fri", style: TextStyle(fontSize: 12,
+                                              color: compareText("Friday"), fontWeight: FontWeight.bold),),
                                           Spacer(),
                                         ],
                                       ),
@@ -373,8 +424,12 @@ class _HomeState extends State<HomeView> {
                                     height: _height(7),
                                     width: _width(12),
                                     decoration: BoxDecoration(
-                                      color: compareDate("Saturday"),
+                                      color: compareDate("Saturday", displayDates("Saturday")),
                                       borderRadius: BorderRadius.all(Radius.circular(15)),
+                                      border: Border.all(
+                                        width: 0.5,
+                                        color: Colors.grey
+                                      )
                                     ),
                                     child: Center(
                                       child: Column(
@@ -383,9 +438,11 @@ class _HomeState extends State<HomeView> {
                                           Text(
                                             "${displayDates("Saturday")}",
                                             style: TextStyle(
-                                                fontSize: 12
+                                                fontSize: 12,
+                                                color: compareText("Saturday")
                                             ),),
-                                          Text("Sat", style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                                          Text("Sat", style: TextStyle(fontSize: 12,
+                                              color: compareText("Saturday"), fontWeight: FontWeight.bold),),
                                           Spacer(),
                                         ],
                                       ),
@@ -412,7 +469,9 @@ class _HomeState extends State<HomeView> {
                                       child: Column(
                                         children: [
                                           Spacer(),
-                                          Text("${findLastDateOfTheWeek(DateTime.now()).day}", style: TextStyle(fontSize: 12,)),
+                                          Text("${findLastDateOfTheWeek(DateTime.now()).day}", style: TextStyle(
+                                            fontSize: 12,
+                                          )),
                                           Text("Sun", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),),
                                           Spacer(),
                                         ],
@@ -508,6 +567,10 @@ class _HomeState extends State<HomeView> {
                             )
                         ),
                         SizedBox(height: _height(3),),
+
+                        allPastActivities.isNotEmpty ? Column(
+                            children: displayTodayActivities(),
+                        ) : Container(),
 
                         Container(
                           width: _width(100),
@@ -614,8 +677,16 @@ class _HomeState extends State<HomeView> {
     return Common().componentWidth(context, size);
   }
 
-  compareDate(dateString){
-    return dateString == dayName ? Colors.lightGreen : Color.fromARGB(255,233,244,226);
+  compareDate(dateString, passedDate){
+    if(passedDate > DateTime.now().day){
+      return Colors.white;
+    }else{
+      return dateString == dayName ? Colors.lightGreen : Color.fromARGB(255,233,244,226);
+    }
+  }
+
+  compareText(dateString){
+    return dateString == dayName ? Colors.white : Colors.black;
   }
 
   int displayDates(dayOfWeek){
@@ -675,23 +746,23 @@ class _HomeState extends State<HomeView> {
   }
 
   verifyDateRange(dayOfWeek){
-    // print("============== ${getDayValue(dayOfWeek).isBefore(DateTime.now())}");
-    // print("++++++++++++++ ${getDayValue(dayOfWeek).isAfter(DateTime.now())}");
-    print("++++++++++++++ ${(getDayValue(dayOfWeek).day == DateTime.now().day)}");
+    if(getDayValue(dayOfWeek).day == DateTime.now().day){
+      // Current day
+      setState(() {
+        showPast = false;
+        showFuture = false;
+      });
+      return;
+    }
 
     if(getDayValue(dayOfWeek).isBefore(DateTime.now())){
       setState(() {
         showPast = true;
         showFuture = false;
       });
-    }else if(getDayValue(dayOfWeek).isAfter(DateTime.now())){
+    }else {
       setState(() {
         showFuture = true;
-        showPast = false;
-      });
-    }else if(getDayValue(dayOfWeek).day == DateTime.now().day){
-      setState(() {
-        showFuture = false;
         showPast = false;
       });
     }
@@ -707,8 +778,152 @@ class _HomeState extends State<HomeView> {
     return dateTime.add(Duration(days: DateTime.daysPerWeek - dateTime.weekday));
   }
 
+  displayTodayActivities() {
+    var children = <Widget>[];
+    if(allPastActivities.isNotEmpty){
+      children.add(
+          Container(
+            width: _width(100),
+            margin: EdgeInsets.only(bottom: _height(1)),
+            child: Text(
+              "Today's Challenges",
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold
+              ),
+              textAlign: TextAlign.left,),
+          )
+      );
+    }
+    allPastActivities.forEach((element) {
+      var imageUrl;
+      switch(element["challengeType"]){
+        case "Cycling":
+          imageUrl = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1620142203/South_Fitness/bike.jpg";
+          break;
+        case "Running":
+          imageUrl = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1620141989/South_Fitness/runner.jpg";
+          break;
+        case "Walking":
+          imageUrl = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1620142299/South_Fitness/walking.jpg";
+          break;
+      }
+      children.add(
+          Container(
+              height: _height(10),
+              width: _width(100),
+              margin: EdgeInsets.only(bottom: _height(2)),
+              child: Row(
+                children: [
+                  Container(
+                      height: _height(10),
+                      width: _height(10),
+                      child: Stack(
+                        children: [
+                          Center(
+                            child: SpinKitThreeBounce(
+                              color: Colors.lightGreen,
+                              size: 20,
+                            ),
+                          ),
+                          Container(
+                            height: _height(10),
+                            width: _height(10),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.all(Radius.circular(15)),
+                              child: Image.network(
+                                "$imageUrl",
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                  ),
+                  SizedBox(
+                    width: _width(4),
+                  ),
+                  Column(
+                    children: [
+                      Spacer(),
+                      Container(
+                        width: _width(68.5),
+                        child: Text(
+                          "You've completed today's ${element["challengeType"]} challenge",
+                          style: TextStyle(
+                              fontSize: 13
+                          ),
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                      SizedBox(height: _height(2),),
+                      Container(
+                          width: _width(68.5),
+                          child: Row(
+                            children: [
+                              Text(
+                                "Distance: ",
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                              Text(
+                                "${element["distance"]} KM",
+                                style: TextStyle(
+                                    fontSize: 13
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                              Spacer(),
+                              Text(
+                                "Calories: ",
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                              Text(
+                                "${element["caloriesBurnt"]}".split(".")[0],
+                                style: TextStyle(
+                                    fontSize: 13
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                              SizedBox(width: _width(3))
+                            ],
+                          )
+                      ),
+                      Spacer(),
+                    ],
+                  ),
+                ],
+              )
+          )
+      );
+    });
+    return children;
+  }
+
   displayThemVideos() {
     var children = <Widget>[];
+    if(allPastActivities.isNotEmpty){
+      children.add(
+          Container(
+            width: _width(100),
+            margin: EdgeInsets.only(bottom: _height(1)),
+            child: Text(
+              "Upcoming Events",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold
+            ),
+            textAlign: TextAlign.left,),
+          )
+      );
+    }
     allVideos.forEach((element) {
       if(element["scheduledTime"] != null){
         children.add(
@@ -765,7 +980,7 @@ class _HomeState extends State<HomeView> {
                             child: Text(
                               element["title"],
                               style: TextStyle(
-                                  fontSize: 16
+                                  fontSize: 14
                               ),
                               textAlign: TextAlign.left,
                             ),
@@ -776,7 +991,7 @@ class _HomeState extends State<HomeView> {
                               child: Row(
                                 children: [
                                   Text(
-                                    "Trainer:",
+                                    "Trainer: ",
                                     style: TextStyle(
                                         fontSize: 13,
                                         color: Colors.grey
@@ -814,12 +1029,12 @@ class _HomeState extends State<HomeView> {
                           Container(
                               width: _width(10),
                               child: Text(
-                                  "${convertDateTime("${element["scheduledDate"]} ${element["scheduledTime"]}")}",
-                                  style: TextStyle(
-                                      color: Colors.lightGreen,
-                                      fontSize: 10
-                                  ),
-                                  textAlign: TextAlign.left,
+                                "${convertDateTime("${element["scheduledDate"]} ${element["scheduledTime"]}")}",
+                                style: TextStyle(
+                                    color: Colors.lightGreen,
+                                    fontSize: 10
+                                ),
+                                textAlign: TextAlign.left,
                               )
                           ),
                           Spacer(),

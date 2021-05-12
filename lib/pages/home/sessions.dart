@@ -1,9 +1,11 @@
 import 'package:agora_rtc_engine/rtc_engine.dart' as rtc_engine_x;
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:south_fitness/pages/home/performance.dart';
 import 'package:south_fitness/pages/video_call/videoPlayer.dart' as videoStuff;
 import 'package:south_fitness/services/net.dart';
 import 'package:video_player/video_player.dart';
@@ -31,14 +33,9 @@ class Session extends StatefulWidget {
 
 class _SessionState extends State<Session> {
 
-  bool rateVideo = false;
-  bool endurance = false;
-  bool speed = false;
-  bool agility = false;
   bool play = false;
   var team = "";
   var type = "";
-  bool personal = false;
 
   VideoPlayerController _controller;
   Future<void> _initializeVideoPlayerFuture;
@@ -53,6 +50,7 @@ class _SessionState extends State<Session> {
   var videoCall = {};
   bool showCall = true;
   var isTime = 0;
+  bool isLoading = true;
 
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
 
@@ -61,7 +59,6 @@ class _SessionState extends State<Session> {
     link = url;
     uid = id;
     channel = _channel;
-    participants = all.split(",");
     isTime = state;
   }
 
@@ -80,11 +77,12 @@ class _SessionState extends State<Session> {
   getTeam() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      team = prefs.getString("team").trim().toLowerCase();
+      team = prefs.getString("team").trim();
       username = prefs.getString("username");
       email = prefs.getString("email");
       image = prefs.getString("image");
     });
+    getChallengeMembers();
   }
 
   getVideoCallDetails() async {
@@ -93,6 +91,18 @@ class _SessionState extends State<Session> {
     setState(() {
       videoCall = videoData;
       print("0 ===========================: $videoCall");
+    });
+  }
+  
+  getChallengeMembers() async {
+    List result = await PerformanceResource().getTeamPerformance(
+        {
+          "challenge_id": uid
+        }
+    );
+    setState(() {
+      participants = result;
+      isLoading = false;
     });
   }
 
@@ -243,206 +253,30 @@ class _SessionState extends State<Session> {
                       Container(
                           width: _width(100),
                           child: Column(
-                            children: [
-                              Container(
-                                width: _width(100),
+                            children: participants.length > 0 ? displayParticipants() : [
+                              isLoading ? Container(
                                 height: _height(15),
-                                child: Container(
-                                  width: _width(100),
-                                  height: _height(15),
-                                  margin: EdgeInsets.only(right: _width(3), left: _width(3), bottom: _height(3)),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(Radius.circular(15)),
-                                      color: _selectColor(team == "endurance")
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      SizedBox(width: _width(3),),
-                                      Container(
-                                        width: _height(10),
-                                        height: _height(10),
-                                        child: SvgPicture.asset("assets/images/male.svg"),
-                                      ),
-                                      SizedBox(width: _width(5),),
-                                      Column(
-                                        children: [
-                                          Spacer(),
-                                          Text(
-                                            "TECHNOLOGY DIVISION",
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 16
-                                            ),
-                                          ),
-                                          SizedBox(height: _height(1),),
-                                          Text(
-                                            "${_getPeopleCount("ENDURANCE")} people participating",
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 12
-                                            ),
-                                          ),
-                                          Spacer(),
-                                        ],
-                                      ),
-                                      Spacer(),
-                                      Container(
-                                        height: _height(4),
-                                        width: _height(4),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(Radius.circular(50)),
-                                          color: Color.fromARGB(255,110,180,63),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            "1",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(width: _width(3),),
-                                    ],
+                                width: _width(100),
+                                child: Center(
+                                  child: SpinKitThreeBounce(
+                                    color: Colors.lightGreen,
                                   ),
                                 ),
-                              ),
-                              Container(
+                              ) : Container(
                                 width: _width(100),
-                                height: _height(15),
-                                child: Container(
-                                  width: _width(100),
-                                  height: _height(15),
-                                  margin: EdgeInsets.only(right: _width(3), left: _width(3), bottom: _height(3)),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(Radius.circular(15)),
-                                      color: _selectColor(team == "speed")
+                                child: Text(
+                                  "Be the first to join",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold
                                   ),
-                                  child: Row(
-                                    children: [
-                                      SizedBox(width: _width(3),),
-                                      Container(
-                                        width: _height(10),
-                                        height: _height(10),
-                                        child: SvgPicture.asset("assets/images/male.svg"),
-                                      ),
-                                      SizedBox(width: _width(5),),
-                                      Column(
-                                        children: [
-                                          Spacer(),
-                                          Text(
-                                            "FINANCE DIVISION",
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 16
-                                            ),
-                                          ),
-                                          SizedBox(height: _height(1),),
-                                          Text(
-                                            "${_getPeopleCount("SPEED")} people participating",
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 12
-                                            ),
-                                          ),
-                                          Spacer(),
-                                        ],
-                                      ),
-                                      Spacer(),
-                                      Container(
-                                        height: _height(4),
-                                        width: _height(4),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(Radius.circular(50)),
-                                          color: Color.fromARGB(255,110,180,63),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            "2",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(width: _width(3),),
-                                    ],
-                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
-                              ),
-                              Container(
-                                width: _width(100),
-                                height: _height(15),
-                                child: Container(
-                                  width: _width(100),
-                                  height: _height(15),
-                                  margin: EdgeInsets.only(right: _width(3), left: _width(3), bottom: _height(3)),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(Radius.circular(15)),
-                                      color: _selectColor(team == "agility")
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      SizedBox(width: _width(3),),
-                                      Container(
-                                        width: _height(10),
-                                        height: _height(10),
-                                        child: SvgPicture.asset("assets/images/male.svg"),
-                                      ),
-                                      SizedBox(width: _width(5),),
-                                      Column(
-                                        children: [
-                                          Spacer(),
-                                          Text(
-                                            "CORPORATE SECURITY",
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 16
-                                            ),
-                                          ),
-                                          SizedBox(height: _height(1),),
-                                          Text(
-                                            "${_getPeopleCount("AGILITY")} people participating",
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 12
-                                            ),
-                                          ),
-                                          Spacer(),
-                                        ],
-                                      ),
-                                      Spacer(),
-                                      Container(
-                                        height: _height(4),
-                                        width: _height(4),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(Radius.circular(50)),
-                                          color: Color.fromARGB(255,110,180,63),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            "3",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(width: _width(3),),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                              )
                             ],
                           )
                       ),
-
-
                       SizedBox( height: _height(5)),
-                      showCall ? Center(
+                      Center(
                         child: InkWell(
                           onTap: (){
                             var data = {
@@ -482,7 +316,7 @@ class _SessionState extends State<Session> {
                             ),
                           ),
                         ),
-                      ) : Container(),
+                      ),
                       SizedBox( height: _height(8))
                     ],
                   ),
@@ -524,6 +358,79 @@ class _SessionState extends State<Session> {
     return false;
   }
 
+  displayParticipants() {
+    var children = <Widget>[];
+    participants.forEach((element) {
+      children.add(
+        Container(
+          width: _width(100),
+          height: _height(15),
+          child: Container(
+            width: _width(100),
+            height: _height(15),
+            margin: EdgeInsets.only(right: _width(3), left: _width(3), bottom: _height(3)),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(15)),
+                color: _selectColor(participants.indexOf(element))
+            ),
+            child: Row(
+              children: [
+                SizedBox(width: _width(3),),
+                Container(
+                  width: _height(10),
+                  height: _height(10),
+                  child: SvgPicture.asset("assets/images/male.svg"),
+                ),
+                SizedBox(width: _width(5),),
+                Column(
+                  children: [
+                    Spacer(),
+                    Text(
+                      element["name"],
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16
+                      ),
+                    ),
+                    SizedBox(height: _height(1),),
+                    Text(
+                      "${element["count"]} people participating",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 12
+                      ),
+                    ),
+                    Spacer(),
+                  ],
+                ),
+                Spacer(),
+                Container(
+                  height: _height(4),
+                  width: _height(4),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(50)),
+                    color: Color.fromARGB(255,110,180,63),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "${participants.indexOf(element) + 1}",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: _width(3),),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+    return children;
+  }
+
   _height(size){
     return Common().componentHeight(context, size);
   }
@@ -537,13 +444,12 @@ class _SessionState extends State<Session> {
     print(status);
   }
 
-  _selectColor(status){
-    return status ?  Color.fromARGB(105,110,180,63) : Color.fromARGB(255,248,248,248);
+  _selectColor(index){
+    if(index < 3){
+      return Color.fromARGB((255 - ((index + 1) * 40)) ,110,180,63);
+    }else{
+      return Color.fromARGB(20,110,180,63);
+    }
   }
-
-  _getPeopleCount(value){
-    return participants.where((element) => element == value).length;
-  }
-
 
 }

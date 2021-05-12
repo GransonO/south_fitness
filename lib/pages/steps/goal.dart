@@ -215,14 +215,7 @@ class _GoalsState extends State<Goals> {
                   margin: EdgeInsets.only(top: _height(1)),
                   child: Row(
                     children: [
-                      SizedBox(width: _width(3),),
-                      Column(
-                        children: [
-                          Icon(Icons.arrow_back, color: Colors.black, size: 35,),
-                          Spacer()
-                        ],
-                      ),
-                      SizedBox(width: _width(4),),
+                      SizedBox(width: _width(5),),
                       Container(
                         height: _height(5),
                         child: Column(

@@ -1,27 +1,69 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:south_fitness/services/net.dart';
 
 import '../common.dart';
 
 class Competitors extends StatefulWidget {
-  List team = [];
-  Competitors(List team){
-    this.team = team;
+  String name;
+  Competitors(name){
+    this.name = name;
   }
   @override
-  _CompetitorsState createState() => _CompetitorsState(team);
+  _CompetitorsState createState() => _CompetitorsState(this.name);
 }
 
 class _CompetitorsState extends State<Competitors> {
-  List team = [];
+  String team;
+  List teamsData = [];
 
-  _CompetitorsState(List team){
-    this.team = team;
+
+  _CompetitorsState(name){
+    this.team = name;
   }
+
+  SharedPreferences prefs;
+  var username = "";
+  var email = "";
+  var image = "";
+  bool loading = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setPrefs();
+  }
+
+
+  setPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString("username");
+      email = prefs.getString("email");
+      image = prefs.getString("image");
+    });
+    getParticipatingUsers();
+  }
+
+  getParticipatingUsers() async {
+    var value = await PerformanceResource().getIndividualPerformance(team);
+    print("ordered teams list value ---------> $value");
+    setState(() {
+      loading = false;
+      teamsData = value;
+    });
+  }
+
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Container(
@@ -50,8 +92,13 @@ class _CompetitorsState extends State<Competitors> {
                               borderRadius: BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15), ),
                               color: Color.fromARGB(255,246,246,246)
                           ),
-                          child: Column(
-                            children: _displayActors()
+                          child: loading ? Center(
+                            child: SpinKitThreeBounce(
+                              color: Colors.lightGreen,
+                              size: 30,
+                            ),
+                          ) : Column(
+                            children: _displayTeams(),
                           ),
                         ),
                         SizedBox( height: _height(8))
@@ -70,6 +117,7 @@ class _CompetitorsState extends State<Competitors> {
                   ),
                 ),
               ),
+
               Container(
                 height: _height(7),
                 color: Colors.white,
@@ -77,6 +125,12 @@ class _CompetitorsState extends State<Competitors> {
                   children: [
                     Common().logoOnBar(context),
                     Spacer(),
+                    InkWell(
+                      onTap: (){
+                        _scaffoldKey.currentState.openDrawer();
+                      },
+                      child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
+                    ),
                     SizedBox(width: _width(4),),
                   ],
                 ),
@@ -85,6 +139,7 @@ class _CompetitorsState extends State<Competitors> {
           ),
         ),
       ),
+      drawer: Common().navDrawer(context, username, email, "list", image),
     );
   }
 
@@ -96,67 +151,72 @@ class _CompetitorsState extends State<Competitors> {
     return Common().componentWidth(context, size);
   }
 
-  _displayActors(){
+  _displayTeams(){
     var children = <Widget>[];
     children.add( SizedBox(height: _height(4)));
-    team.forEach((element) {
+    teamsData.forEach((element) {
       children.add(
-          Container(
-            width: _width(100),
-            height: _height(10),
-            margin: EdgeInsets.only(right: _width(3), left: _width(3), bottom: _height(3)),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(15)),
-                color: Color.fromARGB(
-                    (team.indexOf(element) + 1) == 1 ? 255 : (team.indexOf(element) + 1) == 2 ? 220 : 150
-                    ,110,180,63)
-            ),
-            child: Row(
-              children: [
-                SizedBox(width: _width(3),),
-                Text(
-                  "${team.indexOf(element) + 1}",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20
-                  ),
+        Container(
+          width: _width(100),
+          height: _height(10),
+          margin: EdgeInsets.only(right: _width(3), left: _width(3), bottom: _height(3)),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+              color: _selectColor(teamsData.indexOf(element))
+          ),
+          child: Row(
+            children: [
+              SizedBox(width: _width(3),),
+              Text(
+                "${teamsData.indexOf(element) + 1}",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20
                 ),
-                Text(
-                  "${(team.indexOf(element) + 1) == 1 ? "st" : (team.indexOf(element) + 1) == 2 ? "nd" : "th" }",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12
-                  ),
+              ),
+              Text(
+                "${(teamsData.indexOf(element) + 1) == 1 ? "st" : (teamsData.indexOf(element) + 1) == 2 ? "nd" : "th" }",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12
                 ),
-                Spacer(),
-                Column(
-                  children: [
-                    Spacer(),
-                    Text(
-                      "${Common().capitalize(element["user_id"])}",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16
-                      ),
+              ),
+              Spacer(),
+              Column(
+                children: [
+                  Spacer(),
+                  Text(
+                    "${Common().capitalize(element["name"])}",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16
                     ),
-                    Text(
-                      "Score: ${element["user_points"]}%",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12
-                      ),
+                  ),
+                  Text(
+                    "Score: ${element["count"] * 5}",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12
                     ),
-                    Spacer(),
-                  ],
-                ),
-                Spacer(),
-                Icon(Icons.arrow_forward_ios_sharp, color: Colors.white,),
-                SizedBox(width: _width(3),),
-              ],
-            ),
-          )
+                  ),
+                  Spacer(),
+                ],
+              ),
+              Spacer(),
+              SizedBox(width: _width(3),),
+            ],
+          ),
+        ),
       );
     });
     return children;
+  }
+
+  _selectColor(index){
+    if(index < 3){
+      return Color.fromARGB((255 - (index * 30)) ,110,180,63);
+    }else{
+      return Color.fromARGB(20,110,180,63);
+    }
   }
 }

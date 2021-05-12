@@ -60,7 +60,7 @@ class _DashboardState extends State<Dashboard> {
   }
 
   getUserPerformance() async {
-    var personal = await PerformanceResource().getPersonalPerformance(email);
+    var personal = await PerformanceResource().getDashboardPerformance(email);
     setState(() {
       personalData = personal;
       print("-------------------personalData------------------------ $personalData");

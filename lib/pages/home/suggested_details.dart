@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 
 import '../common.dart';
@@ -24,6 +25,14 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
   var videoUrl = "https://res.cloudinary.com/dolwj4vkq/video/upload/v1612826611/South_Fitness/yoga.mp4";
   var title = "";
 
+  var username = "";
+  var email = "";
+  var user_id = "";
+  SharedPreferences prefs;
+  var dayName = "";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
+
+
   _SuggestedDetailsState(value){
     videoUrl = value["videoUrl"];
     title = value["title"];
@@ -34,8 +43,29 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setPrefs();
+  }
+
+  setPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString("username");
+      email = prefs.getString("email");
+      image = prefs.getString("image");
+      user_id = prefs.getString("user_id");
+    });
+  }
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Container(
           height: _height(100),
@@ -293,7 +323,14 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
                   child: Row(
                     children: [
                       Common().logoOnBar(context),
-                      Spacer()
+                      Spacer(),
+                      InkWell(
+                        onTap: (){
+                          _scaffoldKey.currentState.openDrawer();
+                        },
+                        child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
+                      ),
+                      SizedBox(width: _width(4),),
                     ],
                   ),
                 ),
@@ -301,6 +338,7 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
           ),
         ),
       ),
+      drawer: Common().navDrawer(context, username, email, "home", image),
     );
   }
 

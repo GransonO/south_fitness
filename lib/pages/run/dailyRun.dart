@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:south_fitness/pages/home/Home.dart';
 import 'package:south_fitness/services/net.dart';
 
 import '../common.dart';
@@ -30,16 +31,23 @@ class DailyRun extends StatefulWidget {
 class _DailyRunState extends State<DailyRun> {
   var startRun = false;
   var stopRun = false;
+  var postToServer = false;
   var distance = 0;
   var calories = 0.0;
 
   var myLat = 0.0;
   var myLong = 0.0;
 
+  var startLat = 0.0;
+  var startLong = 0.0;
+  var endLat = 0.0;
+  var endLong = 0.0;
+
   var prevLat = 0.0;
   var prevLon = 0.0;
   var avgPace = 0.0;
   var state = "";
+  var challengeData = {};
 
   StreamSubscription _getPositionSubscription;
 
@@ -47,6 +55,9 @@ class _DailyRunState extends State<DailyRun> {
     state = value;
     myLat = lat;
     myLong = long;
+
+    startLat = lat;
+    startLong = long;
   }
 
   var distanceInKm = 0.0;
@@ -85,6 +96,8 @@ class _DailyRunState extends State<DailyRun> {
 
   var username = "";
   var email = "";
+  var user_id = "";
+  var startTime = DateTime.now();
   SharedPreferences prefs;
 
   bool serviceEnabled;
@@ -113,6 +126,7 @@ class _DailyRunState extends State<DailyRun> {
       email = prefs.getString("email");
       team = prefs.getString("team");
       image = prefs.getString("image");
+      user_id = prefs.getString("user_id");
     });
   }
 
@@ -171,10 +185,7 @@ class _DailyRunState extends State<DailyRun> {
         });
 
         /// origin marker
-        _addMarker(LatLng(myLat, myLong), "Start Location",
-            BitmapDescriptor.defaultMarker);
-        
-        _addMarker(LatLng(myLat, myLong), "Start Location",
+        _addMarker(LatLng(myLat, myLong), "start_point", "Start Location",
             BitmapDescriptor.defaultMarker);
 
       } else {
@@ -247,6 +258,7 @@ class _DailyRunState extends State<DailyRun> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Container(
@@ -282,7 +294,7 @@ class _DailyRunState extends State<DailyRun> {
                           textAlign: TextAlign.left,
                         ),
                       ),
-                      SizedBox(height: _height(5),),
+                      SizedBox(height: _height(2),),
 
                       Container(
                           width: _width(100),
@@ -312,7 +324,7 @@ class _DailyRunState extends State<DailyRun> {
                             ],
                           )
                       ),
-                      SizedBox(height: _height(3),),
+                      SizedBox(height: _height(2),),
 
                       Container(
                           child: Row(
@@ -362,7 +374,7 @@ class _DailyRunState extends State<DailyRun> {
                                         Container(
                                           width: _width(30),
                                           child: Text(
-                                            "AVG. pace(Km/MIN)",
+                                            "Pace(Km/Min)",
                                             style: TextStyle(
                                               fontSize: 13,
                                             ),
@@ -403,7 +415,7 @@ class _DailyRunState extends State<DailyRun> {
                               ]
                           )
                       ),
-                      SizedBox( height: _height(5)),
+                      SizedBox( height: _height(3)),
                       Container(
                         width: _width(100),
                         height: _height(45),
@@ -437,21 +449,46 @@ class _DailyRunState extends State<DailyRun> {
                       ),
                       SizedBox( height: _height(3)),
 
-                      stopRun ? Container() : Center(
+                      postToServer ? Center(
+                        child: InkWell(
+                          onTap: (){
+                            postFinalData();
+                          },
+                          child: Container(
+                            height: _height(5),
+                            width: _width(100),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.all(Radius.circular(15)),
+                              border: Border.all(color: Colors.black)
+                            ),
+                            child: Center(
+                              child: Text(
+                                "Post to server",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ) : (stopRun ? Container() : Center(
                         child: InkWell(
                           onTap: (){
                             setState(() {
                               if(startRun == true){
-                                  stopRun = true;
-                                  stopTimer();
-                                  postChallengeData();
+                                stopRun = true;
+                                stopTimer();
+                                postChallengeData();
                               }else{
                                 // readSteps();
                                 // readCalories();
-                                  startRun = true;
-                                  startTimer();
-                                  startLocationUpdate();
-                                  startStepsCounter();
+                                startRun = true;
+                                startTimer();
+                                startLocationUpdate();
+                                startStepsCounter();
+                                startTime = DateTime.now();
                               }
                             });
                           },
@@ -473,7 +510,7 @@ class _DailyRunState extends State<DailyRun> {
                             ),
                           ),
                         ),
-                      ),
+                      )),
                       SizedBox( height: _height(3)),
                     ],
                   ),
@@ -588,6 +625,19 @@ class _DailyRunState extends State<DailyRun> {
                   prevLat = position.latitude;
                   prevLon = position.longitude;
                   calories = getCaloriesBurnt();
+
+                  endLat = position.latitude;
+                  endLong = position.longitude;
+
+                  movingMarker = Marker(
+                      markerId: MarkerId("person"),
+                      position: LatLng(position.latitude, position.longitude),
+                      infoWindow: InfoWindow(title: 'You are here'),
+                      icon: bitmap
+                  );
+
+                  _addMarker(LatLng(endLat, endLong), "person","Current Location",
+                      BitmapDescriptor.defaultMarker);
                 });
                 print("------------------------------------------- $distanceInKm");
           });
@@ -606,20 +656,41 @@ class _DailyRunState extends State<DailyRun> {
 
   postChallengeData() async {
     _getPositionSubscription?.cancel();
-    var challengeData = {
-      "challengeType": state,
-      "team": team,
-      "user_id": email,
-      "steps_count": _steps,
-      "distance": distanceInKm.truncateToDouble(),
-      "caloriesBurnt": getCaloriesBurnt()
-    };
-    print("---------- Challenge Data --------------------------------- $challengeData");
-    // var result = await HomeResources().postChallenge(challenge_data);
+    setState(() {
+      postToServer = true;
 
+      var startMonth = startTime.month < 10 ? "0${startTime.month}" : startTime.month;
+      var startDay = startTime.day < 10 ? "0${startTime.day}" : startTime.day;
+      var startHour = startTime.hour < 10 ? "0${startTime.hour}" : startTime.hour;
+      var startMin = startTime.minute < 10 ? "0${startTime.minute}" : startTime.minute;
+      var startSec = startTime.second < 10 ? "0${startTime.second}" : startTime.second;
+
+      challengeData = {
+        "challengeType": state,
+        "team": team,
+        "user_id": user_id,
+        "steps_count": _steps,
+        "distance": distanceInKm.truncateToDouble(),
+        "caloriesBurnt": getCaloriesBurnt(),
+        "startTime": "${startTime.year}-$startMonth-$startDay $startHour:$startMin:$startSec",
+        "startLat": startLat,
+        "startLong": startLong,
+        "endLat": endLat,
+        "endLong": endLong,
+      };
+    });
+
+    print("challenge value ========= : $challengeData");
   }
 
-
+  postFinalData() async {
+    var result = await HomeResources().postChallenge(challengeData);
+    if(result["success"]){
+      Common().newActivity(context, HomeView());
+    }else{
+      Fluttertoast.showToast(msg: "Challenge Posting failed", textColor: Colors.white, backgroundColor: Colors.red);
+    }
+   }
 
   startStepsCounter() async {
     initPlatformState();
@@ -630,6 +701,9 @@ class _DailyRunState extends State<DailyRun> {
   }
 
   paceCounter(){
+    if(distanceInKm == 0.0){
+      return 0;
+    }
     return distanceInKm / (duration/60);
   }
 
@@ -644,9 +718,9 @@ class _DailyRunState extends State<DailyRun> {
     return (weightMultiple * weight) + ((velocity * velocity) / height) * (standardMultiple) * (weight);
   }
 
-  _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
+  _addMarker(LatLng position, String id, String description, BitmapDescriptor descriptor) {
     MarkerId markerId = MarkerId(id);
-    Marker marker = Marker(markerId: markerId, icon: descriptor, position: position);
+    Marker marker = Marker(markerId: markerId, icon: descriptor, position: position, infoWindow: InfoWindow(title: description));
     markers[markerId] = marker;
   }
 

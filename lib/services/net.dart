@@ -38,7 +38,6 @@ class Authentication {
         return {"success": true, "payload": result, "status": 200};
       } else{
         // Unauthorised
-        prefs.setString("email", result["user"]["email"]);
         return {"success": false, "payload": {}, "status": 401};
       }
     } catch (e) {
@@ -57,20 +56,20 @@ class Authentication {
       "weight": prefs.getInt("weight"),
       "gender": prefs.getString("gender").trim(),
 
-      "fullname": prefs.getString("fullname").trim(),
+      "fullname": "${prefs.getString("firstname")} ${prefs.getString("lastname")}",
       "email": prefs.getString("email").trim(),
       "birthDate": prefs.getString("birthDate").trim(),
       "team": prefs.getString("team").trim(),
       "activation_code": prefs.getString("code").trim()
     };
-    print("------------------------ $profileData");
+    print("Profile Data------------------------ $profileData");
     // dio.options.headers["Authorization"] = "Bearer ${prefs.getString("token")}";
     var profile = await dio.post(
         baseUrl + "/profiles/", data: profileData);
     var result = profile.data;
     print("------------------------ $result");
     if (result["status"] == "success") {
-      return {"success": true, "payload": result["message"]};
+      return {"success": true, "user_id": result["user_id"]};
     } else {
       return {"success": false, "payload": ""};
     }
@@ -174,8 +173,18 @@ class HomeResources {
   getVideos() async {
     var result = await dio.get(baseUrl + "/videos/all/");
     var videos = result.data;
+    print("------------------------ $videos");
 
     return videos;
+  }
+
+  getTodayActivities(user_id) async {
+    print("User ID------------------------ $user_id");
+    var result = await dio.get(baseUrl + "/challenge/today/$user_id");
+    var challenges = result.data;
+
+    print("Challenge Data ------------------------ $challenges");
+    return challenges;
   }
 
   getVideoCallDetails(videoId, channelName) async {
@@ -262,15 +271,22 @@ class HomeResources {
   }
 
   postChallenge(challengeData) async {
+    print("Challenge data: $challengeData");
     try {
       var user = await dio.post(
         baseUrl + "/challenge/",
         data: challengeData,
-      );
+      ).onError((error, stackTrace){
+        print("Error is: $error");
+        return;
+      });
       var result = user.data;
+      print("Challenge Post response data: $result");
+
       if (result["status"] == "success") {
         return {"success": true, "payload": result, "status": 200};
       } else{
+
         return {"success": false, "payload": {}, "status": 401};
       }
     } catch (e) {
@@ -279,16 +295,17 @@ class HomeResources {
   }
 
   joinChallenge(challengeData) async {
+    print("---------------------- e");
     try {
       var user = await dio.post(
         baseUrl + "/challenge/join/",
         data: challengeData,
       );
       var result = user.data;
-
       return result["state"];
 
     } catch (e) {
+      print("---------------------- $e");
       return false;
     }
   }
@@ -323,66 +340,18 @@ class PerformanceResource {
   var leaders = [];
 
   getPerformance() async {
-    var result = await dio.get(baseUrl + "/challenge/all/");
-    List perform = result.data;
-    var speed, agility, endurance, balance, flexibility, power, coordination;
-
-    speed = sieveData(perform, "speed");
-    agility = sieveData(perform, "agility");
-    balance = sieveData(perform, "balance");
-    flexibility = sieveData(perform, "flexibility");
-    power = sieveData(perform, "power");
-    coordination = sieveData(perform, "coordination");
-    endurance = sieveData(perform, "endurance");
-
-    List teamList = [
-      {"name": "speed", "points": speed.length},
-      {"name": "agility", "points": agility.length},
-      {"name": "endurance", "points": endurance.length},
-      {"name": "coordination", "points": coordination.length},
-      {"name": "power", "points": power.length},
-      {"name": "flexibility", "points": flexibility.length},
-      {"name": "balance", "points": balance.length},
-      ];
-    teamList.sort((a,b) => (a["points"]).compareTo(b["points"]));
-
-    print("ordered teams list ---------> $teamList");
-    return {
-      "team_list": (teamList.reversed).toList(),
-      "speed": calculateUserPoints(speed.toList()),
-      "agility": calculateUserPoints(agility.toList()),
-      "endurance": calculateUserPoints(endurance.toList()),
-      "power": calculateUserPoints(power.toList()),
-      "flexibility": calculateUserPoints(flexibility.toList()),
-      "coordination": calculateUserPoints(coordination.toList()),
-      "balance": calculateUserPoints(balance.toList())
-    };
+    try {
+      var perform = await dio.get(
+        baseUrl + "/challenge/members/"
+      );
+      var result = perform.data;
+      return result["members_list"] ;
+    } catch (e) {
+      return [];
+    }
   }
 
-  sieveData(List performance, listName){
-    return (performance.where((element) => element["team"] == listName));
-  }
-
-  calculateUserPoints(List team){
-    var totalPoints = 0.0;
-    team.forEach((element) {
-      // Get all points
-      var points = element["distance"] + element["steps_count"] + element["caloriesBurnt"];
-      totalPoints = totalPoints + points;
-    });
-
-    team.forEach((element) {
-      // get percentage for each element
-      var points = element["distance"] + element["steps_count"] + element["caloriesBurnt"];
-      var accruedPoints = ((points/totalPoints) * 100).round();
-
-      element["user_points"] = accruedPoints;
-    });
-
-    return team;
-  }
-
-  getPersonalPerformance(var email) async {
+  getDashboardPerformance(var email) async {
     var result = await dio.get(baseUrl + "/challenge/$email");
     List perform = result.data;
 
@@ -400,12 +369,40 @@ class PerformanceResource {
     return {"distance": distanceCovered, "calories": caloriesBurnt, "steps": stepsCount};
   }
 
+  getIndividualPerformance(department) async {
+    try {
+      var perform = await dio.put(
+        baseUrl + "/challenge/members/",
+        data: {
+          "user_department": department
+        },
+      );
+      var result = perform.data;
+      return result["members_list"] ;
+    } catch (e) {
+      return [];
+    }
+  }
+
   getUserHistory(userId) async {
     print("---------userId-------------------------$userId");
     var result = await dio.get(baseUrl + "/challenge/$userId");
     var history = result.data;
 
     return history.toList();
+  }
+
+  getTeamPerformance(challengeData) async {
+    try {
+      var perform = await dio.post(
+        baseUrl + "/challenge/members/",
+        data: challengeData,
+      );
+      var result = perform.data;
+      return result["members_list"] ;
+    } catch (e) {
+      return [];
+    }
   }
 }
 
@@ -449,7 +446,6 @@ class ChatService{
         baseUrl + "/chats/all/" + groupId);
     var result = chat.data;
 
-    print("chay --------------------- $result");
     return result;
   }
 
@@ -479,10 +475,9 @@ class ChatService{
     }
   }
 
-  allGroups() async {
+  allGroups(institution) async {
     // get all group chats
-    var chat = await dio.get(
-        baseUrl + "/chats/all_groups/");
+    var chat = await dio.get(baseUrl + "/chats/groups/all/$institution");
     var result = chat.data;
 
     return result;
@@ -500,4 +495,32 @@ class ChatService{
       return false;
     }
   }
+
+  isGeneralMember(memberData) async {
+    var member = await dio.put(
+        baseUrl + "/chats/general/", data: memberData);
+    var result = member.data;
+
+    if (result["status"]) {
+      return {"success": true, "alias": result["alias"]};
+    } else {
+      return {"success": false};
+    }
+  }
+
+  addGeneralMember(memberData) async {
+    var member = await dio.post(
+        baseUrl + "/chats/general/", data: memberData);
+    var result = member.data;
+
+    print("---------- $result");
+
+    if (result["status"]) {
+      return {"success": true};
+    } else {
+      return {"success": false};
+    }
+  }
+
+
 }

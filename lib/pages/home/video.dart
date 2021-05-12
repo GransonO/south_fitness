@@ -20,6 +20,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
   var username = "";
   var email = "";
   var user_id = "";
+  var team = "";
   SharedPreferences prefs;
 
   VideoPlayerController _controller;
@@ -51,6 +52,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
       email = prefs.getString("email");
       image = prefs.getString("image");
       user_id = prefs.getString("user_id");
+      team = prefs.getString("team");
     });
   }
 
@@ -511,7 +513,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                  height: _height(65),
+                  height: _height(67),
                   width: _width(100),
                   margin: EdgeInsets.only(left: 10, right: 10),
                   decoration: BoxDecoration(
@@ -520,6 +522,25 @@ class _ReadyVideoState extends State<ReadyVideo> {
                   ),
                   child: Column(
                     children: [
+                      Container(
+                        margin: EdgeInsets.only(right: _width(3), top: _width(2)),
+                        child: Row(
+                          children: [
+                            Spacer(),
+                            InkWell(
+                              onTap: (){
+                                setState(() {
+                                  showVideo = !showVideo;
+                                });
+                              },
+                              child: Icon(
+                                Icons.close_outlined,
+                                color: Colors.lightGreen,
+                              )
+                            )
+                          ],
+                        ),
+                      ),
                       Container(
                         height: _width(70),
                         width: _width(90),
@@ -707,7 +728,9 @@ class _ReadyVideoState extends State<ReadyVideo> {
                             var result = await HomeResources().joinChallenge(
                                 {
                                   "video_id": theElement["video_id"],
-                                  "user_id": user_id
+                                  "user_id": user_id,
+                                  "user_department": team,
+                                  "username": username
                                 }
                             );
                             setState(() {
