@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:south_fitness/pages/steps/duration.dart' as DurationPage;
 import 'package:south_fitness/pages/steps/duration.dart';
 
 import '../common.dart';
@@ -15,7 +15,16 @@ class Interests extends StatefulWidget {
 class _InterestsState extends State<Interests> {
 
   SharedPreferences prefs;
-  int num = 0;
+  List items = [];
+  List selectedItems = [];
+  List selectedNums = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    items = ["Cross Fit","Dance Fusion","Yoga", "Running","Cycling", "Walking", "Mental Challenge"];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,248 +40,58 @@ class _InterestsState extends State<Interests> {
                   child: Column(
                     children: [
                       SizedBox(height: _height(9)),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            num = 1;
-                          });
-                          _goToInterests("Cross Fit");
-                        },
-                        child: Center(
-                          child: Container(
-                            height: _height(7),
-                            width: _width(80),
-                            margin: EdgeInsets.only(right: _width(2), top: _height(2)),
-                            padding: EdgeInsets.only(left: 10),
-                            decoration: BoxDecoration(
-                                color: _selectColor(1),
-                                borderRadius: BorderRadius.all(Radius.circular(15)),
-                                border: Border.all(
-                                    width: 0.5,
-                                    color: Colors.grey
-                                )
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Cross-fit",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            num = 2;
-                          });
-                          _goToInterests("Dance Fusion");
-                        },
-                        child: Center(
-                          child: Container(
-                            height: _height(7),
-                            width: _width(80),
-                            margin: EdgeInsets.only(right: _width(2), top: _height(2)),
-                            padding: EdgeInsets.only(left: 10),
-                            decoration: BoxDecoration(
-                                color: _selectColor(2),
-                                borderRadius: BorderRadius.all(Radius.circular(15)),
-                                border: Border.all(
-                                    width: 0.5,
-                                    color: Colors.grey
-                                )
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Dance Fusion",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            num = 3;
-                          });
-                          _goToInterests("Yoga");
-                        },
-                        child: Center(
-                          child: Container(
-                            height: _height(7),
-                            width: _width(80),
-                            margin: EdgeInsets.only(right: _width(2), top: _height(2)),
-                            padding: EdgeInsets.only(left: 10),
-                            decoration: BoxDecoration(
-                                color: _selectColor(3),
-                                borderRadius: BorderRadius.all(Radius.circular(15)),
-                                border: Border.all(
-                                    width: 0.5,
-                                    color: Colors.grey
-                                )
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Yoga",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            num = 4;
-                          });
-                          _goToInterests("Running");
-                        },
-                        child: Center(
-                          child: Container(
-                            height: _height(7),
-                            width: _width(80),
-                            margin: EdgeInsets.only(right: _width(2), top: _height(2)),
-                            padding: EdgeInsets.only(left: 10),
-                            decoration: BoxDecoration(
-                                color:_selectColor(4),
-                                borderRadius: BorderRadius.all(Radius.circular(15)),
-                                border: Border.all(
-                                    width: 0.5,
-                                    color: Colors.grey
-                                )
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Running",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            num = 5;
-                          });
-                          _goToInterests("Cycling");
-                        },
-                        child: Center(
-                          child: Container(
-                            height: _height(7),
-                            width: _width(80),
-                            margin: EdgeInsets.only(right: _width(2), top: _height(2)),
-                            padding: EdgeInsets.only(left: 10),
-                            decoration: BoxDecoration(
-                                color: _selectColor(5),
-                                borderRadius: BorderRadius.all(Radius.circular(15)),
-                                border: Border.all(
-                                    width: 0.5,
-                                    color: Colors.grey
-                                )
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Cycling",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            num = 6;
-                          });
-                          _goToInterests("Walking");
-                        },
-                        child: Center(
-                          child: Container(
-                            height: _height(7),
-                            width: _width(80),
-                            margin: EdgeInsets.only(right: _width(2), top: _height(2)),
-                            padding: EdgeInsets.only(left: 10),
-                            decoration: BoxDecoration(
-                                color: _selectColor(6),
-                                borderRadius: BorderRadius.all(Radius.circular(15)),
-                                border: Border.all(
-                                    width: 0.5,
-                                    color: Colors.grey
-                                )
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Walking",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            num = 7;
-                          });
-                          _goToInterests("Mental Challenge");
-                        },
-                        child: Center(
-                          child: Container(
-                            height: _height(7),
-                            width: _width(80),
-                            margin: EdgeInsets.only(right: _width(2), top: _height(2)),
-                            padding: EdgeInsets.only(left: 10),
-                            decoration: BoxDecoration(
-                                color: _selectColor(7),
-                                borderRadius: BorderRadius.all(Radius.circular(15)),
-                                border: Border.all(
-                                    width: 0.5,
-                                    color: Colors.grey
-                                )
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Mental Challenge",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
 
+                      _displayOptions(),
                       Center(
-                          child: Container(
+                        child: Container(
                             height: _height(7),
                             width: _width(80),
-                            margin: EdgeInsets.only(right: _width(2), top: _height(5)),
-                            child: Text(
-                              "Step 3",
-                              textAlign: TextAlign.left,
-                            ),
-                          )
+                            margin: EdgeInsets.only(top: _height(3)),
+                            child: Row(
+                              children: [
+                                Text(
+                                  "Step 3.",
+                                  style: TextStyle(
+                                      fontSize: 15
+                                  ),
+                                ),
+                                Spacer(),
+
+                                InkWell(
+                                  onTap: () async {
+                                    if(selectedNums.isEmpty){
+                                      Fluttertoast.showToast(
+                                          msg: "Please select your discipline",
+                                          textColor: Colors.white,
+                                          backgroundColor: Colors.lightGreen
+                                      );
+                                    }else{
+
+                                      prefs = await SharedPreferences.getInstance();
+                                      _goToTrainDuration(selectedItems.toString(), prefs);
+                                    }
+                                  },
+                                  child: Container(
+                                    height: _height(7),
+                                    width: _width(40),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(15)),
+                                      color: Color.fromARGB(255,110,180,63),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        "Next",
+                                        style: TextStyle(
+                                            fontSize: 17,
+                                            color: Colors.white
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            )
+                        ),
                       ),
                     ],
                   ),
@@ -322,15 +141,65 @@ class _InterestsState extends State<Interests> {
     );
   }
 
-  _goToInterests(value) async {
-    prefs = await SharedPreferences.getInstance();
+  _goToTrainDuration(value, prefs){
     prefs.setString("interest", value);
-    Timer(Duration(seconds: 1), () => Common().newActivity(context, TrainDuration()));
+    print("++++++++++++++++++++++++++++++++++ Interests");
+    Common().newActivity(context, TrainDuration());
   }
 
+  _displayOptions(){
+    var theChildren = <Widget>[];
+
+    items.forEach((element) {
+      theChildren.add(
+        InkWell(
+          onTap: () {
+            setState(() {
+              if(selectedItems.contains(element)){
+                selectedItems.remove(element);
+                selectedNums.remove(items.indexOf(element));
+              }else{
+                selectedItems.add(element);
+                selectedNums.add(items.indexOf(element));
+              }
+            });
+          },
+          child: Center(
+            child: Container(
+              height: _height(7),
+              width: _width(80),
+              margin: EdgeInsets.only(right: _width(2), top: _height(2)),
+              padding: EdgeInsets.only(left: 10),
+              decoration: BoxDecoration(
+                  color: _selectColor(items.indexOf(element)),
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                  border: Border.all(
+                      width: 0.5,
+                      color: Colors.grey
+                  )
+              ),
+              child: Center(
+                child: Text(
+                  element,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    });
+
+    return Column(
+      children: theChildren,
+    );
+  }
 
   _selectColor(count){
-    if(count == num){
+    if(selectedNums.contains(count)){
       return Color.fromARGB(255,233,244,226);
     }else{
       return Colors.white;

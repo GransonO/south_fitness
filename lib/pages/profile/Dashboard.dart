@@ -31,10 +31,11 @@ class _DashboardState extends State<Dashboard> {
   var username = "";
   var email = "";
   var team = "";
+  var user_id = "";
   var personalData = {};
 
   String id = '';
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
   File avatarImageFile;
 
   var caloriesCount = 0.0;
@@ -55,18 +56,19 @@ class _DashboardState extends State<Dashboard> {
       email = prefs.getString("email");
       team = prefs.getString("team");
       image = prefs.getString("image");
+      user_id = prefs.getString("user_id");
     });
-    getUserPerformance();
+    getUserPerformance(user_id);
   }
 
-  getUserPerformance() async {
-    var personal = await PerformanceResource().getDashboardPerformance(email);
+  getUserPerformance(userId) async {
+    var personal = await PerformanceResource().getDashboardPerformance(userId);
     setState(() {
       personalData = personal;
       print("-------------------personalData------------------------ $personalData");
-      caloriesCount = personalData["calories"];
-      pointsCount = personalData["steps"];
-      distanceCount = personalData["distance"];
+      caloriesCount = personalData["calories"] + 0.0;
+      pointsCount = personalData["steps"] + 0.0;
+      distanceCount = personalData["distance"] + 0.0;
     });
   }
 

@@ -41,7 +41,7 @@ class _ProfileState extends State<Profile> {
 
   String id = '';
   File avatarImageFile;
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   @override
   void initState() {

@@ -27,7 +27,7 @@ class _CompetitorsState extends State<Competitors> {
   SharedPreferences prefs;
   var username = "";
   var email = "";
-  var image = "";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
   bool loading = false;
 
   @override

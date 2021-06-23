@@ -21,7 +21,7 @@ class _NotesState extends State<Notes> {
   SharedPreferences prefs;
   var blogList = [];
   bool loading = true;
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   @override
   void initState() {
@@ -51,83 +51,112 @@ class _NotesState extends State<Notes> {
 
   _addBlogsToUi(){
     var children = <Widget>[];
-    blogList.forEach((element) {
-      children.add(
-        InkWell(
-          onTap: (){
-            Common().newActivity(context, Reader(element));
-          },
-          child: Container(
-            height: _width(60),
-            width: _width(90),
-            margin: EdgeInsets.only(top: _height(1), bottom: _height(4)),
-            child: Stack(
-              children: [
-                Center(
-                  child: SpinKitThreeBounce(
-                    color: Colors.lightGreen,
-                    size: 30,
-                  ),
-                ),
-                Container(
-                  height: _width(60),
-                  width: _width(90),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                    child: Image.network(
-                      "${element["image_url"]}",
-                      fit: BoxFit.cover,
+    if(blogList.isNotEmpty){
+      blogList.forEach((element) {
+        children.add(
+          InkWell(
+            onTap: (){
+              Common().newActivity(context, Reader(element));
+            },
+            child: Container(
+                height: _width(60),
+                width: _width(90),
+                margin: EdgeInsets.only(top: _height(1), bottom: _height(4)),
+                child: Stack(
+                  children: [
+                    Center(
+                      child: SpinKitThreeBounce(
+                        color: Colors.lightGreen,
+                        size: 30,
+                      ),
                     ),
-                  ),
-                ),
-                ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(15)),
-                  child: Container(
-                    height: _width(60),
-                    width: _width(90),
-                    color: Colors.black54,
-                    child: Center(
-                        child: Column(
-                        children: [
-                          Spacer(),
-                          Text(
-                            element["title"],
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold
-                            ),
-                          ),
-                          SizedBox(height: 3,),
-                          Text(
-                            "by ${element["uploaded_by"]}",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w400
-                            ),
-                          ),
-                          SizedBox(height: 5,),
-                          Text(
-                            convertDate(element["updatedAt"]),
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w400
-                            ),
-                          ),
-                          Spacer(),
-                        ],
-                      )
+                    Container(
+                      height: _width(60),
+                      width: _width(90),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                        child: Image.network(
+                          "${element["image_url"]}",
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
-                  ),
+                    ClipRRect(
+                      borderRadius: BorderRadius.all(Radius.circular(15)),
+                      child: Container(
+                        height: _width(60),
+                        width: _width(90),
+                        color: Colors.black54,
+                        child: Center(
+                            child: Column(
+                              children: [
+                                Spacer(),
+                                Text(
+                                  element["title"],
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.bold
+                                  ),
+                                ),
+                                SizedBox(height: 3,),
+                                Text(
+                                  "by ${element["uploaded_by"]}",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w400
+                                  ),
+                                ),
+                                SizedBox(height: 5,),
+                                Text(
+                                  convertDate(element["updatedAt"]),
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w400
+                                  ),
+                                ),
+                                Spacer(),
+                              ],
+                            )
+                        ),
+                      ),
+                    )
+                  ],
                 )
-              ],
-            )
+            ),
+          ),
+        );
+      });
+    } else {
+      children.add(
+        Container(
+          height: _height(15),
+          margin: EdgeInsets.only(right: _width(2), left: _width(2),top: _height(2),bottom: _height(2),),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(
+                  Radius.circular(15)
+              ),
+              border: Border.all(
+                  color: Colors.lightGreen,
+                  width: 2
+              )
+          ),
+          child: Center(
+              child: Text(
+                "No Health Tips",
+                style: TextStyle(
+                    color: Colors.black45,
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold
+                ),
+              )
           ),
         ),
       );
-    });
+    }
+
     return children;
   }
 

@@ -28,6 +28,9 @@ class _ResetPageState extends State<ResetPage> {
 
   checkUsage() async {
     prefs = await SharedPreferences.getInstance();
+    setState(() {
+      email = prefs.getString("email");
+    });
   }
 
   @override
@@ -316,7 +319,11 @@ class _ResetPageState extends State<ResetPage> {
         setState(() {
           login = false;
         });
-        Fluttertoast.showToast(msg: "Could not complete transaction. Please try again later", backgroundColor: Colors.red);
+        if(result["code"] == 0){
+          Fluttertoast.showToast(msg: "Account does not exist", backgroundColor: Colors.red);
+        }else{
+          Fluttertoast.showToast(msg: "Could not complete transaction. Please try again later", backgroundColor: Colors.red);
+        }
       }
     }
   }
@@ -329,7 +336,7 @@ class _ResetPageState extends State<ResetPage> {
         Fluttertoast.showToast(msg: "Password should have at least six characters", backgroundColor: Colors.red);
         return;
       }
-      if(newPass.contains(new RegExp(r'[0-9]'))){
+      if(!newPass.contains(new RegExp(r'[0-9]'))){
         Fluttertoast.showToast(msg: "Password should have at least one number", backgroundColor: Colors.red);
         return;
       }

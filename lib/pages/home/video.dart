@@ -31,11 +31,10 @@ class _ReadyVideoState extends State<ReadyVideo> {
   var scheduleVideos = [];
   var theElement = {};
   bool play = false;
-  bool hasLive = false;
   bool showVideo = false;
   bool loading = true;
   bool joinLoader = false;
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   @override
   void initState() {
@@ -57,22 +56,15 @@ class _ReadyVideoState extends State<ReadyVideo> {
   }
 
   getVideos() async {
-    var result = await HomeResources().getVideos();
+    List result = await HomeResources().getVideos(Common().displayDateOfWeek(DateFormat('EEEE').format(DateTime.now())));
     print("-----------------$result");
     setState(() {
-      allVideos = result;
-      liveVideos =  (allVideos.where((element) => element["isLive"] == true)).toList();
-      scheduleVideos =  (allVideos.where((element) => element["isLive"] != true)).toList();
+      scheduleVideos = result.where((element) => element["isLive"] == false).toList();
       loading = false;
-      print("Live Videos----------------$liveVideos");
+      liveVideos = result.where((element) => element["isLive"] == true).toList();
       print("Schedule Videos ---------------$scheduleVideos");
     });
 
-    if(liveVideos.isNotEmpty){
-      setState(() {
-        hasLive = true;
-      });
-    }
   }
 
   initializeVideo(link) {
@@ -97,38 +89,10 @@ class _ReadyVideoState extends State<ReadyVideo> {
           onTap: () async {
             // check if joined class
             setState(() {
-              joinLoader = true;
+              showVideo = true;
+              theElement = element;
             });
-            bool result = await HomeResources().joinConfirmChallenge(
-              {
-                "video_id": element["video_id"],
-                "user_id": user_id
-              }
-            );
-            print("video_id ------------------------------------ ${element["video_id"]}");
-            setState(() {
-              joinLoader = false;
-            });
-            if(result){
-              print("result ------------------------------------ $result");
-              // Has joined, take to session
-              Common().newActivity(context,
-                  Session(
-                      element["type"],
-                      element["video_url"],
-                      element["video_id"],
-                      element["participants"],
-                      element["title"].toString().replaceAll(" ", "_"),
-                      Common().getDateTimeDifference("${element["scheduledDate"]} ${element["scheduledTime"]}")
-                  )
-              );
-            }else{
-              setState(() {
-                showVideo = true;
-                theElement = element;
-              });
-              initializeVideo(theElement["video_url"]);
-            }
+            initializeVideo(theElement["video_url"]);
           },
           child: Container(
             width: _width(45),
@@ -225,63 +189,34 @@ class _ReadyVideoState extends State<ReadyVideo> {
   _displayLiveClasses(){
     var children = <Widget>[];
     liveVideos.forEach((element){
-      print("ScheduledTime -----------------${element["scheduledTime"]}");
       children.add(
         InkWell(
           onTap: () async {
             // check if joined class
             setState(() {
-              joinLoader = true;
+              showVideo = true;
+              theElement = element;
             });
-            bool result = await HomeResources().joinConfirmChallenge(
-                {
-                  "video_id": element["video_id"],
-                  "user_id": user_id
-                }
-            );
-            print("video_id ------------------------------------ ${element["video_id"]}");
-            setState(() {
-              joinLoader = false;
-            });
-            if(result){
-              print("result ------------------------------------ $result");
-              // Has joined, take to session
-              Common().newActivity(context,
-                  Session(
-                      element["type"],
-                      element["video_url"],
-                      element["video_id"],
-                      element["participants"],
-                      element["title"].toString().replaceAll(" ", "_"),
-                      Common().getDateTimeDifference("${element["scheduledDate"]} ${element["scheduledTime"]}")
-                  )
-              );
-            }else{
-              setState(() {
-                showVideo = true;
-                theElement = element;
-              });
-              initializeVideo(theElement["video_url"]);
-            }
+            initializeVideo(theElement["video_url"]);
           },
           child: Container(
-            margin: EdgeInsets.only(right: _width(2)),
+            width: _width(45),
             child: Column(
               children: [
                 Align(
                   alignment: Alignment.topLeft,
                   child: Container(
                     height: _height(15),
-                    width: _width(40),
+                    width: _width(45),
                     child: Container(
                         height: _height(15),
-                        width: _width(40),
+                        width: _width(45),
                         child: Stack(
                           children: [
                             Center(
                               child: SpinKitThreeBounce(
                                 color: Colors.lightGreen,
-                                size: 25,
+                                size: 20,
                               ),
                             ),
                             Container(
@@ -374,85 +309,52 @@ class _ReadyVideoState extends State<ReadyVideo> {
                   ),
                 ) : Column(
                   children: [
+                    SizedBox(height: _height(3)),
+
+                    liveVideos.isNotEmpty ? Container(
+                      child: Row(
+                        children: [
+                          Text(
+                            "In progress",
+                            style: TextStyle(
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
+                          Spacer(),
+                        ],
+                      ),
+                    ) : Container(),
+                    liveVideos.isNotEmpty ? Container(
+                        width: _width(100),
+                        margin: EdgeInsets.only(top: _height(2),),
+                        child: GridView.builder(
+                          padding: EdgeInsets.only( left: 5.0, right: 5.0,bottom: 10),
+                          shrinkWrap: true,
+                          itemCount: _displayLiveClasses().length,
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2,childAspectRatio: getAspectRatio()),
+                          itemBuilder: (context, index) {
+                            final theItem = _displayLiveClasses()[index];
+                            return theItem;
+                          },
+                        )
+                    ) : Container(),
+
                     Container(
                       width: _width(100),
+                      margin: EdgeInsets.only(bottom: _height(2)),
                       child: Text(
-                        "Fitness is the condition of being physically fit and healthy and involves attributes that include, mental acuity, cardio-respiratory endurance, muscular strength, muscular endurance, body composition, and flexibility",
+                        "Upcoming Classes",
                         style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold
                         ),
                         textAlign: TextAlign.left,
                       ),
                     ),
-                    SizedBox(height: _height(3),),
 
-                    Container(
-                      child: Row(
-                        children: [
-                          Text(
-                            "Live Classes",
-                            style: TextStyle(
-                                fontSize: 25,
-                                fontWeight: FontWeight.bold
-                            ),
-                            textAlign: TextAlign.left,
-                          ),
-                          Spacer(),
-                        ],
-                      ),
-                    ),
-                    hasLive ? Container(
-                      width: _width(100),
-                      margin: EdgeInsets.only(top: _height(2),),
-                      child: GridView.builder(
-                        padding: EdgeInsets.only( left: 5.0, right: 5.0,bottom: 10),
-                        shrinkWrap: true,
-                        itemCount: _displayLiveClasses().length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2,childAspectRatio: getAspectRatio()),
-                        itemBuilder: (context, index) {
-                          final theItem = _displayLiveClasses()[index];
-
-                          return theItem;
-
-                        },
-                      ),
-                    ) : Container(
-                      margin: EdgeInsets.only(right: _width(2), left: _width(2),top: _height(2),),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.all(
-                            Radius.circular(15)
-                        )
-                      ),
-                      child: Center(
-                          child: Text(
-                            "No Live Classes",
-                            style: TextStyle(
-                              color: Colors.black45,
-                              fontSize: 14
-                            ),
-                          )
-                      ),
-                    ),
-
-                    Container(
-                      child: Row(
-                        children: [
-                          Text(
-                            "Scheduled Classes",
-                            style: TextStyle(
-                                fontSize: 25,
-                                fontWeight: FontWeight.bold
-                            ),
-                            textAlign: TextAlign.left,
-                          ),
-                          Spacer(),
-                        ],
-                      ),
-                    ),
-
-                    scheduleVideos.length > 0 ? Container(
+                    scheduleVideos.isNotEmpty ? Container(
                         width: _width(100),
                         margin: EdgeInsets.only(top: _height(2),),
                         child: GridView.builder(
@@ -466,19 +368,24 @@ class _ReadyVideoState extends State<ReadyVideo> {
                           },
                         )
                     ) : Container(
-                      margin: EdgeInsets.only(right: _width(2), left: _width(2),top: _height(2),),
+                      height: _height(15),
+                      margin: EdgeInsets.only(right: _width(2), left: _width(2),top: _height(2),bottom: _height(2),),
                       decoration: BoxDecoration(
-                          color: Colors.white,
                           borderRadius: BorderRadius.all(
                               Radius.circular(15)
+                          ),
+                          border: Border.all(
+                              color: Colors.lightGreen,
+                              width: 2
                           )
                       ),
                       child: Center(
                           child: Text(
-                            "No Scheduled Classes",
+                            "No Upcoming Classes",
                             style: TextStyle(
                                 color: Colors.black45,
-                                fontSize: 14
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold
                             ),
                           )
                       ),
@@ -646,7 +553,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
                                     Container(
                                       width: _width(25),
                                       child: Text(
-                                        "Fitness level",
+                                        "Schedule Time",
                                         style: TextStyle(
                                             fontWeight: FontWeight.normal
                                         ),
@@ -655,7 +562,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
                                     Container(
                                         width: _width(25),
                                         child: Text(
-                                          "5",
+                                          "${theElement["scheduledTime"]}",
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold
                                           ),)
@@ -677,7 +584,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
                                     Container(
                                         width: _width(25),
                                         child: Text(
-                                          theElement["duration"],
+                                          "${theElement["duration"].toString().replaceAll("mins", "")} mins",
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold
                                           ),)
@@ -725,9 +632,9 @@ class _ReadyVideoState extends State<ReadyVideo> {
                             setState(() {
                               joinLoader = true;
                             });
-                            var result = await HomeResources().joinChallenge(
+                            var result = await HomeResources().joinLiveClass(
                                 {
-                                  "video_id": theElement["video_id"],
+                                  "activity_id": theElement["video_id"],
                                   "user_id": user_id,
                                   "user_department": team,
                                   "username": username
@@ -744,7 +651,8 @@ class _ReadyVideoState extends State<ReadyVideo> {
                                       theElement["video_id"],
                                       theElement["participants"],
                                       theElement["title"].toString().replaceAll(" ", "_"),
-                                      Common().getDateTimeDifference("${theElement["scheduledDate"]} ${theElement["scheduledTime"]}")
+                                      Common().getDateTimeDifference("${theElement["scheduledDate"]} ${theElement["scheduledTime"]}"),
+                                      theElement
                                   )
                               );
                             }else{

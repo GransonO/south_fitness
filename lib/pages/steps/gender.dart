@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/pages/common.dart';
 import 'package:south_fitness/pages/steps/goal.dart';
@@ -11,8 +12,8 @@ class Gender extends StatefulWidget {
 }
 
 class _GenderState extends State<Gender> {
-  bool male = true;
-  bool female = true;
+  bool male = false;
+  bool female = false;
   SharedPreferences prefs;
 
   var weight = 55;
@@ -53,7 +54,7 @@ class _GenderState extends State<Gender> {
                                   child: SvgPicture.asset(
                                     "assets/images/male.svg",
                                     fit: BoxFit.cover,
-                                    color: female ? Colors.grey : null,
+                                    color: male ? null : Colors.grey,
                                   ),
                                 ),
                               ),
@@ -78,7 +79,7 @@ class _GenderState extends State<Gender> {
                                   child: SvgPicture.asset(
                                     "assets/images/male.svg",
                                     fit: BoxFit.cover,
-                                    color: male ? Colors.grey : null
+                                    color: female ? null : Colors.grey,
                                   ),
                                 ),
                               ),
@@ -154,8 +155,12 @@ class _GenderState extends State<Gender> {
                                         Container(
                                           width: _height(5),
                                           child: TextField(
-                                            onChanged: (value){
-                                              weight = int.parse(value);
+                                            onChanged: (value) async {
+                                              prefs = await SharedPreferences.getInstance();
+                                              setState(() {
+                                                weight = int.parse(value);
+                                                prefs.setInt("weight", weight);
+                                              });
                                             },
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
@@ -243,8 +248,10 @@ class _GenderState extends State<Gender> {
                                         Container(
                                           width: _height(5),
                                           child: TextField(
-                                            onChanged: (value){
+                                            onChanged: (value) async {
                                               lheight = int.parse(value);
+                                              prefs = await SharedPreferences.getInstance();
+                                              prefs.setInt("height", lheight);
                                             },
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
@@ -284,8 +291,20 @@ class _GenderState extends State<Gender> {
                                 Spacer(),
 
                                 InkWell(
-                                  onTap: (){
-                                    Common().newActivity(context, Goals());
+                                  onTap: () async {
+                                    print("++++++++++++++++++++++++++++++++++ Gender");
+                                    if(male == false && female == false){
+                                      Fluttertoast.showToast(
+                                          msg: "Please select your gender",
+                                          textColor: Colors.white,
+                                          backgroundColor: Colors.lightGreen
+                                      );
+                                    }else{
+                                      prefs = await SharedPreferences.getInstance();
+                                      prefs.setInt("height", lheight);
+                                      prefs.setInt("weight", weight);
+                                      Common().newActivity(context, Goals());
+                                    }
                                   },
                                   child: Container(
                                     height: _height(7),

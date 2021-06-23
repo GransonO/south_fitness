@@ -36,14 +36,13 @@ class _ReaderState extends State<Reader> {
   bool addComment = false;
   bool isPosting = false;
   SharedPreferences prefs;
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     setPrefs();
-    getComments();
   }
 
   setPrefs() async {
@@ -53,17 +52,9 @@ class _ReaderState extends State<Reader> {
       email = prefs.getString("email");
       image = prefs.getString("image");
       user_id = prefs.getString("user_id");
+      comments = details["comments"];
     });
   }
-  
-  getComments() async {
-    var commentX = await HomeResources().getBlogComments(details["blog_id"]);
-    setState(() {
-      comments = commentX;
-      print("Comments ------------------------- $comments");
-    });
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -336,6 +327,13 @@ class _ReaderState extends State<Reader> {
       );
     });
     return children;
+  }
+
+  getComments() async {
+    var commentX = await HomeResources().getBlogComments(details["blog_id"]);
+    setState(() {
+      comments = commentX;
+    });
   }
 
   convertDate(date) {

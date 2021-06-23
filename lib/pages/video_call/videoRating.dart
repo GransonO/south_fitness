@@ -1,22 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:south_fitness/services/net.dart';
 import 'package:video_player/video_player.dart';
 
 import '../common.dart';
 import '../home/Home.dart';
 
 class VideoRating extends StatefulWidget {
+  var element = {};
+
+  VideoRating(value){
+    element = value;
+  }
+
   @override
-  _VideoRatingState createState() => _VideoRatingState();
+  _VideoRatingState createState() => _VideoRatingState(element);
 }
 
 class _VideoRatingState extends State<VideoRating> {
 
+  var tElement = {};
+  _VideoRatingState(element){
+    tElement = element;
+  }
 
   VideoPlayerController _controller;
   Future<void> _initializeVideoPlayerFuture;
   bool play = false;
+  bool rateLoading = false;
+  double trainerRate = 0.0;
+  double sessionRate = 0.0;
 
+  var username = "";
+  var email = "";
+  var user_id = "";
+  var team = "";
+  SharedPreferences prefs;
 
   @override
   void initState() {
@@ -24,10 +46,21 @@ class _VideoRatingState extends State<VideoRating> {
     super.initState();
 
     _controller = VideoPlayerController.network(
-      "https://res.cloudinary.com/dolwj4vkq/video/upload/v1612826611/South_Fitness/yoga.mp4",
+      tElement["video_url"]
     );
 
     _initializeVideoPlayerFuture = _controller.initialize();
+    setPrefs();
+  }
+
+  setPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString("username");
+      email = prefs.getString("email");
+      user_id = prefs.getString("user_id");
+      team = prefs.getString("team");
+    });
   }
 
   @override
@@ -55,7 +88,7 @@ class _VideoRatingState extends State<VideoRating> {
                                     Container(
                                       width: _width(100),
                                       child: Text(
-                                        "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in as some form, by injected humour",
+                                        "${tElement["details"]}",
                                         style: TextStyle(
                                             fontSize: 13,
                                             color: Colors.grey
@@ -69,7 +102,7 @@ class _VideoRatingState extends State<VideoRating> {
                                       child: Row(
                                         children: [
                                           Text(
-                                            "Video Rating",
+                                            "Session Rating",
                                             style: TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold
@@ -179,6 +212,9 @@ class _VideoRatingState extends State<VideoRating> {
                                                           color: Colors.amber,
                                                         ),
                                                         onRatingUpdate: (rating) {
+                                                          setState(() {
+                                                            sessionRate = rating;
+                                                          });
                                                           print(rating);
                                                         },
                                                       ),
@@ -224,6 +260,9 @@ class _VideoRatingState extends State<VideoRating> {
                                                           color: Colors.amber,
                                                         ),
                                                         onRatingUpdate: (rating) {
+                                                          setState(() {
+                                                            trainerRate = rating;
+                                                          });
                                                           print(rating);
                                                         },
                                                       ),
@@ -241,7 +280,36 @@ class _VideoRatingState extends State<VideoRating> {
                                     SizedBox( height: _height(5)),
                                     Center(
                                       child: InkWell(
-                                        onTap: (){
+                                        onTap: () async {
+                                          setState(() {
+                                            rateLoading = true;
+                                          });
+                                          var result = await HomeResources().rateLiveClass(
+                                              {
+                                                "activity_id": tElement["video_id"],
+                                                "user_id": user_id,
+                                                "user_department": team,
+                                                "username": username,
+                                                "trainer_rating":trainerRate,
+                                                "activity_rating":sessionRate
+                                              }
+                                              );
+                                          setState(() {
+                                            rateLoading = false;
+                                          });
+                                          if(result){
+                                            Fluttertoast.showToast(
+                                                msg: "Ratings posted successfully",
+                                                textColor: Colors.white,
+                                                backgroundColor: Colors.lightGreen
+                                            );
+                                          }else{
+                                            Fluttertoast.showToast(
+                                                msg: "Ratings posting failed",
+                                                textColor: Colors.white,
+                                                backgroundColor: Colors.red
+                                            );
+                                          }
                                           Common().newActivity(context, HomeView());
                                         },
                                         child: Container(
@@ -252,7 +320,7 @@ class _VideoRatingState extends State<VideoRating> {
                                               borderRadius: BorderRadius.all(Radius.circular(15))
                                           ),
                                           child: Center(
-                                            child: Text(
+                                            child: rateLoading ? SpinKitThreeBounce(size: 25, color: Colors.white,) : Text(
                                               "Back Home",
                                               style: TextStyle(
                                                   color: Colors.white,

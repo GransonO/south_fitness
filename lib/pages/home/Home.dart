@@ -12,6 +12,7 @@ import 'package:south_fitness/pages/home/sessions.dart';
 import 'package:south_fitness/pages/home/suggested_details.dart';
 import 'package:south_fitness/pages/run/dailyRun.dart';
 import 'package:south_fitness/services/net.dart';
+import 'package:video_player/video_player.dart';
 
 import '../common.dart';
 import 'SuggestedActivities.dart';
@@ -27,9 +28,10 @@ class _HomeState extends State<HomeView> {
   var username = "";
   var email = "";
   var user_id = "";
+  var team = "";
   SharedPreferences prefs;
   var dayName = "";
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   bool serviceEnabled;
   LocationPermission permission;
@@ -41,29 +43,18 @@ class _HomeState extends State<HomeView> {
 
   bool showFuture = false;
   bool showPast = false;
+  bool showVideo = false;
+  var startTime = DateTime.now();
 
   var allVideos = [];
   var allPastActivities = [];
-  var activityList = [
-    {
-      "image": "https://res.cloudinary.com/dolwj4vkq/image/upload/v1617201729/South_Fitness/suggested_activities/Rectangle_28.png",
-      "title": "Cardio",
-      "time": "45 mins",
-      "videoUrl": "https://res.cloudinary.com/dolwj4vkq/video/upload/v1612826611/South_Fitness/cross.mp4"
-    },
-    {
-      "image": "https://res.cloudinary.com/dolwj4vkq/image/upload/v1617201725/South_Fitness/suggested_activities/Rectangle_29.png",
-      "title": "Feel Good",
-      "time": "45 mins",
-      "videoUrl": "https://res.cloudinary.com/dolwj4vkq/video/upload/v1612826609/South_Fitness/dance.mp4"
-    },
-    {
-      "image": "https://res.cloudinary.com/dolwj4vkq/image/upload/v1617201729/South_Fitness/suggested_activities/Rectangle_40.png",
-      "title": "Yoga Time",
-      "time": "45 mins",
-      "videoUrl": "https://res.cloudinary.com/dolwj4vkq/video/upload/v1612826609/South_Fitness/yoga.mp4"
-    },
-  ];
+  var activityList = [];
+
+  VideoPlayerController _controller;
+  Future<void> _initializeVideoPlayerFuture;
+  bool play = false;
+  bool joinLoader = false;
+  var theElement = {};
 
   @override
   void initState() {
@@ -104,9 +95,8 @@ class _HomeState extends State<HomeView> {
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
     user_id = prefs.getString("user_id");
-    var upcomingVideos = await HomeResources().getVideos();
-
-    print("----------User Id is ----------------------------- $user_id");
+    var suggestions = await HomeResources().getSuggestedActivities();
+    var upcomingVideos = await HomeResources().getVideos(Common().displayDateOfWeek(DateFormat('EEEE').format(DateTime.now())));
 
     var pastActivities = await HomeResources().getTodayActivities(user_id);
     setState(() {
@@ -114,8 +104,10 @@ class _HomeState extends State<HomeView> {
       email = prefs.getString("email");
       image = prefs.getString("image");
       user_id = prefs.getString("user_id");
+      team = prefs.getString("team");
       prefs.setBool("isLoggedIn", true);
       allVideos = upcomingVideos;
+      activityList = suggestions;
       loading = false;
       allPastActivities = pastActivities;
     });
@@ -179,6 +171,15 @@ class _HomeState extends State<HomeView> {
     }
   }
 
+  initializeVideo(link) {
+    setState(() {
+      _controller = VideoPlayerController.network(
+        link,
+      );
+      _initializeVideoPlayerFuture = _controller.initialize();
+    });
+  }
+
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
@@ -229,8 +230,8 @@ class _HomeState extends State<HomeView> {
                             child: Row(
                               children: [
                                 InkWell(
-                                  onTap: (){
-                                    verifyDateRange("Monday");
+                                  onTap: () async {
+                                    verifyDateRange("Monday", displayDates("Monday"));
                                   },
                                   child: Container(
                                     height: _height(7),
@@ -270,8 +271,8 @@ class _HomeState extends State<HomeView> {
                                 ),
                                 Spacer(),
                                 InkWell(
-                                  onTap: (){
-                                    verifyDateRange("Tuesday");
+                                  onTap: () async {
+                                    verifyDateRange("Tuesday", displayDates("Tuesday"));
                                   },
                                   child: Container(
                                     height: _height(7),
@@ -311,8 +312,8 @@ class _HomeState extends State<HomeView> {
                                 ),
                                 Spacer(),
                                 InkWell(
-                                  onTap: (){
-                                    verifyDateRange("Wednesday");
+                                  onTap: () async {
+                                    verifyDateRange("Wednesday", displayDates("Wednesday"));
                                   },
                                   child: Container(
                                     height: _height(7),
@@ -348,8 +349,8 @@ class _HomeState extends State<HomeView> {
                                 ),
                                 Spacer(),
                                 InkWell(
-                                  onTap: (){
-                                    verifyDateRange("Thursday");
+                                  onTap: () async {
+                                    verifyDateRange("Thursday", displayDates("Thursday"));
                                   },
                                   child: Container(
                                     height: _height(7),
@@ -382,8 +383,8 @@ class _HomeState extends State<HomeView> {
                                 ),
                                 Spacer(),
                                 InkWell(
-                                  onTap: (){
-                                    verifyDateRange("Friday");
+                                  onTap: () async {
+                                    verifyDateRange("Friday", displayDates("Friday"));
                                   },
                                   child: Container(
                                     height: _height(7),
@@ -417,8 +418,8 @@ class _HomeState extends State<HomeView> {
                                 ),
                                 Spacer(),
                                 InkWell(
-                                  onTap: (){
-                                    verifyDateRange("Saturday");
+                                  onTap: () async {
+                                    verifyDateRange("Saturday", displayDates("Saturday"));
                                   },
                                   child: Container(
                                     height: _height(7),
@@ -451,8 +452,8 @@ class _HomeState extends State<HomeView> {
                                 ),
                                 Spacer(),
                                 InkWell(
-                                  onTap: (){
-                                    verifyDateRange("Sunday");
+                                  onTap: () async {
+                                    verifyDateRange("Sunday", displayDates("Sunday"));
                                   },
                                   child: Container(
                                     height: _height(7),
@@ -490,8 +491,13 @@ class _HomeState extends State<HomeView> {
                             child: Row(
                                 children: [
                                   InkWell(
-                                    onTap: (){
-                                      Common().newActivity(context, DailyRun("Running", currentLat, currentLong));
+                                    onTap: () async {
+                                      bool locationIsGranted = await Permission.location.isGranted;
+                                      if (!locationIsGranted) {
+                                        await Permission.camera.request();
+                                      }else{
+                                        Common().newActivity(context, DailyRun("Running", currentLat, currentLong));
+                                      }
                                     },
                                     child: Center(
                                       child: Container(
@@ -515,8 +521,13 @@ class _HomeState extends State<HomeView> {
                                   ),
                                   Spacer(),
                                   InkWell(
-                                    onTap: (){
-                                      Common().newActivity(context, DailyRun("Walking", currentLat, currentLong));
+                                    onTap: () async {
+                                      bool locationIsGranted = await Permission.location.isGranted;
+                                      if (!locationIsGranted) {
+                                        await Permission.camera.request();
+                                      }else{
+                                        Common().newActivity(context, DailyRun("Walking", currentLat, currentLong));
+                                      }
                                     },
                                     child: Center(
                                       child: Container(
@@ -540,8 +551,13 @@ class _HomeState extends State<HomeView> {
                                   ),
                                   Spacer(),
                                   InkWell(
-                                    onTap: (){
-                                      Common().newActivity(context, DailyRun("Cycling", currentLat, currentLong));
+                                    onTap: () async {
+                                      bool locationIsGranted = await Permission.location.isGranted;
+                                      if (!locationIsGranted) {
+                                        await Permission.camera.request();
+                                      }else{
+                                        Common().newActivity(context, DailyRun("Cycling", currentLat, currentLong));
+                                      }
                                     },
                                     child: Center(
                                       child: Container(
@@ -575,7 +591,7 @@ class _HomeState extends State<HomeView> {
                         Container(
                           width: _width(100),
                           child: Text(
-                            showPast ? "Past Activities" : showFuture ? "Scheduled Activities" : "Upcoming Activities",
+                            showPast ? "Past Live Classes" : showFuture ? "Scheduled Live Classes" : "Upcoming Live Classes",
                             style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600
@@ -600,7 +616,7 @@ class _HomeState extends State<HomeView> {
                           child: Row(
                             children : [
                               Text(
-                                "Suggested Activities",
+                                "Suggested Classes",
                                 style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w600
@@ -611,7 +627,7 @@ class _HomeState extends State<HomeView> {
                               InkWell(
                                 onTap: (){
                                   print("Clicked");
-                                  Common().newActivity(context, SuggestedActivities());
+                                  Common().newActivity(context, SuggestedActivities(activityList));
                                 },
                                 child: Text(
                                   "See All",
@@ -660,6 +676,278 @@ class _HomeState extends State<HomeView> {
                     ],
                   ),
                 ),
+                showVideo ? Container(
+                  height: _height(100),
+                  width: _width(100),
+                  color: Color.fromARGB(150, 0, 0, 0),
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      height: _height(67),
+                      width: _width(100),
+                      margin: EdgeInsets.only(left: 10, right: 10),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15))
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(right: _width(3), top: _width(2)),
+                            child: Row(
+                              children: [
+                                Spacer(),
+                                InkWell(
+                                    onTap: (){
+                                      setState(() {
+                                        showVideo = !showVideo;
+                                      });
+                                    },
+                                    child: Icon(
+                                      Icons.close_outlined,
+                                      color: Colors.lightGreen,
+                                    )
+                                )
+                              ],
+                            ),
+                          ),
+                          Container(
+                            height: _width(70),
+                            width: _width(90),
+                            child: Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                                  child: Container(
+                                    height: _width(70),
+                                    width: _width(90),
+                                    margin: EdgeInsets.only(top: _height(2), bottom: _height(4)),
+                                    child: FutureBuilder(
+                                      future: _initializeVideoPlayerFuture,
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState == ConnectionState.done) {
+                                          // If the VideoPlayerController has finished initialization, use
+                                          // the data it provides to limit the aspect ratio of the VideoPlayer.
+                                          return AspectRatio(
+                                            aspectRatio: _controller.value.aspectRatio,
+                                            // Use the VideoPlayer widget to display the video.
+                                            child: VideoPlayer(_controller),
+                                          );
+                                        } else {
+                                          // If the VideoPlayerController is still initializing, show a
+                                          // loading spinner.
+                                          return Center(child: CircularProgressIndicator());
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: Row(
+                                      children: [
+                                        Spacer(),
+                                        InkWell(
+                                            onTap: (){
+                                              setState(() {
+                                                // If the video is playing, pause it.
+                                                if (_controller.value.isPlaying) {
+                                                  play = false;
+                                                  _controller.pause();
+                                                } else {
+                                                  play = true;
+                                                  // If the video is paused, play it.
+                                                  _controller.play();
+                                                }
+                                              });
+                                            },
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(8.0),
+                                              child: play ? Icon(Icons.pause_circle_filled, color: Colors.lightGreen, size: 40,) : Icon(Icons.play_circle_filled_sharp, color: Colors.lightGreen, size: 40,),
+                                            )
+                                        ),
+                                        Spacer(),
+                                      ],
+                                    )
+                                )
+                              ],
+                            ),
+                          ),
+                          SizedBox( height: _height(2)),
+
+                          Container(
+                              height: _height(15),
+                              width: _width(100),
+                              margin: EdgeInsets.only(left: 10, right: 10),
+                              padding: EdgeInsets.all(10.0),
+                              decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.all(Radius.circular(15))
+                              ),
+                              child: Column(
+                                children: [
+                                  Spacer(),
+                                  Row(
+                                    children: [
+                                      Column(
+                                        children: [
+                                          Container(
+                                            width: _width(25),
+                                            child: Text(
+                                              "Coach Name",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.normal
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                              width: _width(25),
+                                              child: Text(theElement["instructor"],
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold
+                                                ),
+                                              )
+                                          )
+                                        ],
+                                      ),
+                                      Spacer(),
+                                      Column(
+                                        children: [
+                                          Container(
+                                            width: _width(25),
+                                            child: Text(
+                                              "Fitness level",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.normal
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                              width: _width(25),
+                                              child: Text(
+                                                "5",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold
+                                                ),)
+                                          )
+                                        ],
+                                      ),
+                                      Spacer(),
+                                      Column(
+                                        children: [
+                                          Container(
+                                            width: _width(25),
+                                            child: Text(
+                                              "Duration",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.normal
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                              width: _width(25),
+                                              child: Text(
+                                                theElement["duration"],
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold
+                                                ),)
+                                          )
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  Spacer(),
+                                  Row(
+                                    children: [
+                                      Column(
+                                        children: [
+                                          Container(
+                                            width: _width(25),
+                                            child: Text(
+                                              "Category",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.normal
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                              width: _width(25),
+                                              child: Text(theElement["type"],
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold
+                                                ),
+                                              )
+                                          )
+                                        ],
+                                      ),
+                                      Spacer(),
+                                    ],
+                                  ),
+                                  Spacer(),
+                                ],
+                              )
+                          ),
+                          SizedBox( height: _height(2)),
+
+                          Center(
+                            child: InkWell(
+                              onTap: () async {
+                                setState(() {
+                                  joinLoader = true;
+                                });
+                                var result = await HomeResources().joinLiveClass(
+                                    {
+                                      "activity_id": theElement["video_id"],
+                                      "user_id": user_id,
+                                      "user_department": team,
+                                      "username": username
+                                    }
+                                );
+                                setState(() {
+                                  joinLoader = false;
+                                });
+                                if(result){
+                                  Common().newActivity(context,
+                                      Session(
+                                          theElement["type"],
+                                          theElement["video_url"],
+                                          theElement["video_id"],
+                                          theElement["participants"],
+                                          theElement["title"].toString().replaceAll(" ", "_"),
+                                          Common().getDateTimeDifference("${theElement["scheduledDate"]} ${theElement["scheduledTime"]}"),
+                                          theElement
+                                      )
+                                  );
+                                }else{
+                                  Fluttertoast.showToast(msg: "Could not join the class. Try again later");
+                                }
+                              },
+                              child: Container(
+                                height: _height(5),
+                                width: _width(100),
+                                margin: EdgeInsets.only(left: 10, right: 10),
+                                decoration: BoxDecoration(
+                                    color: Color.fromARGB(255,110,180,63),
+                                    borderRadius: BorderRadius.all(Radius.circular(10))
+                                ),
+                                child: Center(
+                                  child: joinLoader ? SpinKitThreeBounce(color: Colors.white, size: 25,) : Text(
+                                    "Join class",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ) : Container(),
               ],
             ),
           ),
@@ -745,25 +1033,38 @@ class _HomeState extends State<HomeView> {
     return day;
   }
 
-  verifyDateRange(dayOfWeek){
+  verifyDateRange(dayOfWeek, passedDate) async {
+    setState(() {
+      loading= true;
+    });
+    var date = "${startTime.year}-${startTime.month}-$passedDate";
     if(getDayValue(dayOfWeek).day == DateTime.now().day){
+      var queriedVids = await HomeResources().getDateActivities(date);
       // Current day
       setState(() {
+        allVideos = queriedVids;
         showPast = false;
         showFuture = false;
+        loading= false;
       });
       return;
     }
 
     if(getDayValue(dayOfWeek).isBefore(DateTime.now())){
+      var queriedVids = await HomeResources().getDateActivities(date);
       setState(() {
+        allVideos = queriedVids;
         showPast = true;
         showFuture = false;
+        loading= false;
       });
     }else {
+      var queriedVids = await HomeResources().getDateActivities(date);
       setState(() {
+        allVideos = queriedVids;
         showFuture = true;
         showPast = false;
+        loading= false;
       });
     }
   }
@@ -909,190 +1210,186 @@ class _HomeState extends State<HomeView> {
 
   displayThemVideos() {
     var children = <Widget>[];
-    if(allPastActivities.isNotEmpty){
+
+    if(allVideos.isEmpty){
       children.add(
-          Container(
+        Container(
+            height: _height(15),
             width: _width(100),
-            margin: EdgeInsets.only(bottom: _height(1)),
-            child: Text(
-              "Upcoming Events",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold
+            margin: EdgeInsets.all(_height(1)),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+              border: Border.all(
+                color: Colors.lightGreen,
+                width: 2
+              )
             ),
-            textAlign: TextAlign.left,),
-          )
+            child: Center(
+                child: Text("No Activities Scheduled Today",
+                    style: TextStyle(
+                      color: Colors.lightGreen,
+                      fontSize: 15
+                    )
+                )
+            )
+        )
       );
-    }
-    allVideos.forEach((element) {
-      if(element["scheduledTime"] != null){
-        children.add(
-            InkWell(
-              onTap: (){
-                Common().newActivity(
-                    context,
-                    Session(
-                        element["type"],
-                        element["video_url"],
-                        element["video_id"],
-                        element["participants"],
-                        element["title"].toString().replaceAll(" ", "_"),
-                        Common().getDateTimeDifference("${element["scheduledDate"]} ${element["scheduledTime"]}")
-                    ));
-              },
-              child: Container(
-                  height: _height(10),
-                  width: _width(100),
-                  margin: EdgeInsets.only(bottom: _height(2)),
-                  child: Row(
-                    children: [
-                      Container(
-                          height: _height(10),
-                          width: _height(10),
-                          child: Stack(
-                            children: [
-                              Center(
-                                child: SpinKitThreeBounce(
-                                  color: Colors.lightGreen,
-                                  size: 20,
-                                ),
-                              ),
-                              Container(
-                                height: _height(10),
-                                width: _height(10),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.all(Radius.circular(15)),
-                                  child: Image.network(
-                                    "${element["image_url"]}",
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                      ),
-                      SizedBox(width: _width(4),),
-                      Column(
+    }else{
+      allVideos.forEach((element) {
+        if(element["scheduledTime"] != null){
+          var timeString = '${element["scheduledDate"]}T${element["scheduledTime"]}';
+          var dateTime = DateTime.parse(timeString);
+          if(dateTime.isAfter(DateTime.now())){
+            children.add(
+                InkWell(
+                  onTap: (){
+                    setState(() {
+                      theElement = element;
+                      showVideo = true;
+                    });
+                    initializeVideo(element["video_url"]);
+                  },
+                  child: Container(
+                      height: _height(10),
+                      width: _width(100),
+                      margin: EdgeInsets.only(bottom: _height(2)),
+                      child: Row(
                         children: [
-                          Spacer(),
                           Container(
-                            width: _width(40),
-                            child: Text(
-                              element["title"],
-                              style: TextStyle(
-                                  fontSize: 14
-                              ),
-                              textAlign: TextAlign.left,
-                            ),
-                          ),
-                          SizedBox(height: _height(2),),
-                          Container(
-                              width: _width(40),
-                              child: Row(
+                              height: _height(10),
+                              width: _height(10),
+                              child: Stack(
                                 children: [
-                                  Text(
-                                    "Trainer: ",
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.grey
+                                  Center(
+                                    child: SpinKitThreeBounce(
+                                      color: Colors.lightGreen,
+                                      size: 20,
                                     ),
-                                    textAlign: TextAlign.left,
                                   ),
-                                  Text(
-                                    element["instructor"],
-                                    style: TextStyle(
-                                        fontSize: 13
+                                  Container(
+                                    height: _height(10),
+                                    width: _height(10),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.all(Radius.circular(15)),
+                                      child: Image.network(
+                                        "${element["image_url"]}",
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
-                                    textAlign: TextAlign.left,
                                   ),
                                 ],
                               )
                           ),
-                          Spacer(),
-                        ],
-                      ),
-                      Spacer(),
-                      Column(
-                        children: [
-                          Spacer(),
-                          Container(
-                            child: Text(
-                              "${dateTimeString("${element["scheduledDate"]} ${element["scheduledTime"]}")}",
-                              style: TextStyle(
-                                  color: Colors.lightGreen,
-                                  fontSize: 12
-                              ),
-                              textAlign: TextAlign.left,
-                            ),
-                          ),
-                          Spacer(),
-                          Container(
-                              width: _width(10),
-                              child: Text(
-                                "${convertDateTime("${element["scheduledDate"]} ${element["scheduledTime"]}")}",
-                                style: TextStyle(
-                                    color: Colors.lightGreen,
-                                    fontSize: 10
+                          SizedBox(width: _width(4),),
+                          Column(
+                            children: [
+                              Spacer(),
+                              Container(
+                                width: _width(40),
+                                child: Text(
+                                  element["title"],
+                                  style: TextStyle(
+                                      fontSize: 14
+                                  ),
+                                  textAlign: TextAlign.left,
                                 ),
-                                textAlign: TextAlign.left,
-                              )
+                              ),
+                              SizedBox(height: _height(2),),
+                              Container(
+                                  width: _width(40),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "Trainer: ",
+                                        style: TextStyle(
+                                            fontSize: 13,
+                                            color: Colors.grey
+                                        ),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                      Text(
+                                        element["instructor"],
+                                        style: TextStyle(
+                                            fontSize: 13
+                                        ),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ],
+                                  )
+                              ),
+                              Spacer(),
+                            ],
                           ),
                           Spacer(),
+                          Column(
+                            children: [
+                              Spacer(),
+                              Container(
+                                child: Text(
+                                  "${dateTimeString("${element["scheduledDate"]} ${element["scheduledTime"]}")}",
+                                  style: TextStyle(
+                                      color: Colors.lightGreen,
+                                      fontSize: 12
+                                  ),
+                                  textAlign: TextAlign.left,
+                                ),
+                              ),
+                              Spacer(),
+                              Container(
+                                  width: _width(10),
+                                  child: Text(
+                                    "${convertDateTime("${element["scheduledDate"]} ${element["scheduledTime"]}")}",
+                                    style: TextStyle(
+                                        color: Colors.lightGreen,
+                                        fontSize: 10
+                                    ),
+                                    textAlign: TextAlign.left,
+                                  )
+                              ),
+                              Spacer(),
+                            ],
+                          ),
                         ],
-                      ),
-                    ],
-                  )
-              ),
+                      )
+                  ),
+                )
+            );
+          }
+        }
+      });
+
+      if(children.isEmpty){
+        children.add(
+            Container(
+                height: _height(15),
+                width: _width(100),
+                margin: EdgeInsets.all(_height(1)),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    border: Border.all(
+                        color: Colors.lightGreen,
+                        width: 2
+                    )
+                ),
+                child: Center(
+                    child: Text("No Activities Scheduled Today",
+                        style: TextStyle(
+                            color: Colors.lightGreen,
+                            fontSize: 15
+                        )
+                    )
+                )
             )
         );
       }
-    });
+    }
+
     return children;
   }
 
   displaySuggestions() {
     var children = <Widget>[];
-    var anotherList = [];
-    if(activityList.length > 2){
-      anotherList.add(activityList[0]);
-      anotherList.add(activityList[1]);
-
-      anotherList.forEach((element) {
-        children.add(
-            InkWell(
-              onTap: (){
-                Common().newActivity(context, SuggestedDetails(element));
-              },
-              child: Container(
-                  height: _height(15),
-                  width: _height(25),
-                  margin: EdgeInsets.only(right: _width(4)),
-                  child: Stack(
-                    children: [
-                      Center(
-                        child: SpinKitThreeBounce(
-                          color: Colors.lightGreen,
-                          size: 20,
-                        ),
-                      ),
-                      Container(
-                        height: _height(15),
-                        width: _height(25),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.all(Radius.circular(15)),
-                          child: Image.network(
-                            "${element["image"]}",
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-              ),
-            )
-        );
-      });
-    }else{
+    if(activityList.length > 0){
       activityList.forEach((element) {
         children.add(
             InkWell(
@@ -1115,12 +1412,34 @@ class _HomeState extends State<HomeView> {
                         height: _height(15),
                         width: _height(25),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.all(Radius.circular(15)),
+                          borderRadius: BorderRadius.only(topLeft: Radius.circular(15),topRight: Radius.circular(15)),
                           child: Image.network(
-                            "${element["image"]}",
+                            "${element["image_url"]}",
                             fit: BoxFit.cover,
                           ),
                         ),
+                      ),
+                      Container(
+                        height: _height(15),
+                        width: _height(25),
+                        child: Column(
+                          children: [
+                            Spacer(),
+                            Container(
+                              color: Colors.black54,
+                              width: _height(25),
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                  element["title"],
+                                style: TextStyle(
+                                  color: Colors.white
+                                ),
+                                textAlign: TextAlign.left,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            )
+                          ],
+                        )
                       ),
                     ],
                   )
@@ -1128,6 +1447,29 @@ class _HomeState extends State<HomeView> {
             )
         );
       });
+    }else{
+      children.add(
+          Container(
+              height: _height(15),
+              width: _width(90),
+              margin: EdgeInsets.all(_height(1)),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                  border: Border.all(
+                      color: Colors.lightGreen,
+                      width: 2
+                  )
+              ),
+              child: Center(
+                  child: Text("No Suggested Activities",
+                      style: TextStyle(
+                          color: Colors.lightGreen,
+                          fontSize: 15
+                      )
+                  )
+              )
+          )
+      );
     }
     return children;
   }
@@ -1141,4 +1483,5 @@ class _HomeState extends State<HomeView> {
     DateTime lel = DateTime.parse(date);
     return DateFormat.MMMMd().format(lel);
   }
+
 }

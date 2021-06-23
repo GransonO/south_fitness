@@ -38,8 +38,7 @@ class _ChatsState extends State<Chats> {
   var groupTitle = "";
   var description = "";
   var groups = [];
-  var image =
-      "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
   var groupImage =
       "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618138330/South_Fitness/ic_launcher.png";
   var generalImage =
@@ -600,7 +599,7 @@ class _ChatsState extends State<Chats> {
     return Common().componentWidth(context, size);
   }
 
-  groupItem(element){
+  groupItem(element) {
     return InkWell(
       onTap: () {
         Common().newActivity(context,
@@ -679,7 +678,7 @@ class _ChatsState extends State<Chats> {
                       ),
                     ))),
                 Spacer(),
-                TimeWidget(element["group_id"]),
+                TimeWidget(element["group_id"], false),
               ],
             ),
           ),
@@ -793,9 +792,7 @@ class _ChatsState extends State<Chats> {
                         ),
                       ))),
                   Spacer(),
-                  Container(
-                      child: Text("13:43",
-                          style: TextStyle(fontSize: 11, color: Colors.white))),
+                  TimeWidget("bb79a16c-8f40-11e-8dbb-f45c89b7cf75", true)
                 ],
               ),
             ),

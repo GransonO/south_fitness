@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:south_fitness/services/net.dart';
 import 'package:video_player/video_player.dart';
 
 import '../common.dart';
@@ -24,21 +26,24 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
   bool play = false;
   var videoUrl = "https://res.cloudinary.com/dolwj4vkq/video/upload/v1612826611/South_Fitness/yoga.mp4";
   var title = "";
+  var vidObj = {};
+  bool joinLoader = false;
+  var team = "";
 
   var username = "";
   var email = "";
   var user_id = "";
   SharedPreferences prefs;
   var dayName = "";
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
-
+  bool joined = false;
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   _SuggestedDetailsState(value){
     videoUrl = value["videoUrl"];
     title = value["title"];
-    _controller = VideoPlayerController.network(
-      videoUrl,
-    );
+    vidObj = value;
+    print("The Vids Object ----------------------------------------------------> $vidObj");
+    _controller = VideoPlayerController.network(videoUrl);
     _initializeVideoPlayerFuture = _controller.initialize();
   }
 
@@ -55,6 +60,7 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
       username = prefs.getString("username");
       email = prefs.getString("email");
       image = prefs.getString("image");
+      team = prefs.getString("team");
       user_id = prefs.getString("user_id");
     });
   }
@@ -86,7 +92,7 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
                                   Container(
                                     width: _width(100),
                                     child: Text(
-                                      "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in as some form, by injected humour",
+                                      "${vidObj["details"]}",
                                       style: TextStyle(
                                           fontSize: 13,
                                           color: Colors.grey
@@ -194,7 +200,7 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
                                               ),
                                               Container(
                                                 width: _width(30),
-                                                child: Text("4 Week(s)", style: TextStyle(
+                                                child: Text("${vidObj["duration"]} ${vidObj["duration_ext"]}", style: TextStyle(
                                                     fontWeight: FontWeight.bold
                                                 )),
                                               ),
@@ -207,7 +213,7 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
                                               ),
                                               Container(
                                                 width: _width(30),
-                                                child: Text("Build Muscles", style: TextStyle(
+                                                child: Text("${vidObj["type"]}", style: TextStyle(
                                                     fontWeight: FontWeight.bold
                                                 )),
                                               ),
@@ -230,7 +236,7 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
                                               ),
                                               Container(
                                                 width: _width(30),
-                                                child: Text("3 workouts", style: TextStyle(
+                                                child: Text("${vidObj["sets"]} workouts", style: TextStyle(
                                                     fontWeight: FontWeight.bold
                                                 )),
                                               ),
@@ -243,7 +249,7 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
                                               ),
                                               Container(
                                                 width: _width(30),
-                                                child: Text("Minimum Equipment", style: TextStyle(
+                                                child: Text("${vidObj["equip"]} Equipment", style: TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 12
                                                 )
@@ -268,7 +274,7 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
                                               ),
                                               Container(
                                                 width: _width(30),
-                                                child: Text("Advance", style: TextStyle(
+                                                child: Text("${vidObj["level"]}", style: TextStyle(
                                                     fontWeight: FontWeight.bold
                                                 )),
                                               ),
@@ -283,10 +289,39 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
                                   ),
 
                                   SizedBox( height: _height(5)),
-                                  Center(
+                                  joined ? Container() : Center(
                                     child: InkWell(
-                                      onTap: (){
-                                        Fluttertoast.showToast(msg: "Joined $title Challenge. You shall now receive notifications from this challenge");
+                                      onTap: () async {
+                                        setState(() {
+                                          joinLoader = true;
+                                        });
+                                        var result = await HomeResources().joinLiveClass(
+                                            {
+                                              "activity_id": vidObj["activity_id"],
+                                              "user_id": user_id,
+                                              "user_department": team,
+                                              "username": username
+                                            }
+                                        );
+                                        setState(() {
+                                          joinLoader = false;
+                                        });
+                                        if(result){
+                                          joined = true;
+                                          Fluttertoast.showToast(
+                                              msg: "Joining success. You shall receive notifications from this challenge",
+                                            backgroundColor: Colors.lightGreen,
+                                            textColor: Colors.white
+                                          );
+                                        }else{
+                                          joined = false;
+                                          Fluttertoast.showToast(
+                                              msg: "Joining failed. "
+                                                  "Contact Admin for assistance",
+                                              backgroundColor: Colors.red,
+                                              textColor: Colors.white
+                                          );
+                                        }
                                       },
                                       child: Container(
                                         height: _height(5),
@@ -296,8 +331,8 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
                                             borderRadius: BorderRadius.all(Radius.circular(15))
                                         ),
                                         child: Center(
-                                          child: Text(
-                                            "Join",
+                                          child: joinLoader ? SpinKitThreeBounce(color: Colors.white, size: 25,) : Text(
+                                            "Join challenge",
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 15,

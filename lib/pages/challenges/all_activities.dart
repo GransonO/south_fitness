@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:south_fitness/pages/challenges/challenge_details.dart';
 import 'package:south_fitness/pages/home/sessions.dart';
+import 'package:south_fitness/services/net.dart';
 
 import '../common.dart';
 
@@ -14,11 +16,13 @@ class _AllActivitiesState extends State<AllActivities> {
 
   var username = "";
   var email = "";
+  var user_id = "";
   SharedPreferences prefs;
 
   bool joined = false;
+  bool isLoading = false;
   String status = "Challenges";
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
 
@@ -30,41 +34,41 @@ class _AllActivitiesState extends State<AllActivities> {
   }
 
   setPrefs() async {
+    setState(() {
+      isLoading = true;
+    });
     prefs = await SharedPreferences.getInstance();
     setState(() {
       username = prefs.getString("username");
       email = prefs.getString("email");
       image = prefs.getString("image") != null ? prefs.getString("image") : image;
+      user_id = prefs.getString("user_id");
     });
+    getActivities(user_id);
   }
 
-  var activitiesList = ["Challenges", "TBT", "Fit for 2020", "Karura Run"];
+  List activitiesList = [];
+  List activities = [];
+  List joinedActivities = [];
 
-  var activities = [ {
-      "image": "https://res.cloudinary.com/dolwj4vkq/image/upload/v1617256436/South_Fitness/video_images/IMG-20210131-WA0000.jpg",
-      "title": "June Cold Challenge",
-      "time": "45 mins",
-      "videoUrl": "https://res.cloudinary.com/dolwj4vkq/video/upload/v1617255977/South_Fitness/VID-20210122-WA0012.mp4",
-      "category": "TBT"
-    }, {
-      "image": "https://res.cloudinary.com/dolwj4vkq/image/upload/v1617201729/South_Fitness/suggested_activities/Rectangle_28.png",
-      "title": "Step It Up",
-      "time": "45 mins",
-      "videoUrl": "https://res.cloudinary.com/dolwj4vkq/video/upload/v1612826611/South_Fitness/cross.mp4",
-      "category": "TBT"
-    }, {
-      "image": "https://res.cloudinary.com/dolwj4vkq/image/upload/v1617201729/South_Fitness/suggested_activities/Rectangle_28.png",
-      "title": "Cross World Fit",
-      "time": "45 mins",
-      "videoUrl": "https://res.cloudinary.com/dolwj4vkq/video/upload/v1617255977/South_Fitness/VID-20210122-WA0012.mp4",
-      "category": "Fit for 2020"
-    }, {
-      "image": "https://res.cloudinary.com/dolwj4vkq/image/upload/v1617256436/South_Fitness/video_images/IMG-20210131-WA0000.jpg",
-      "title": "10 Sunday Run Challenge",
-      "time": "45 mins",
-      "videoUrl": "https://res.cloudinary.com/dolwj4vkq/video/upload/v1612826611/South_Fitness/cross.mp4",
-      "category": "Karura Run"
-    }];
+  getActivities(userId) async {
+    print("userId --------------------------- $userId");
+    var results = await HomeResources().getAllListedActivities();
+    print("results --------------------------- $results");
+
+    List joinedChallenges = await PerformanceResource().getUserPerformance(userId);
+    print("joinedChallenges --------------------------- $joinedChallenges");
+
+    List joinedResults = joinedChallenges.map((e) => e["challenge_id"]).toList();
+    print("joinedResults --------------------------- $joinedResults");
+    setState(() {
+      isLoading = false;
+      activities = results;
+      activitiesList = (activities.map((e) => e["type"])).toList();
+      joinedActivities = (activities.where((e) => joinedResults.contains(e["challenge_id"]))).toList();
+      print("joinedActivities --------------------------- $joinedActivities");
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +85,7 @@ class _AllActivitiesState extends State<AllActivities> {
                   children: [
                     SizedBox(height: _height(3),),
                     Container(
+                      width: _width(100),
                       margin: EdgeInsets.only(left: _width(4), right: _width(4)),
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
@@ -91,7 +96,8 @@ class _AllActivitiesState extends State<AllActivities> {
                     ),
                     SizedBox( height: _height(2)),
                     Container(
-                      height: _height(80),
+                      height: _height(85),
+                      width: _width(100),
                       padding: EdgeInsets.only(left: _width(4), right: _width(4)),
                       decoration: BoxDecoration(
                           color: Colors.grey[300],
@@ -99,7 +105,7 @@ class _AllActivitiesState extends State<AllActivities> {
                       ),
                       child: SingleChildScrollView(
                         child: Column(
-                          children: displayActivities()
+                          children: isLoading ? [Container()] : displayActivities()
                         )
                       ),
                     )
@@ -124,6 +130,12 @@ class _AllActivitiesState extends State<AllActivities> {
                 ],
               ),
             ),
+            isLoading ? Center(
+              child: SpinKitThreeBounce(
+                color: Colors.lightGreen,
+                size: 50,
+              ),
+            ) : Container()
           ],
         ),
       ),
@@ -141,6 +153,59 @@ class _AllActivitiesState extends State<AllActivities> {
 
   displayActivitiesTitles() {
     var children = <Widget>[];
+
+    children.add(InkWell(
+      onTap: (){
+        setState(() {
+          status = "Challenges";
+        });
+      },
+      child: Text(
+        "Challenges",
+        style: TextStyle(
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            color: status == "Challenges" ? Colors.green : Colors.black
+        ),
+        textAlign: TextAlign.left,
+      ),
+    ));
+    children.add(SizedBox(width: 10,));
+    children.add(Text("|",
+      style: TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.bold
+      ),
+      textAlign: TextAlign.left,
+    ),);
+    children.add(SizedBox(width: 10,));
+
+    children.add(InkWell(
+      onTap: (){
+        setState(() {
+          status = "Joined";
+        });
+      },
+      child: Text(
+        "Joined",
+        style: TextStyle(
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            color: status == "Joined" ? Colors.green : Colors.black
+        ),
+        textAlign: TextAlign.left,
+      ),
+    ));
+    children.add(SizedBox(width: 10,));
+    children.add(Text("|",
+      style: TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.bold
+      ),
+      textAlign: TextAlign.left,
+    ),);
+    children.add(SizedBox(width: 10,));
+
     activitiesList.forEach((element) {
       children.add(InkWell(
           onTap: (){
@@ -175,161 +240,307 @@ class _AllActivitiesState extends State<AllActivities> {
   displayActivities() {
     var children = <Widget>[];
     if(status == "Challenges"){
-      activities.forEach((element) {
-        children.add(SizedBox(height: _height(3)));
-        children.add(InkWell(
-          onTap: (){
-            Common().newActivity(context, Session(
-                element["title"],
-                element["videoUrl"],
-                "27354",
-                "",
-                "TBT_CHANNEL",
-                Common().getDateTimeDifference("${element["scheduledDate"]} ${element["scheduledTime"]}")
-            )
-            );
-          },
-          child: Container(
-              height: _height(30),
-              width: _height(100),
-              margin: EdgeInsets.only(bottom: _height(3)),
-              child: Stack(
-                children: [
-                  Center(
-                    child: SpinKitThreeBounce(
-                      color: Colors.lightGreen,
-                      size: 20,
-                    ),
-                  ),
-                  Container(
+      if(activities.isNotEmpty){
+        activities.forEach((element) {
+          children.add(SizedBox(height: _height(3)));
+          children.add(
+              InkWell(
+                onTap: (){
+                  Common().newActivity(context, ChallengeDetails(element, false));
+                },
+                child: Container(
                     height: _height(30),
                     width: _height(100),
-                    child: ClipRRect(
-                      child: Image.network(
-                        element["image"],
-                        fit: BoxFit.fill,
-                      ),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                        margin: EdgeInsets.only(top: _height(10.5)),
-                        color: Colors.white,
-                        height: _height(6),
-                        width: _height(100),
-                        child: Column(
-                            children: [
-                              Spacer(),
-                              Container(
-                                margin: EdgeInsets.only(left: _width(2)),
-                                width: _height(100),
-                                child: Text(element["category"],
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.left,
-                                ),
-                              ),
-                              Spacer(),
-                              Container(
-                                margin: EdgeInsets.only(left: _width(2)),
-                                width: _height(100),
-                                child: Text(element["title"], style: TextStyle(
-                                    fontSize: 11
-                                ),
-                                  textAlign: TextAlign.left,
-                                ),
-                              ),
-                              Spacer(),
-                            ]
+                    margin: EdgeInsets.only(bottom: _height(3)),
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: SpinKitThreeBounce(
+                            color: Colors.lightGreen,
+                            size: 20,
+                          ),
+                        ),
+                        Container(
+                          height: _height(30),
+                          width: _height(100),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0), topRight:  Radius.circular(15.0)),
+                            child: Image.network(
+                              element["image_url"],
+                              fit: BoxFit.fill,
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Container(
+                              margin: EdgeInsets.only(top: _height(10.5)),
+                              color: Colors.white,
+                              height: _height(6),
+                              width: _height(100),
+                              child: Column(
+                                  children: [
+                                    Spacer(),
+                                    Container(
+                                      margin: EdgeInsets.only(left: _width(2)),
+                                      width: _height(100),
+                                      child: Text(
+                                        element["type"],
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Container(
+                                      margin: EdgeInsets.only(left: _width(2)),
+                                      width: _height(100),
+                                      child: Text(element["title"], style: TextStyle(
+                                          fontSize: 11
+                                      ),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ),
+                                    Spacer(),
+                                  ]
+                              )
+                          ),
                         )
+                      ],
+                    )
+                ),
+              )
+          );
+        });
+      }else{
+        children.add(
+            Container(
+              height: _height(15),
+              margin: EdgeInsets.only(right: _width(2), left: _width(2),top: _height(10),bottom: _height(2),),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(15)
+                  ),
+                  border: Border.all(
+                      color: Colors.lightGreen,
+                      width: 2
+                  )
+              ),
+              child: Center(
+                  child: Text(
+                    "No Joined Challenge",
+                    style: TextStyle(
+                        color: Colors.black45,
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold
                     ),
                   )
-                ],
+              ),
               )
-          ),
-        ));
-      });
-    }else{
-      activities.forEach((element) {
-        if(element["category"] == status){
+         );
+      }
+    }else if(status == "Joined"){
+      if(joinedActivities.isNotEmpty){
+        joinedActivities.forEach((element) {
           children.add(SizedBox(height: _height(3)));
-          children.add(InkWell(
-            onTap: (){
-              Common().newActivity(context, Session(
-                  element["title"],
-                  element["videoUrl"],
-                  "27354",
-                  "",
-                  "TBT_CHANNEL",
-                  Common().getDateTimeDifference("${element["scheduledDate"]} ${element["scheduledTime"]}")
+          children.add(
+              InkWell(
+                onTap: (){
+                  Common().newActivity(context, ChallengeDetails(element, true));
+                },
+                child: Container(
+                    height: _height(30),
+                    width: _height(100),
+                    margin: EdgeInsets.only(bottom: _height(3)),
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: SpinKitThreeBounce(
+                            color: Colors.lightGreen,
+                            size: 20,
+                          ),
+                        ),
+                        Container(
+                          height: _height(30),
+                          width: _height(100),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0), topRight:  Radius.circular(15.0)),
+                            child: Image.network(
+                              element["image_url"],
+                              fit: BoxFit.fill,
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Container(
+                              margin: EdgeInsets.only(top: _height(10.5)),
+                              color: Colors.white,
+                              height: _height(6),
+                              width: _height(100),
+                              child: Column(
+                                  children: [
+                                    Spacer(),
+                                    Container(
+                                      margin: EdgeInsets.only(left: _width(2)),
+                                      width: _height(100),
+                                      child: Text(
+                                        element["type"],
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Container(
+                                      margin: EdgeInsets.only(left: _width(2)),
+                                      width: _height(100),
+                                      child: Text(element["title"], style: TextStyle(
+                                          fontSize: 11
+                                      ),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ),
+                                    Spacer(),
+                                  ]
+                              )
+                          ),
+                        )
+                      ],
+                    )
+                ),
               )
-              );
-            },
-            child: Container(
-                height: _height(30),
-                width: _height(100),
-                margin: EdgeInsets.only(bottom: _height(3)),
-                child: Stack(
-                  children: [
-                    Center(
-                      child: SpinKitThreeBounce(
-                        color: Colors.lightGreen,
-                        size: 20,
-                      ),
+          );
+        });
+      }else{
+        children.add(
+            Container(
+              height: _height(15),
+              margin: EdgeInsets.only(right: _width(2), left: _width(2),top: _height(10),bottom: _height(2),),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(15)
+                  ),
+                  border: Border.all(
+                      color: Colors.lightGreen,
+                      width: 2
+                  )
+              ),
+              child: Center(
+                  child: Text(
+                    "No Joined Challenge",
+                    style: TextStyle(
+                        color: Colors.black45,
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold
                     ),
-                    Container(
-                      height: _height(30),
-                      width: _height(100),
-                      child: ClipRRect(
-                        child: Image.network(
-                          element["image"],
-                          fit: BoxFit.fill,
+                  )
+              ),
+            )
+        );
+      }
+    }else{
+      if(activities.isNotEmpty){
+        activities.forEach((element) {
+          if(element["type"] == status){
+            children.add(SizedBox(height: _height(3)));
+            children.add(InkWell(
+              onTap: (){
+                Common().newActivity(context, ChallengeDetails(element, false));
+              },
+              child: Container(
+                  height: _height(30),
+                  width: _height(100),
+                  margin: EdgeInsets.only(bottom: _height(3)),
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: SpinKitThreeBounce(
+                          color: Colors.lightGreen,
+                          size: 20,
                         ),
                       ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Container(
-                          margin: EdgeInsets.only(top: _height(10.5)),
-                          color: Colors.white,
-                          height: _height(6),
-                          width: _height(100),
-                          child: Column(
-                              children: [
-                                Spacer(),
-                                Container(
-                                  margin: EdgeInsets.only(left: _width(2)),
-                                  width: _height(100),
-                                  child: Text(element["category"],
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    textAlign: TextAlign.left,
-                                  ),
-                                ),
-                                Spacer(),
-                                Container(
-                                  margin: EdgeInsets.only(left: _width(2)),
-                                  width: _height(100),
-                                  child: Text(element["title"], style: TextStyle(
-                                      fontSize: 11
-                                  ),
-                                    textAlign: TextAlign.left,
-                                  ),
-                                ),
-                                Spacer(),
-                              ]
-                          )
+                      Container(
+                        height: _height(30),
+                        width: _height(100),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0), topRight:  Radius.circular(15.0)),
+                          child: Image.network(
+                            element["image_url"],
+                            fit: BoxFit.fill,
+                          ),
+                        ),
                       ),
-                    )
-                  ],
-                )
-            ),
-          ));
-        }
-      });
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Container(
+                            margin: EdgeInsets.only(top: _height(10.5)),
+                            color: Colors.white,
+                            height: _height(6),
+                            width: _height(100),
+                            child: Column(
+                                children: [
+                                  Spacer(),
+                                  Container(
+                                    margin: EdgeInsets.only(left: _width(2)),
+                                    width: _height(100),
+                                    child: Text(element["type"],
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      textAlign: TextAlign.left,
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  Container(
+                                    margin: EdgeInsets.only(left: _width(2)),
+                                    width: _height(100),
+                                    child: Text(element["title"], style: TextStyle(
+                                        fontSize: 11
+                                    ),
+                                      textAlign: TextAlign.left,
+                                    ),
+                                  ),
+                                  Spacer(),
+                                ]
+                            )
+                        ),
+                      )
+                    ],
+                  )
+              ),
+            ));
+          }
+        });
+      }else{
+        children.add(
+            Container(
+              height: _height(15),
+              margin: EdgeInsets.only(right: _width(2), left: _width(2),top: _height(10),bottom: _height(2),),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(15)
+                  ),
+                  border: Border.all(
+                      color: Colors.lightGreen,
+                      width: 2
+                  )
+              ),
+              child: Center(
+                  child: Text(
+                    "No Joined Challenge",
+                    style: TextStyle(
+                        color: Colors.black45,
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold
+                    ),
+                  )
+              ),
+            )
+        );
+      }
     }
 
     return children;

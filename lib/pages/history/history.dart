@@ -1,8 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:south_fitness/services/net.dart';
+import 'package:date_range_picker/date_range_picker.dart' as DateRangePicker;
 
 import '../common.dart';
 
@@ -13,69 +15,19 @@ class History extends StatefulWidget {
 
 class _HistoryState extends State<History> {
 
+  SharedPreferences prefs;
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
+
+  var allPastActivities = [];
+
   var username = "";
   var email = "";
-  SharedPreferences prefs;
-
-  bool week = true;
-  bool month = false;
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
-  List<_Activity> h_data = [];
-
-  List<_Activity> c_data = [];
-
-  dataToDisplay(){
-    if(week){
-        setState(() {
-          c_data = [
-            _Activity(0, Random().nextInt(100).toDouble()),
-            _Activity(1, Random().nextInt(100).toDouble()),
-            _Activity(2, Random().nextInt(100).toDouble()),
-            _Activity(3, Random().nextInt(100).toDouble()),
-            _Activity(4, Random().nextInt(100).toDouble()),
-            _Activity(5, Random().nextInt(100).toDouble()),
-            _Activity(6, Random().nextInt(100).toDouble()),
-            _Activity(7, Random().nextInt(100).toDouble()),
-            _Activity(8, Random().nextInt(100).toDouble()),
-            _Activity(9, Random().nextInt(100).toDouble()),
-            _Activity(10, Random().nextInt(100).toDouble()),
-          ];
-          h_data = [
-            _Activity(0, Random().nextInt(100).toDouble()),
-            _Activity(1, Random().nextInt(100).toDouble()),
-            _Activity(2, Random().nextInt(100).toDouble()),
-            _Activity(3, Random().nextInt(100).toDouble()),
-            _Activity(4, Random().nextInt(100).toDouble()),
-            _Activity(5, Random().nextInt(100).toDouble()),
-            _Activity(6, Random().nextInt(100).toDouble()),
-            _Activity(7, Random().nextInt(100).toDouble()),
-            _Activity(8, Random().nextInt(100).toDouble()),
-            _Activity(9, Random().nextInt(100).toDouble()),
-            _Activity(10, Random().nextInt(100).toDouble()),
-          ];
-        });
-    }else{
-        setState(() {
-          c_data = [
-            _Activity(0, Random().nextInt(100).toDouble()),
-            _Activity(1, Random().nextInt(100).toDouble()),
-            _Activity(2, Random().nextInt(100).toDouble()),
-            _Activity(3, Random().nextInt(100).toDouble()),
-            _Activity(4, Random().nextInt(100).toDouble()),
-          ];
-          h_data = [
-            _Activity(0, Random().nextInt(100).toDouble()),
-            _Activity(1, Random().nextInt(100).toDouble()),
-            _Activity(2, Random().nextInt(100).toDouble()),
-            _Activity(3, Random().nextInt(100).toDouble()),
-            _Activity(4, Random().nextInt(100).toDouble()),
-          ];
-        });
-    }
-
-  }
+  var user_id = "";
+  var team = "";
+  bool loading = false;
+  var firstDate;
+  var lastDate;
+  var displayDate = "Enter date range";
 
   @override
   void initState() {
@@ -86,245 +38,139 @@ class _HistoryState extends State<History> {
 
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
+    user_id = prefs.getString("user_id");
     setState(() {
       username = prefs.getString("username");
       email = prefs.getString("email");
       image = prefs.getString("image");
+      user_id = prefs.getString("user_id");
+      team = prefs.getString("team");
     });
-    dataToDisplay();
   }
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              child: Container(
-                margin: EdgeInsets.only(top: _height(9)),
-                child: Column(
-                  children: [
-                    SizedBox(height: _height(3),),
-                    Container(
-                      margin: EdgeInsets.only(left: _width(4), right: _width(4)),
-                      child: Row(
-                          children: [
-                            InkWell(
-                              onTap: (){
-                                setState(() {
-                                  month = false;
-                                  week = true;
-                                });
-                                dataToDisplay();
-                              },
-                              child: Text(
-                                "Weekly",
-                                style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.bold,
-                                    color: week ? Colors.lightGreen : Colors.black
-                                ),
-                                textAlign: TextAlign.left,
-                              ),
-                            ),
-                            SizedBox(width: 10,),
-                            Text("|",
-                              style: TextStyle(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.bold
-                              ),
-                              textAlign: TextAlign.left,
-                            ),
-                            SizedBox(width: 10,),
-                            InkWell(
-                              onTap: (){
-                                setState(() {
-                                  month = true;
-                                  week = false;
-                                });
-                                dataToDisplay();
-                              },
-                              child: Text("Monthly",
-                                style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.bold,
-                                    color: month ? Colors.lightGreen : Colors.black
-                                ),
-                                textAlign: TextAlign.left,
-                              ),
-                            ),
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: Container(
+            height: _height(100),
+            width: _width(100),
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Container(
+                    margin: EdgeInsets.only(top: _height(9), left: _width(4), right: _width(4)),
+                    child: Column(
+                      children: [
+                        SizedBox(height: _height(1),),
 
-                          ]
-                      ),
-                    ),
-                    SizedBox( height: _height(2)),
-                    Container(
-                      height: _height(80),
-                      padding: EdgeInsets.only(left: _width(4), right: _width(4)),
-                      decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15))
-                      ),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            SizedBox(height: _height(3),),
-                            Container(
-                              height: _height(47),
-                              width: _width(100),
-                              padding: EdgeInsets.all(_width(3)),
-                              margin: EdgeInsets.only(bottom: _height(3)),
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.all(Radius.circular(15))
-                              ),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        "Body Vitals",
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.lightGreen
-                                        ),
-                                      ),
-                                      Spacer(),
-                                      Container(
-                                        height: _height(4),
-                                        width: _width(30),
-                                        decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                                            border: Border.all(color: Colors.lightGreen, width: 1)
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            "Heart rate  +",
-                                            style: TextStyle(
-                                                fontSize: 15,
-                                                color: Colors.lightGreen
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                  SfCartesianChart(
-                                      primaryXAxis: CategoryAxis(),
-                                      // Chart title
-                                      title: ChartTitle(text: ''),
-                                      // Enable legend
-                                      legend: Legend(isVisible: false),
-                                      // Enable tooltip
-                                      tooltipBehavior: TooltipBehavior(enable: true),
-                                      series: <ChartSeries<_Activity, String>>[
-                                        LineSeries<_Activity, String>(
-                                            dataSource: h_data,
-                                            xValueMapper: (_Activity sales, _) => sales.date.toString(),
-                                            yValueMapper: (_Activity sales, _) => sales.value,
-                                            name: "Heart Rate",
-                                            color: Colors.lightGreen
-                                        )
-                                      ]),
-                                ],
-                              ),
+                        Container(
+                          width: _width(100),
+                          child: Text(
+                            "History",
+                            style: TextStyle(
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold
                             ),
-                            Container(
-                              height: _height(47),
-                              width: _width(100),
-                              padding: EdgeInsets.all(_width(3)),
-                              margin: EdgeInsets.only(bottom: _height(3)),
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.all(Radius.circular(15))
-                              ),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        "Calories Burnt",
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.lightGreen
-                                        ),
-                                      ),
-                                      Spacer(),
-                                      Container(
-                                        height: _height(4),
-                                        width: _width(30),
-                                        decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                                            border: Border.all(color: Colors.lightGreen, width: 1)
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            "Burn rate  +",
-                                            style: TextStyle(
-                                                fontSize: 15,
-                                                color: Colors.lightGreen
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                  SfCartesianChart(
-                                      primaryXAxis: CategoryAxis(),
-                                      // Chart title
-                                      title: ChartTitle(text: ''),
-                                      // Enable legend
-                                      legend: Legend(isVisible: false),
-                                      // Enable tooltip
-                                      tooltipBehavior: TooltipBehavior(enable: true),
-                                      series: <ChartSeries<_Activity, String>>[
-                                        LineSeries<_Activity, String>(
-                                            dataSource: c_data,
-                                            xValueMapper: (_Activity sales, _) => sales.date.toString(),
-                                            yValueMapper: (_Activity sales, _) => sales.value,
-                                            name: "Burn rate",
-                                            color: Colors.lightGreen
-                                        )
-                                      ]),
-                                ],
-                              ),
-                            ),
-                          ],
+                            textAlign: TextAlign.left,
+                          ),
                         ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-            Container(
-              height: _height(7),
-              color: Colors.white,
-              child: Row(
-                children: [
-                  Common().logoOnBar(context),
-                  Spacer(),
-                  InkWell(
-                    onTap: (){
-                      _scaffoldKey.currentState.openDrawer();
-                    },
-                    child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
+                        SizedBox(height: _height(1),),
+                        InkWell(
+                          onTap: () async {
+                            final List<DateTime> picked = await DateRangePicker.showDatePicker(
+                                context: context,
+                                initialFirstDate: new DateTime.now(),
+                                initialLastDate: (new DateTime.now()).add(new Duration(days: 7)),
+                                firstDate: new DateTime(2020),
+                                lastDate: new DateTime(DateTime.now().year + 2)
+                            );
+                            if (picked != null && picked.length == 2) {
+                              print(picked);
+                              setState(() {
+                                firstDate = Common().dateStringHistory(picked[0]);
+                                lastDate = Common().dateStringHistory(picked[1]);
+                                displayDate = "$firstDate - $lastDate";
+                                loading = true;
+                              });
+
+                              var result = await HomeResources().getHistory({
+                                "date_from":firstDate,
+                                "date_to":lastDate,
+                                "user_id":user_id
+                              });
+
+                              setState(() {
+                                loading = false;
+                                allPastActivities = result;
+                              });
+                            }
+                          },
+                          child: Container(
+                              height: _height(7),
+                              width: _width(100),
+                              margin: EdgeInsets.only(top: _height(1), bottom: _height(1), ),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                                  color: Colors.lightGreen,
+                              ),
+                              child: Center(
+                                  child: Text("$displayDate",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 15
+                                      )
+                                  )
+                              )
+                          ),
+                        ),
+                        SizedBox(height: _height(3),),
+
+                        loading ? Center(
+                          child: SpinKitThreeBounce(
+                            color: Colors.lightGreen,
+                            size: 30,
+                          ),
+                        ) : Column(
+                          children: displayHistory(),
+                        ),
+
+                        SizedBox(height: _height(3),),
+
+                        SizedBox( height: _height(3))
+                      ],
+                    ),
                   ),
-                  SizedBox(width: _width(4),),
-                ],
-              ),
+                ),
+                Container(
+                  height: _height(7),
+                  color: Colors.white,
+                  child: Row(
+                    children: [
+                      Common().logoOnBar(context),
+                      Spacer(),
+                      InkWell(
+                        onTap: (){
+                          _scaffoldKey.currentState.openDrawer();
+                        },
+                        child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
+                      ),
+                      SizedBox(width: _width(4),),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
+        drawer: Common().navDrawer(context, username, email, "home", image),
       ),
-      drawer: Common().navDrawer(context, username, email, "chat", image),
     );
   }
 
@@ -335,11 +181,133 @@ class _HistoryState extends State<History> {
   _width(size){
     return Common().componentWidth(context, size);
   }
-}
 
-class _Activity {
-  _Activity(this.date, this.value);
-
-  final int date;
-  final double value;
+  displayHistory() {
+    var children = <Widget>[];
+    if (allPastActivities.isNotEmpty) {
+      allPastActivities.forEach((element) {
+        children.add(
+            Container(
+                height: _height(10),
+                width: _width(100),
+                margin: EdgeInsets.only(bottom: _height(2)),
+                child: Row(
+                  children: [
+                    Container(
+                        height: _height(10),
+                        width: _height(10),
+                        child: Stack(
+                          children: [
+                            Center(
+                              child: SpinKitThreeBounce(
+                                color: Colors.lightGreen,
+                                size: 20,
+                              ),
+                            ),
+                            Container(
+                              height: _height(10),
+                              width: _height(10),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.all(Radius.circular(
+                                    15)),
+                                child: Image.network(
+                                  "${element["image_url"]}",
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                    ),
+                    SizedBox(
+                      width: _width(4),
+                    ),
+                    Column(
+                      children: [
+                        Spacer(),
+                        Container(
+                          width: _width(60),
+                          child: Text(
+                            "${element["title"]}",
+                            style: TextStyle(
+                                fontSize: 13
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.left,
+                          ),
+                        ),
+                        SizedBox(height: _height(2),),
+                        Container(
+                            width: _width(60),
+                            child: Row(
+                              children: [
+                                Text(
+                                  "Challenge: ",
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey
+                                  ),
+                                  textAlign: TextAlign.left,
+                                ),
+                                Text(
+                                  "${element["type"]}",
+                                  style: TextStyle(
+                                      fontSize: 13
+                                  ),
+                                  textAlign: TextAlign.left,
+                                ),
+                                Spacer(),
+                                Text(
+                                  "Points: ",
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey
+                                  ),
+                                  textAlign: TextAlign.left,
+                                ),
+                                Text(
+                                  "${element["points"]}",
+                                  style: TextStyle(
+                                      fontSize: 13
+                                  ),
+                                  textAlign: TextAlign.left,
+                                ),
+                                SizedBox(width: _width(3))
+                              ],
+                            )
+                        ),
+                        Spacer(),
+                      ],
+                    ),
+                  ],
+                )
+            )
+        );
+      });
+    }else{
+      children.add(
+          Container(
+              height: _height(15),
+              width: _width(100),
+              margin: EdgeInsets.only(bottom: _height(2), left: _height(1), right:_height(1)),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                  border: Border.all(
+                      color: Colors.lightGreen,
+                      width: 2
+                  )
+              ),
+              child: Center(
+                  child: Text("No History",
+                      style: TextStyle(
+                          color: Colors.lightGreen,
+                          fontSize: 15
+                      )
+                  )
+              )
+          )
+      );
+    }
+    return children;
+  }
 }

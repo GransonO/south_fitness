@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/pages/steps/interests.dart';
 
@@ -14,7 +15,16 @@ class Goals extends StatefulWidget {
 class _GoalsState extends State<Goals> {
 
   SharedPreferences prefs;
-  int num = 0;
+  List items = [];
+  List selectedItems = [];
+  List selectedNums = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    items = ["Strength and Muscle building", "Muscular endurance", "Weight loss", "Body toning", "Flexibility and body coordination"];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,182 +40,57 @@ class _GoalsState extends State<Goals> {
                   child: Column(
                     children: [
                       SizedBox(height: _height(9)),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            num = 5;
-                          });
-                          _goToInterests("Strength and Muscle building");
-                        },
-                        child: Center(
-                          child: Container(
-                            height: _height(7),
-                            width: _width(80),
-                            margin: EdgeInsets.only(right: _width(2), top: _height(2)),
-                            padding: EdgeInsets.only(left: 10),
-                            decoration: BoxDecoration(
-                                color: _selectColor(5),
-                                borderRadius: BorderRadius.all(Radius.circular(15)),
-                                border: Border.all(
-                                    width: 0.5,
-                                    color: Colors.grey
-                                )
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Strength and Muscle building",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            num = 1;
-                          });
-                          _goToInterests("Muscular endurance");
-                        },
-                        child: Center(
-                          child: Container(
-                            height: _height(7),
-                            width: _width(80),
-                            margin: EdgeInsets.only(right: _width(2), top: _height(2)),
-                            padding: EdgeInsets.only(left: 10),
-                            decoration: BoxDecoration(
-                                color: _selectColor(1),
-                                borderRadius: BorderRadius.all(Radius.circular(15)),
-                                border: Border.all(
-                                    width: 0.5,
-                                    color: Colors.grey
-                                )
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Muscular endurance",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            num = 2;
-                          });
-                          _goToInterests("Weight loss");
-                        },
-                        child: Center(
-                          child: Container(
-                            height: _height(7),
-                            width: _width(80),
-                            margin: EdgeInsets.only(right: _width(2), top: _height(2)),
-                            padding: EdgeInsets.only(left: 10),
-                            decoration: BoxDecoration(
-                                color: _selectColor(2),
-                                borderRadius: BorderRadius.all(Radius.circular(15)),
-                                border: Border.all(
-                                    width: 0.5,
-                                    color: Colors.grey
-                                )
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Weight loss",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            num = 3;
-                          });
-                          _goToInterests("Body toning");
-                        },
-                        child: Center(
-                          child: Container(
-                            height: _height(7),
-                            width: _width(80),
-                            margin: EdgeInsets.only(right: _width(2), top: _height(2)),
-                            padding: EdgeInsets.only(left: 10),
-                            decoration: BoxDecoration(
-                                color: _selectColor(3),
-                                borderRadius: BorderRadius.all(Radius.circular(15)),
-                                border: Border.all(
-                                    width: 0.5,
-                                    color: Colors.grey
-                                )
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Body toning",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            num = 4;
-                          });
-                          _goToInterests("Flexibility and body coordination");
-                        },
-                        child: Center(
-                          child: Container(
-                            height: _height(7),
-                            width: _width(80),
-                            margin: EdgeInsets.only(right: _width(2), top: _height(2)),
-                            padding: EdgeInsets.only(left: 10),
-                            decoration: BoxDecoration(
-                                color: _selectColor(4),
-                                borderRadius: BorderRadius.all(Radius.circular(15)),
-                                border: Border.all(
-                                    width: 0.5,
-                                    color: Colors.grey
-                                )
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Flexibility and body coordination",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-
+                      _displayOptions(),
+                      
                       Center(
                         child: Container(
-                          height: _height(7),
-                          width: _width(80),
-                          margin: EdgeInsets.only(right: _width(2), top: _height(5)),
-                          child: Text(
-                            "Step 2",
-                            textAlign: TextAlign.left,
-                          ),
-                        )
+                            height: _height(7),
+                            width: _width(80),
+                            margin: EdgeInsets.only(top: _height(3)),
+                            child: Row(
+                              children: [
+                                Text(
+                                  "Step 2.",
+                                  style: TextStyle(
+                                      fontSize: 15
+                                  ),
+                                ),
+                                Spacer(),
+
+                                InkWell(
+                                  onTap: () async {
+                                    if(selectedNums.isEmpty){
+                                      Fluttertoast.showToast(
+                                          msg: "Please select your goals",
+                                          textColor: Colors.white,
+                                          backgroundColor: Colors.lightGreen
+                                      );
+                                    }else{
+                                      prefs = await SharedPreferences.getInstance();
+                                      _goToInterests(selectedItems.toString(), prefs);
+                                    }
+                                  },
+                                  child: Container(
+                                    height: _height(7),
+                                    width: _width(40),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(15)),
+                                      color: Color.fromARGB(255,110,180,63),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        "Next",
+                                        style: TextStyle(
+                                            fontSize: 17,
+                                            color: Colors.white
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            )
+                        ),
                       ),
                     ],
                   ),
@@ -255,18 +140,68 @@ class _GoalsState extends State<Goals> {
     );
   }
 
-  _goToInterests(value) async {
-    prefs = await SharedPreferences.getInstance();
+  _goToInterests(value, prefs){
     prefs.setString("goal", value);
-    Timer(Duration(seconds: 1), () => Common().newActivity(context, Interests()));
+    print("++++++++++++++++++++++++++++++++++ Goals");
+    Common().newActivity(context, Interests());
   }
 
   _selectColor(count){
-    if(count == num){
+    if(selectedNums.contains(count)){
       return Color.fromARGB(255,233,244,226);
     }else{
       return Colors.white;
     }
+  }
+
+  _displayOptions(){
+    var theChildren = <Widget>[];
+    items.forEach((element) {
+      theChildren.add(
+        InkWell(
+          onTap: () {
+            setState(() {
+              if(selectedItems.contains(element)){
+                selectedItems.remove(element);
+                selectedNums.remove(items.indexOf(element));
+              }else{
+                selectedItems.add(element);
+                selectedNums.add(items.indexOf(element));
+              }
+            });
+          },
+          child: Center(
+            child: Container(
+              height: _height(7),
+              width: _width(80),
+              margin: EdgeInsets.only(right: _width(2), top: _height(2)),
+              padding: EdgeInsets.only(left: 10),
+              decoration: BoxDecoration(
+                  color: _selectColor(items.indexOf(element)),
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                  border: Border.all(
+                      width: 0.5,
+                      color: Colors.grey
+                  )
+              ),
+              child: Center(
+                child: Text(
+                  element,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    });
+
+    return Column(
+      children: theChildren,
+    );
   }
 
   _height(size){

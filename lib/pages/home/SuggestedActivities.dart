@@ -8,8 +8,14 @@ import '../common.dart';
 import 'suggested_details.dart';
 
 class SuggestedActivities extends StatefulWidget {
+
+  var dataList;
+  SuggestedActivities(list){
+    dataList = list;
+  }
+
   @override
-  _SuggestedActivitiesState createState() => _SuggestedActivitiesState();
+  _SuggestedActivitiesState createState() => _SuggestedActivitiesState(dataList);
 }
 
 class _SuggestedActivitiesState extends State<SuggestedActivities> {
@@ -18,9 +24,15 @@ class _SuggestedActivitiesState extends State<SuggestedActivities> {
   SharedPreferences prefs;
   var username = "";
   var email = "";
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
+  var theList = [];
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
+  _SuggestedActivitiesState(dataList){
+    theList = dataList;
+    print("------------------------------------------------- $theList");
+  }
 
   @override
   void initState() {
@@ -38,26 +50,6 @@ class _SuggestedActivitiesState extends State<SuggestedActivities> {
     });
   }
 
-  var activityList = [
-    {
-      "image": "https://res.cloudinary.com/dolwj4vkq/image/upload/v1617201729/South_Fitness/suggested_activities/Rectangle_28.png",
-      "title": "Cardio",
-      "time": "45 mins",
-      "videoUrl": "https://res.cloudinary.com/dolwj4vkq/video/upload/v1612826611/South_Fitness/cross.mp4"
-    },
-    {
-      "image": "https://res.cloudinary.com/dolwj4vkq/image/upload/v1617201725/South_Fitness/suggested_activities/Rectangle_29.png",
-      "title": "Feel Good",
-      "time": "45 mins",
-      "videoUrl": "https://res.cloudinary.com/dolwj4vkq/video/upload/v1612826609/South_Fitness/dance.mp4"
-    },
-    {
-      "image": "https://res.cloudinary.com/dolwj4vkq/image/upload/v1617201729/South_Fitness/suggested_activities/Rectangle_40.png",
-      "title": "Yoga Time",
-      "time": "45 mins",
-      "videoUrl": "https://res.cloudinary.com/dolwj4vkq/video/upload/v1612826609/South_Fitness/yoga.mp4"
-    },
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +80,7 @@ class _SuggestedActivitiesState extends State<SuggestedActivities> {
                       SizedBox(height: _height(3),),
                       Container(
                         margin: EdgeInsets.only(left: _width(4), right: _width(4)),
-                        child: activityList.length > 0 ? displaySuggestions() : Center(
+                        child: theList.length > 0 ? displaySuggestions() : Center(
                             child: Container(
                               margin: EdgeInsets.only(top: _height(20)),
                               child: Text("No New Activities"),
@@ -141,10 +133,10 @@ class _SuggestedActivitiesState extends State<SuggestedActivities> {
         child: GridView.builder(
           padding: EdgeInsets.only(bottom: 10),
           shrinkWrap: true,
-          itemCount: activityList.length,
+          itemCount: theList.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: _crossAxisCount,childAspectRatio: _aspectRatio),
           itemBuilder: (context, index) {
-            final theItem = activityList[index];
+            final theItem = theList[index];
 
             return  InkWell(
               onTap: (){
@@ -166,8 +158,12 @@ class _SuggestedActivitiesState extends State<SuggestedActivities> {
                         height: _height(15),
                         width: _height(25),
                         child: ClipRRect(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(15),
+                            topRight: Radius.circular(15),
+                          ),
                           child: Image.network(
-                            "${theItem["image"]}",
+                            "${theItem["image_url"]}",
                             fit: BoxFit.fill,
                           ),
                         ),
@@ -193,7 +189,7 @@ class _SuggestedActivitiesState extends State<SuggestedActivities> {
                             Container(
                               margin: EdgeInsets.only(left: _width(2)),
                               width: _height(25),
-                              child: Text("${theItem["time"]}", style: TextStyle(
+                              child: Text("${theItem["duration"]} ${theItem["duration_ext"]}", style: TextStyle(
                                 fontSize: 11
                               ),
                                 textAlign: TextAlign.left,

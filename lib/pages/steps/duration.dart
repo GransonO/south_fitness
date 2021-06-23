@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/pages/home/Home.dart';
@@ -16,6 +17,7 @@ class TrainDuration extends StatefulWidget {
 class _DurationState extends State<TrainDuration> {
 
   int num = 0;
+  bool loading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,11 +33,12 @@ class _DurationState extends State<TrainDuration> {
                     children: [
                       SizedBox(height: _height(9)),
                       InkWell(
-                        onTap: () {
+                        onTap: () async {
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
                           setState(() {
                             num = 1;
                           });
-                          _goToDuration(1);
+                          _goToDuration(1, prefs);
                         },
                         child: Center(
                           child: Container(
@@ -78,11 +81,12 @@ class _DurationState extends State<TrainDuration> {
                         ),
                       ),
                       InkWell(
-                        onTap: () {
+                        onTap: () async {
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
                           setState(() {
                             num = 2;
                           });
-                          _goToDuration(4);
+                          _goToDuration(4, prefs);
                         },
                         child: Center(
                           child: Container(
@@ -125,11 +129,12 @@ class _DurationState extends State<TrainDuration> {
                         ),
                       ),
                       InkWell(
-                        onTap: () {
+                        onTap: () async {
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
                           setState(() {
                             num = 3;
                           });
-                          _goToDuration(5);
+                          _goToDuration(5, prefs);
                         },
                         child: Center(
                           child: Container(
@@ -171,6 +176,23 @@ class _DurationState extends State<TrainDuration> {
                           ),
                         ),
                       ),
+                      loading ? Center(
+                        child: Container(
+                          height: _height(10),
+                          width: _width(80),
+                          margin: EdgeInsets.only(right: _width(2), top: _height(2)),
+                          padding: EdgeInsets.only(left: 10),
+                          child: Center(
+                              child: Column(
+                                children: [
+                                  Spacer(),
+                                  SpinKitThreeBounce(color: Colors.lightGreen, size: 30,),
+                                  Spacer(),
+                                ],
+                              )
+                          ),
+                        ),
+                      ) : Container(),
                     ],
                   ),
                 ),
@@ -222,10 +244,16 @@ class _DurationState extends State<TrainDuration> {
   }
 
 
-  _goToDuration(value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  _goToDuration(value, prefs) async {
     prefs.setInt("duration", value);
+
+    setState(() {
+      loading = true;
+    });
     var result = await Authentication().addProfileInfo();
+    setState(() {
+      loading = false;
+    });
     if(result["success"]){
       prefs.setString("user_id", result["user_id"]);
       Common().newActivity(context, HomeView());

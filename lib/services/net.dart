@@ -21,9 +21,9 @@ class Authentication {
         data: loginData,
       );
       var result = user.data;
+      print("----------------------------------------- $result");
       prefs = await SharedPreferences.getInstance();
       if (result["status"] == "success") {
-        print("----------------------------------------$result");
         prefs.setString("access_token", result["access_token"]);
         prefs.setString("email", result["user"]["email"]);
         prefs.setString("username", "${result["user"]["first_name"]} ${result["user"]["last_name"]}");
@@ -41,7 +41,6 @@ class Authentication {
         return {"success": false, "payload": {}, "status": 401};
       }
     } catch (e) {
-      print("-------*ERROR*-----$e");
       return {"success": false, "payload": {}, "status": 400};
     }
   }
@@ -62,13 +61,13 @@ class Authentication {
       "team": prefs.getString("team").trim(),
       "activation_code": prefs.getString("code").trim()
     };
-    print("Profile Data------------------------ $profileData");
+    print("ProfileData------------$profileData");
     // dio.options.headers["Authorization"] = "Bearer ${prefs.getString("token")}";
     var profile = await dio.post(
         baseUrl + "/profiles/", data: profileData);
     var result = profile.data;
-    print("------------------------ $result");
     if (result["status"] == "success") {
+      prefs.setString("image", "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg");
       return {"success": true, "user_id": result["user_id"]};
     } else {
       return {"success": false, "payload": ""};
@@ -79,7 +78,6 @@ class Authentication {
     var profile = await dio.post(
         baseUrl + "/profiles/code/", data: codeData);
     var result = profile.data;
-    print("------------------------ $result");
     if (result["status"] == "success") {
       return true;
     } else {
@@ -89,12 +87,12 @@ class Authentication {
 
   updateProfile(profileData) async {
 
-    print("------------------------ $profileData");
+    print("Profile profileData ------------------- $profileData");
     // dio.options.headers["Authorization"] = "Bearer ${prefs.getString("token")}";
     var profile = await dio.put(
         baseUrl + "/profiles/", data: profileData);
     var result = profile.data;
-    print("------------------------ $result");
+    print("Profile Update ------------------- $result");
     if (result["status"] == "success") {
       return {"success": true, "payload": result["message"]};
     } else {
@@ -108,14 +106,15 @@ class Authentication {
           baseUrl + "/auth/reset",
           data: userData);
       var result = forgot.data;
-      print("------------------------ $result");
+      print("Reset ------------------- $result");
       if (result["success"]) {
         return {"success": true};
       } else {
-        return {"success": false};
+        print("Reset ------------------- $result");
+        return {"success": false, "code":result["code"]};
       }
     } catch (e) {
-      print("------------------------ $e");
+      print("Reset ------------------- $e");
       return {"success": false, "payload": []};
     }
   }
@@ -126,7 +125,6 @@ class Authentication {
           baseUrl + "/auth/reset",
           data: userData);
       var result = forgot.data;
-      print("------------------------ $result");
       if (result["status"] == "success") {
         return true;
       } else {
@@ -141,7 +139,6 @@ class Authentication {
     prefs = await SharedPreferences.getInstance();
     try {
       Response response = await dio.post(uploadUrl, data: formData);
-      print("----------------------------------------------- ${response.data["secure_url"]}");
       prefs.setString("image", response.data["secure_url"]);
       return response.data["secure_url"];
     } catch (e) {
@@ -152,7 +149,6 @@ class Authentication {
   uploadImage(formData) async {
     try {
       Response response = await dio.post(uploadUrl, data: formData);
-      print("----------------------------------------------- ${response.data["secure_url"]}");
       return response.data["secure_url"];
     } catch (e) {
       print(e);
@@ -170,52 +166,83 @@ class HomeResources {
     dio = Dio();
   }
 
-  getVideos() async {
-    var result = await dio.get(baseUrl + "/videos/all/");
+  getVideos(day) async {
+    var startTime = DateTime.now();
+    var yesterday = "${startTime.year}-${startTime.month}-$day";
+
+    print("---------------------------- Yesterday : $yesterday");
+    var result = await dio.get(baseUrl + "/videos/all/$yesterday");
     var videos = result.data;
-    print("------------------------ $videos");
 
     return videos;
   }
 
+  getDateActivities(date) async {
+    var result = await dio.get(baseUrl + "/videos/date_request/$date");
+    var challenges = result.data;
+
+    return challenges;
+  }
+
+  getHistory(historyData) async {
+    try {
+      var history = await dio.post(baseUrl + "/videos/history/", data: historyData);
+      var result = history.data;
+      if (result["status"] == "success") {
+        return result["history_list"];
+      } else {
+        return [];
+      }
+    } catch (e) {
+      return [];
+    }
+  }
+
   getTodayActivities(user_id) async {
-    print("User ID------------------------ $user_id");
     var result = await dio.get(baseUrl + "/challenge/today/$user_id");
     var challenges = result.data;
 
-    print("Challenge Data ------------------------ $challenges");
     return challenges;
+  }
+
+
+  getSuggestedActivities() async {
+    var result = await dio.get(baseUrl + "/videos/activities/all/");
+    var activities = result.data;
+
+    return activities;
   }
 
   getVideoCallDetails(videoId, channelName) async {
     var random = new Random();
     var uid = random.nextInt(1000000) + 1000;
-    print("-------videoId----------------- $videoId");
     var result = await dio.post(baseUrl + "/videos/access_token/", data: {
       "channel_name": channelName,
       "video_id": videoId,
-      "username": uid
+      "username": uid,
+      "can_start": false
     });
     var videoCall = result.data;
 
-    print("-------videos----------------- $videoCall");
+    print("The video call ------------------------------------------------ $videoCall");
+
     return {"video": videoCall, "uid": uid};
   }
 
-  updateVideoViews(videoData) async {
+  rateLiveClass(rateData) async {
+    print("---------- rateData : $rateData");
     try {
       var viewed = await dio.put(
           baseUrl + "/videos/",
-          data: videoData);
+          data: rateData);
       var result = viewed.data;
-      print("------------------------ $result");
       if (result["status"] == "success") {
-        return {"success": true};
+        return true;
       } else {
-        return {"success": false};
+        return false;
       }
     } catch (e) {
-      return {"success": false};
+      return false;
     }
   }
 
@@ -242,7 +269,6 @@ class HomeResources {
     try {
       var comment = await dio.post(baseUrl + "/blog/comments/", data: blogData);
       var result = comment.data;
-      print("------------------------ $result");
       if (result["status"] == "success") {
         return true;
       } else {
@@ -259,7 +285,6 @@ class HomeResources {
           baseUrl + "/blog/",
           data: blogData);
       var result = viewed.data;
-      print("------------------------ $result");
       if (result["status"] == "success") {
         return {"success": true};
       } else {
@@ -271,17 +296,14 @@ class HomeResources {
   }
 
   postChallenge(challengeData) async {
-    print("Challenge data: $challengeData");
     try {
       var user = await dio.post(
         baseUrl + "/challenge/",
         data: challengeData,
       ).onError((error, stackTrace){
-        print("Error is: $error");
         return;
       });
       var result = user.data;
-      print("Challenge Post response data: $result");
 
       if (result["status"] == "success") {
         return {"success": true, "payload": result, "status": 200};
@@ -294,36 +316,66 @@ class HomeResources {
     }
   }
 
-  joinChallenge(challengeData) async {
-    print("---------------------- e");
-    try {
-      var user = await dio.post(
-        baseUrl + "/challenge/join/",
-        data: challengeData,
-      );
-      var result = user.data;
-      return result["state"];
-
-    } catch (e) {
-      print("---------------------- $e");
-      return false;
-    }
-  }
-
-  joinConfirmChallenge(challengeData) async {
+  joinLiveClass(challengeData) async {
+    print("--------Sending this: --------- $challengeData");
     try {
       var user = await dio.put(
-        baseUrl + "/challenge/join/",
+        baseUrl + "/videos/activities/",
         data: challengeData,
       );
       var result = user.data;
-
-      return result["state"];
+      print("--------Result is: --------- $result");
+      return result["status"] == "success";
 
     } catch (e) {
       return false;
     }
   }
+
+  joinListedActivity(activityData) async {
+    print("--------Sending this: --------- $activityData");
+    try {
+      var user = await dio.post(
+        baseUrl + "/challenge/members_added/",
+        data: activityData,
+      );
+      var result = user.data;
+      print("--------Result is: --------- $result");
+      return result["status"] == "success";
+
+    } catch (e) {
+      return false;
+    }
+  }
+
+  exitListedActivity(activityData) async {
+    print("--------Sending this: --------- $activityData");
+    try {
+      var user = await dio.put(
+        baseUrl + "/challenge/members_added/",
+        data: activityData,
+      );
+      var result = user.data;
+      print("--------Result is: --------- $result");
+      return result["status"] == "success";
+
+    } catch (e) {
+      return false;
+    }
+  }
+
+  getAllListedActivities() async {
+    try {
+      var perform = await dio.get(
+          baseUrl + "/challenge/listed/all/"
+      );
+      var result = perform.data;
+      return result;
+    } catch (e) {
+      return [];
+    }
+  }
+
 }
 
 class PerformanceResource {
@@ -351,8 +403,20 @@ class PerformanceResource {
     }
   }
 
-  getDashboardPerformance(var email) async {
-    var result = await dio.get(baseUrl + "/challenge/$email");
+  getUserPerformance(userId) async {
+    try {
+      var perform = await dio.get(
+        baseUrl + "/challenge/members/$userId"
+      );
+      var result = perform.data;
+      return result;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  getDashboardPerformance(user_id) async {
+    var result = await dio.get(baseUrl + "/challenge/$user_id");
     List perform = result.data;
 
     var distanceCovered = 0.0;
@@ -366,7 +430,7 @@ class PerformanceResource {
       stepsCount = stepsCount + element["steps_count"];
     });
 
-    return {"distance": distanceCovered, "calories": caloriesBurnt, "steps": stepsCount};
+    return {"distance": distanceCovered.toInt(), "calories": caloriesBurnt.toInt(), "steps": stepsCount.toInt()};
   }
 
   getIndividualPerformance(department) async {
@@ -385,7 +449,6 @@ class PerformanceResource {
   }
 
   getUserHistory(userId) async {
-    print("---------userId-------------------------$userId");
     var result = await dio.get(baseUrl + "/challenge/$userId");
     var history = result.data;
 
@@ -404,6 +467,20 @@ class PerformanceResource {
       return [];
     }
   }
+
+  getClassMembers(classData) async {
+    try {
+      var perform = await dio.post(
+        baseUrl + "/videos/participants/",
+        data: classData,
+      );
+      var result = perform.data;
+      return result["members_list"] ;
+    } catch (e) {
+      return [];
+    }
+  }
+
 }
 
 class ChatService{
@@ -512,8 +589,6 @@ class ChatService{
     var member = await dio.post(
         baseUrl + "/chats/general/", data: memberData);
     var result = member.data;
-
-    print("---------- $result");
 
     if (result["status"]) {
       return {"success": true};

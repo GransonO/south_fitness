@@ -25,7 +25,7 @@ class _PerformanceState extends State<Performance> {
   var team = "";
   List teamsData = [];
   bool loading = true;
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   @override
   void initState() {
@@ -84,7 +84,6 @@ class _PerformanceState extends State<Performance> {
                           margin: EdgeInsets.only(top: _height(1), bottom: _height(4)),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15), ),
-                              color: Color.fromARGB(255,246,246,246)
                           ),
                           child: loading ? Center(
                             child: SpinKitThreeBounce(
@@ -148,69 +147,88 @@ class _PerformanceState extends State<Performance> {
   _displayTeams(){
     var children = <Widget>[];
     children.add( SizedBox(height: _height(4)));
-    teamsData.forEach((element) {
+    if(teamsData.isEmpty){
       children.add(
-        InkWell(
-          onTap: (){
-            setState(() {
-              Common().newActivity(context, Competitors(element["name"]));
-            });
-          },
-          child: Container(
-            width: _width(100),
-            height: _height(10),
-            margin: EdgeInsets.only(right: _width(3), left: _width(3), bottom: _height(3)),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(15)),
-                color: _selectColor(teamsData.indexOf(element))
-            ),
-            child: Row(
-              children: [
-                SizedBox(width: _width(3),),
-                Text(
-                  "${teamsData.indexOf(element) + 1}",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20
-                  ),
-                ),
-                Text(
-                  "${(teamsData.indexOf(element) + 1) == 1 ? "st" : (teamsData.indexOf(element) + 1) == 2 ? "nd" : "th" }",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12
-                  ),
-                ),
-                Spacer(),
-                Column(
-                  children: [
-                    Spacer(),
-                    Text(
-                      "${Common().capitalize(element["name"])}",
+          Container(
+              height: _height(15),
+              width: _width(100),
+              margin: EdgeInsets.all(_height(3)),
+              child: Center(
+                  child: Text("No challenge data to display",
                       style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16
-                      ),
+                          color: Colors.lightGreen,
+                          fontSize: 15,
+                        fontWeight: FontWeight.bold
+                      )
+                  )
+              )
+          )
+      );
+    } else{
+      teamsData.forEach((element) {
+        children.add(
+          InkWell(
+            onTap: (){
+              setState(() {
+                Common().newActivity(context, Competitors(element["name"]));
+              });
+            },
+            child: Container(
+              width: _width(100),
+              height: _height(10),
+              margin: EdgeInsets.only(right: _width(3), left: _width(3), bottom: _height(3)),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                  color: _selectColor(teamsData.indexOf(element))
+              ),
+              child: Row(
+                children: [
+                  SizedBox(width: _width(3),),
+                  Text(
+                    "${teamsData.indexOf(element) + 1}",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20
                     ),
-                    Text(
-                      "Score: ${element["count"] * 5}",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12
-                      ),
+                  ),
+                  Text(
+                    "${(teamsData.indexOf(element) + 1) == 1 ? "st" : (teamsData.indexOf(element) + 1) == 2 ? "nd" : "th" }",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12
                     ),
-                    Spacer(),
-                  ],
-                ),
-                Spacer(),
-                Icon(Icons.arrow_forward_ios_sharp, color: Colors.white,),
-                SizedBox(width: _width(3),),
-              ],
+                  ),
+                  Spacer(),
+                  Column(
+                    children: [
+                      Spacer(),
+                      Text(
+                        "${Common().capitalize(element["name"])}",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16
+                        ),
+                      ),
+                      Text(
+                        "Score: ${element["count"] * 5}",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12
+                        ),
+                      ),
+                      Spacer(),
+                    ],
+                  ),
+                  Spacer(),
+                  Icon(Icons.arrow_forward_ios_sharp, color: Colors.white,),
+                  SizedBox(width: _width(3),),
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      });
+    }
     return children;
   }
 

@@ -13,18 +13,20 @@ class VideoPlayer extends StatefulWidget {
   String passedToken;
   String appID;
   int theUid;
+  var element;
 
   /// Creates a call page with given channel name.
   /// ("token", "appId", "channelName")
-  VideoPlayer(token, appId, channel, uid){
+  VideoPlayer(token, appId, channel, uid, telement){
     channelName = channel;
     passedToken = token;
     appID = appId;
     theUid = uid;
+    element = telement;
   }
 
   @override
-  _VideoPlayerState createState() => _VideoPlayerState(channelName, passedToken, appID, theUid);
+  _VideoPlayerState createState() => _VideoPlayerState(channelName, passedToken, appID, theUid, element);
 }
 
 class _VideoPlayerState extends State<VideoPlayer> {
@@ -39,11 +41,14 @@ class _VideoPlayerState extends State<VideoPlayer> {
   var userUID;
   rtc_engine_x.ClientRole _role = rtc_engine_x.ClientRole.Broadcaster;
 
-  _VideoPlayerState(channel, passedToken, appID, theUid){
+  var element;
+
+  _VideoPlayerState(channel, passedToken, appID, theUid, telement){
     APP_ID = appID;
     Token = passedToken;
     channelName = channel.toString().trim();
     userUID = theUid;
+    element = telement;
   }
 
   @override
@@ -297,7 +302,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   void _onCallEnd(BuildContext context) async {
     await _engine.leaveChannel();
-   Common().newActivity(context, VideoRating());
+   Common().newActivity(context, VideoRating(element));
   }
 
   void _onToggleMute() {
@@ -325,7 +330,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
               child: InkWell(
                 onTap: () async {
                   await _engine.leaveChannel();
-                  Common().newActivity(context, VideoRating());
+                  Common().newActivity(context, VideoRating(element));
                 },
                 child: Container(
                     height: _height(5),

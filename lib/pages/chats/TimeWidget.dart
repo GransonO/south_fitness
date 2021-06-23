@@ -6,19 +6,23 @@ import '../common.dart';
 class TimeWidget extends StatefulWidget {
 
   String GroupId;
-  TimeWidget(chatID){
+  bool isGeneral = false;
+  TimeWidget(chatID, general){
     GroupId = chatID;
+    isGeneral = general;
   }
 
   @override
-  _TimeWidgetState createState() => _TimeWidgetState(GroupId);
+  _TimeWidgetState createState() => _TimeWidgetState(GroupId, isGeneral);
 }
 
 class _TimeWidgetState extends State<TimeWidget> {
 
   var groupID;
-  _TimeWidgetState(GroupId){
+  bool isGeneral = false;
+  _TimeWidgetState(GroupId, general){
     groupID = GroupId;
+    isGeneral = general;
   }
 
   String value;
@@ -42,7 +46,7 @@ class _TimeWidgetState extends State<TimeWidget> {
   Widget build(BuildContext context) {
     return Text(
         value != null ? Common().timeStringFormatter(value).toString() : "--",
-        style: TextStyle(fontSize: 8, color: Colors.grey)
+        style: TextStyle(fontSize: 8, color: isGeneral ? Colors.white : Colors.grey)
     );
   }
 }

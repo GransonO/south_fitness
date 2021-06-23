@@ -1,11 +1,9 @@
-import 'package:agora_rtc_engine/rtc_engine.dart' as rtc_engine_x;
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:south_fitness/pages/home/performance.dart';
 import 'package:south_fitness/pages/video_call/videoPlayer.dart' as videoStuff;
 import 'package:south_fitness/services/net.dart';
 import 'package:video_player/video_player.dart';
@@ -19,16 +17,19 @@ class Session extends StatefulWidget {
   var participants = "";
   var channel = "";
   var isTimeDue = 0;
-  Session(value, url, uid, all, title, isTime){
+  var element = {};
+
+  Session(value, url, uid, all, title, isTime, element){
     type = value;
     link = url;
     id = uid;
     participants = all;
     channel = title;
     isTimeDue = isTime;
+    this.element = element;
   }
   @override
-  _SessionState createState() => _SessionState(type, link, id, participants, channel, isTimeDue);
+  _SessionState createState() => _SessionState(type, link, id, participants, channel, isTimeDue, this.element);
 }
 
 class _SessionState extends State<Session> {
@@ -36,6 +37,7 @@ class _SessionState extends State<Session> {
   bool play = false;
   var team = "";
   var type = "";
+  bool isStarted = false;
 
   VideoPlayerController _controller;
   Future<void> _initializeVideoPlayerFuture;
@@ -51,15 +53,17 @@ class _SessionState extends State<Session> {
   bool showCall = true;
   var isTime = 0;
   bool isLoading = true;
+  var element = {};
 
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
-  _SessionState(value, url, id, all, _channel, state){
+  _SessionState(value, url, id, all, _channel, state, tElement){
     type = value;
     link = url;
     uid = id;
     channel = _channel;
     isTime = state;
+    element = tElement;
   }
 
   @override
@@ -88,16 +92,17 @@ class _SessionState extends State<Session> {
   getVideoCallDetails() async {
     // Fetch the passed video detail
     var videoData = await HomeResources().getVideoCallDetails(uid, channel);
+    print("Returned videoData ================================= $videoData");
     setState(() {
       videoCall = videoData;
-      print("0 ===========================: $videoCall");
+      isStarted = videoData["video"]["isStarted"];
     });
   }
   
   getChallengeMembers() async {
-    List result = await PerformanceResource().getTeamPerformance(
+    List result = await PerformanceResource().getClassMembers(
         {
-          "challenge_id": uid
+          "activity_id": uid
         }
     );
     setState(() {
@@ -132,7 +137,7 @@ class _SessionState extends State<Session> {
                       Container(
                         width: _width(100),
                         child: Text(
-                          "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in as some form, by injected humour",
+                          "${element["details"]}",
                           style: TextStyle(
                               fontSize: 13,
                               color: Colors.grey
@@ -277,7 +282,7 @@ class _SessionState extends State<Session> {
                       ),
                       SizedBox( height: _height(5)),
                       Center(
-                        child: InkWell(
+                        child: isStarted ? InkWell(
                           onTap: (){
                             var data = {
                               "token": videoCall["video"]["token"],
@@ -286,16 +291,16 @@ class _SessionState extends State<Session> {
                               "uid": videoCall["uid"]
                             };
                             print("Returned Data ================================= $data");
-                            if(displayTimeMessage(isTime)){
-                              HomeResources().updateVideoViews({"video_id": uid, "team": team});
+                            // if(displayTimeMessage(isTime)){
                               Common().newActivity(context, videoStuff.VideoPlayer(
                                   videoCall["video"]["token"],
                                   videoCall["video"]["appID"],
                                   channel,
-                                  videoCall["uid"]
-                              )
+                                  videoCall["uid"],
+                                  element
+                                )
                               );
-                            }
+                            // }
                           },
                           child: Container(
                             height: _height(5),
@@ -306,12 +311,29 @@ class _SessionState extends State<Session> {
                             ),
                             child: Center(
                               child: Text(
-                                "Join class",
+                                "Join",
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold
                                 ),
+                              ),
+                            ),
+                          ),
+                        ) : Container(
+                          height: _height(5),
+                          width: _width(80),
+                          decoration: BoxDecoration(
+                              color: Color.fromARGB(255,110,180,63),
+                              borderRadius: BorderRadius.all(Radius.circular(15))
+                          ),
+                          child: Center(
+                            child: Text(
+                              "Not Started",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold
                               ),
                             ),
                           ),
@@ -385,11 +407,16 @@ class _SessionState extends State<Session> {
                 Column(
                   children: [
                     Spacer(),
-                    Text(
-                      element["name"],
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16
+                    Container(
+                      width: _width(45),
+                      child: Text(
+                        element["name"],
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                        ),
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     SizedBox(height: _height(1),),

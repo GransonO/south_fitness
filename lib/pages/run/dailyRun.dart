@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -32,6 +33,7 @@ class _DailyRunState extends State<DailyRun> {
   var startRun = false;
   var stopRun = false;
   var postToServer = false;
+  var posting = false;
   var distance = 0;
   var calories = 0.0;
 
@@ -69,7 +71,7 @@ class _DailyRunState extends State<DailyRun> {
   PolylinePoints polylinePoints = PolylinePoints();
   String googleAPiKey = "AIzaSyAl_2qJ7T8UFxRRz_TZAs0hoW6vflnJ8ug";
 
-  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1619738022/South_Fitness/user.png";
+  var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   Stream<StepCount> _stepCountStream;
   Stream<PedestrianStatus> _pedestrianStatusStream;
@@ -108,7 +110,6 @@ class _DailyRunState extends State<DailyRun> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getBitmapImage();
     checkUsage();
     setPrefs();
   }
@@ -169,24 +170,30 @@ class _DailyRunState extends State<DailyRun> {
           myLat = currentLocation.latitude;
           myLong = currentLocation.longitude;
           print("Lat : $myLat, Lon : $myLong");
+
           _markers.clear();
+
           marker = Marker(
             markerId: MarkerId("curr_loc"),
             position: LatLng(myLat, myLong),
-            infoWindow: InfoWindow(title: 'You are here'),
+            infoWindow: InfoWindow(title: 'You are currently here'),
           );
+
           movingMarker = Marker(
-            markerId: MarkerId("person"),
-            position: LatLng(myLat, myLong),
-            infoWindow: InfoWindow(title: 'You are here'),
+              markerId: MarkerId("person"),
+              position: LatLng(myLat, myLong),
+              infoWindow: InfoWindow(title: 'You are here'),
+              icon: bitmap
           );
+
           mapTarget = LatLng(myLat, myLong);
-          _markers["Current Location"] = marker;
+          _markers["Start Location"] = marker;
+          _markers["Current Location"] = movingMarker;
         });
 
         /// origin marker
-        _addMarker(LatLng(myLat, myLong), "start_point", "Start Location",
-            BitmapDescriptor.defaultMarker);
+        // _addMarker(LatLng(myLat, myLong), "start_point", "Start Location",
+        //     BitmapDescriptor.defaultMarker);
 
       } else {
         //Enable location
@@ -391,7 +398,7 @@ class _DailyRunState extends State<DailyRun> {
                                         Container(
                                           width: _width(20),
                                           child: Text(
-                                            startRun ? "${calories.toStringAsFixed(2)}" : "0",
+                                            stopRun ? "${calories.toStringAsFixed(2)}" : "--",
                                             style: TextStyle(
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.bold
@@ -449,7 +456,15 @@ class _DailyRunState extends State<DailyRun> {
                       ),
                       SizedBox( height: _height(3)),
 
-                      postToServer ? Center(
+                      posting ? Center(
+                        child: Container(
+                          height: _height(5),
+                          width: _width(100),
+                          child: Center(
+                            child: SpinKitThreeBounce(color: Colors.lightGreen, size: 30,),
+                          ),
+                        ),
+                      ) : postToServer ? Center(
                         child: InkWell(
                           onTap: (){
                             postFinalData();
@@ -460,30 +475,29 @@ class _DailyRunState extends State<DailyRun> {
                             decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.all(Radius.circular(15)),
-                              border: Border.all(color: Colors.black)
+                              border: Border.all(color: Colors.green)
                             ),
                             child: Center(
                               child: Text(
-                                "Post to server",
+                                "Post the challenge",
                                 style: TextStyle(
-                                  color: Colors.black,
+                                  color: Colors.green,
                                   fontSize: 15,
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ) : (stopRun ? Container() : Center(
-                        child: InkWell(
+                      ) : Center( child: InkWell(
                           onTap: (){
                             setState(() {
                               if(startRun == true){
                                 stopRun = true;
+                                calories = getCaloriesBurnt();
                                 stopTimer();
                                 postChallengeData();
                               }else{
                                 // readSteps();
-                                // readCalories();
                                 startRun = true;
                                 startTimer();
                                 startLocationUpdate();
@@ -509,8 +523,7 @@ class _DailyRunState extends State<DailyRun> {
                               ),
                             ),
                           ),
-                        ),
-                      )),
+                        ), ),
                       SizedBox( height: _height(3)),
                     ],
                   ),
@@ -609,12 +622,6 @@ class _DailyRunState extends State<DailyRun> {
       _getPositionSubscription = Geolocator.getPositionStream(desiredAccuracy: LocationAccuracy.high, intervalDuration: Duration(seconds: 5)).listen(
               (Position position) {
                 setState(() {
-                  movingMarker = Marker(
-                    markerId: MarkerId("person"),
-                    position: LatLng(position.latitude, position.longitude),
-                    infoWindow: InfoWindow(title: 'You are here'),
-                    icon: bitmap
-                  );
                   if(prevLat == 0.0 ){
                     // Starting point
                     distanceInKm = double.parse((Geolocator.distanceBetween(startLatitude, startLong, position.latitude, position.longitude) / 1000).toStringAsFixed(2));
@@ -624,7 +631,6 @@ class _DailyRunState extends State<DailyRun> {
                   }
                   prevLat = position.latitude;
                   prevLon = position.longitude;
-                  calories = getCaloriesBurnt();
 
                   endLat = position.latitude;
                   endLong = position.longitude;
@@ -636,9 +642,9 @@ class _DailyRunState extends State<DailyRun> {
                       icon: bitmap
                   );
 
-                  _addMarker(LatLng(endLat, endLong), "person","Current Location",
-                      BitmapDescriptor.defaultMarker);
                 });
+                _markers.clear();
+                _markers["Current Location"] = movingMarker;
                 print("------------------------------------------- $distanceInKm");
           });
     }else{
@@ -684,7 +690,13 @@ class _DailyRunState extends State<DailyRun> {
   }
 
   postFinalData() async {
+    setState(() {
+      posting = true;
+    });
     var result = await HomeResources().postChallenge(challengeData);
+    setState(() {
+      posting = false;
+    });
     if(result["success"]){
       Common().newActivity(context, HomeView());
     }else{
@@ -715,14 +727,7 @@ class _DailyRunState extends State<DailyRun> {
     var standardMultiple = gender == "Female" ? 0.029 : 0.035;
     var velocity = (distanceInKm * 1000)/(duration);
 
-    return (weightMultiple * weight) + ((velocity * velocity) / height) * (standardMultiple) * (weight);
+    return ((weightMultiple * weight) + ((velocity * velocity) / height) * (standardMultiple) * (weight)).toDouble();
   }
-
-  _addMarker(LatLng position, String id, String description, BitmapDescriptor descriptor) {
-    MarkerId markerId = MarkerId(id);
-    Marker marker = Marker(markerId: markerId, icon: descriptor, position: position, infoWindow: InfoWindow(title: description));
-    markers[markerId] = marker;
-  }
-
 
 }
