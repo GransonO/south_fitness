@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Authentication {
 
-  var baseUrl = "https://south-fitness.herokuapp.com";
+  var baseUrl = "https://southfitness.epitomesoftware.live";
   var uploadUrl = "https://api.cloudinary.com/v1_1/dolwj4vkq/image/upload";
   Dio dio;
   SharedPreferences prefs;
@@ -158,7 +158,7 @@ class Authentication {
 
 class HomeResources {
 
-  var baseUrl = "https://south-fitness.herokuapp.com";
+  var baseUrl = "https://southfitness.epitomesoftware.live";
   Dio dio;
   SharedPreferences prefs;
 
@@ -380,7 +380,7 @@ class HomeResources {
 
 class PerformanceResource {
 
-  var baseUrl = "https://south-fitness.herokuapp.com";
+  var baseUrl = "https://southfitness.epitomesoftware.live";
   Dio dio;
   SharedPreferences prefs;
 
@@ -486,7 +486,7 @@ class PerformanceResource {
 class ChatService{
 
   Dio dio;
-  var baseUrl = "https://south-fitness.herokuapp.com";
+  var baseUrl = "https://southfitness.epitomesoftware.live";
   ChatService(){
     dio = Dio();
   }
