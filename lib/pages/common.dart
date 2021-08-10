@@ -98,12 +98,12 @@ class Common{
     return diff;
   }
 
-  logoOnBar(BuildContext context){
+  logoOnBar(BuildContext context, img){
     return Container(
       height: componentHeight(context, 7),
       width: componentWidth(context, 40),
-      child: Image.asset(
-        "assets/images/logo.png",
+      child: Image.network(
+        img,
         fit: BoxFit.cover,
       ),
     );
@@ -421,7 +421,6 @@ class Common{
   
   _colorScheme(value){
     return value ? Colors.lightGreen : Colors.black45;
-    
   }
 
   String capitalize(String string) {

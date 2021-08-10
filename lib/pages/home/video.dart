@@ -36,6 +36,8 @@ class _ReadyVideoState extends State<ReadyVideo> {
   bool joinLoader = false;
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
+  Color mainColor = Colors.white;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -43,6 +45,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
     setPrefs();
     getVideos();
   }
+  var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
@@ -52,6 +55,10 @@ class _ReadyVideoState extends State<ReadyVideo> {
       image = prefs.getString("image");
       user_id = prefs.getString("user_id");
       team = prefs.getString("team");
+      img = prefs.getString("institute_logo");
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
   }
 
@@ -110,7 +117,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
                           children: [
                             Center(
                               child: SpinKitThreeBounce(
-                                color: Colors.lightGreen,
+                                color: mainColor,
                                 size: 20,
                               ),
                             ),
@@ -164,7 +171,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
                                 Text(
                                   element["isLive"] ? "In Progress" : "${convertDateTime(element["scheduledTime"])}",
                                   style: TextStyle(
-                                      color: Colors.lightGreen,
+                                      color: mainColor,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 11
                                   ),
@@ -215,7 +222,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
                           children: [
                             Center(
                               child: SpinKitThreeBounce(
-                                color: Colors.lightGreen,
+                                color: mainColor,
                                 size: 20,
                               ),
                             ),
@@ -269,7 +276,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
                                 Text(
                                   element["isLive"] ? "In Progress" : "${convertDateTime(element["scheduledTime"])}",
                                   style: TextStyle(
-                                      color: Colors.lightGreen,
+                                      color: mainColor,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 11
                                   ),
@@ -304,7 +311,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
                 margin: EdgeInsets.only(top: _height(9), left: _width(4), right: _width(1)),
                 child: loading ? Center(
                   child: SpinKitThreeBounce(
-                    color: Colors.lightGreen,
+                    color: mainColor,
                     size: 30,
                   ),
                 ) : Column(
@@ -375,7 +382,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
                               Radius.circular(15)
                           ),
                           border: Border.all(
-                              color: Colors.lightGreen,
+                              color: mainColor,
                               width: 2
                           )
                       ),
@@ -401,13 +408,13 @@ class _ReadyVideoState extends State<ReadyVideo> {
               color: Colors.white,
               child: Row(
                 children: [
-                  Common().logoOnBar(context),
+                  Common().logoOnBar(context, img),
                   Spacer(),
                   InkWell(
                     onTap: (){
                       _scaffoldKey.currentState.openDrawer();
                     },
-                    child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
+                    child: Icon(Icons.menu, size: 30, color: mainColor,),
                   ),
                   SizedBox(width: _width(4),),
                 ],
@@ -442,7 +449,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
                               },
                               child: Icon(
                                 Icons.close_outlined,
-                                color: Colors.lightGreen,
+                                color: mainColor,
                               )
                             )
                           ],
@@ -500,7 +507,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
                                         },
                                         child: Padding(
                                           padding: const EdgeInsets.all(8.0),
-                                          child: play ? Icon(Icons.pause_circle_filled, color: Colors.lightGreen, size: 40,) : Icon(Icons.play_circle_filled_sharp, color: Colors.lightGreen, size: 40,),
+                                          child: play ? Icon(Icons.pause_circle_filled, color: mainColor, size: 40,) : Icon(Icons.play_circle_filled_sharp, color: mainColor, size: 40,),
                                         )
                                     ),
                                     Spacer(),
@@ -664,12 +671,12 @@ class _ReadyVideoState extends State<ReadyVideo> {
                             width: _width(100),
                             margin: EdgeInsets.only(left: 10, right: 10),
                             decoration: BoxDecoration(
-                                color: Color.fromARGB(255,110,180,63),
+                                color: mainColor,
                                 borderRadius: BorderRadius.all(Radius.circular(10))
                             ),
                             child: Center(
                               child: Text(
-                                "Join class",
+                                "View class",
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 15,
@@ -687,7 +694,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
             ) : Container(),
             joinLoader ? Center(
               child: SpinKitThreeBounce(
-                color: Colors.lightGreen,
+                color: mainColor,
                 size: 35,
               ),
             ) : Container()

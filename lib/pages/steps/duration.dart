@@ -18,6 +18,23 @@ class _DurationState extends State<TrainDuration> {
 
   int num = 0;
   bool loading = false;
+  Color mainColor = Colors.white;
+
+  setPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+    });
+  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setPrefs();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -186,7 +203,7 @@ class _DurationState extends State<TrainDuration> {
                               child: Column(
                                 children: [
                                   Spacer(),
-                                  SpinKitThreeBounce(color: Colors.lightGreen, size: 30,),
+                                  SpinKitThreeBounce(color: mainColor, size: 30,),
                                   Spacer(),
                                 ],
                               )

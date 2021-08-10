@@ -352,7 +352,7 @@ class _WarmUpsState extends State<WarmUps> {
                 child: Row(
                   children: [
                     SizedBox(width: _width(3),),
-                    Common().logoOnBar(context),
+                    // Common().logoOnBar(context),
                     Spacer(),
                     Icon(Icons.notifications_none, size: 30,),
                     SizedBox(width: _width(4),),

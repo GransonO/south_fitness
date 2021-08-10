@@ -16,8 +16,8 @@ import '../common.dart';
 
 class DailyRun extends StatefulWidget {
   var state = "";
-  var myLat;
-  var myLong;
+  var myLat = 0.0;
+  var myLong = 0.0;
 
   DailyRun(value, lat, long){
     state = value;
@@ -37,9 +37,8 @@ class _DailyRunState extends State<DailyRun> {
   var distance = 0;
   var calories = 0.0;
 
-  var myLat = 0.0;
-  var myLong = 0.0;
-
+  var myLat = -1.2878286;
+  var myLong = 36.8180403;
   var startLat = 0.0;
   var startLong = 0.0;
   var endLat = 0.0;
@@ -49,6 +48,7 @@ class _DailyRunState extends State<DailyRun> {
   var prevLon = 0.0;
   var avgPace = 0.0;
   var state = "";
+  bool showCalories = false;
   var challengeData = {};
 
   StreamSubscription _getPositionSubscription;
@@ -62,6 +62,7 @@ class _DailyRunState extends State<DailyRun> {
     startLong = long;
   }
 
+  Color mainColor = Colors.white;
   var distanceInKm = 0.0;
 
   GoogleMapController mapController;
@@ -104,6 +105,7 @@ class _DailyRunState extends State<DailyRun> {
 
   bool serviceEnabled;
   LocationPermission permission;
+  var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   final Map<String, Marker> _markers = {};
   @override
@@ -128,6 +130,10 @@ class _DailyRunState extends State<DailyRun> {
       team = prefs.getString("team");
       image = prefs.getString("image");
       user_id = prefs.getString("user_id");
+      img = prefs.getString("institute_logo");
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
   }
 
@@ -391,8 +397,8 @@ class _DailyRunState extends State<DailyRun> {
                                       ],
                                     )
                                 ),
-                                Spacer(),
-                                Container(
+                                showCalories ? Spacer() : Container(),
+                                showCalories ? Container(
                                     child: Column(
                                       children: [
                                         Container(
@@ -418,7 +424,7 @@ class _DailyRunState extends State<DailyRun> {
                                         ),
                                       ],
                                     )
-                                ),
+                                ) : Container(),
                               ]
                           )
                       ),
@@ -461,7 +467,7 @@ class _DailyRunState extends State<DailyRun> {
                           height: _height(5),
                           width: _width(100),
                           child: Center(
-                            child: SpinKitThreeBounce(color: Colors.lightGreen, size: 30,),
+                            child: SpinKitThreeBounce(color: mainColor, size: 30,),
                           ),
                         ),
                       ) : postToServer ? Center(
@@ -534,13 +540,13 @@ class _DailyRunState extends State<DailyRun> {
                 color: Colors.white,
                 child: Row(
                   children: [
-                    Common().logoOnBar(context),
+                    Common().logoOnBar(context, img),
                     Spacer(),
                     InkWell(
                       onTap: (){
                         _scaffoldKey.currentState.openDrawer();
                       },
-                      child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
+                      child: Icon(Icons.menu, size: 30, color: mainColor,),
                     ),
                     SizedBox(width: _width(4),),
                   ],
@@ -610,6 +616,7 @@ class _DailyRunState extends State<DailyRun> {
 
   void stopTimer(){
     _timer.cancel();
+    _getPositionSubscription.cancel();
   }
 
   startLocationUpdate() async {
@@ -619,7 +626,7 @@ class _DailyRunState extends State<DailyRun> {
     var startLong = authPrefs.getDouble("startLongitude");
     if(isLocationServiceEnabled){
       checkUsage();
-      _getPositionSubscription = Geolocator.getPositionStream(desiredAccuracy: LocationAccuracy.high, intervalDuration: Duration(seconds: 5)).listen(
+      _getPositionSubscription = Geolocator.getPositionStream(distanceFilter: 5, desiredAccuracy: LocationAccuracy.high, intervalDuration: Duration(seconds: 5)).listen(
               (Position position) {
                 setState(() {
                   if(prevLat == 0.0 ){
@@ -676,8 +683,8 @@ class _DailyRunState extends State<DailyRun> {
         "team": team,
         "user_id": user_id,
         "steps_count": _steps,
-        "distance": distanceInKm.truncateToDouble(),
-        "caloriesBurnt": getCaloriesBurnt(),
+        "distance": distanceInKm.toInt(),
+        "caloriesBurnt": getCaloriesBurnt().toInt(),
         "startTime": "${startTime.year}-$startMonth-$startDay $startHour:$startMin:$startSec",
         "startLat": startLat,
         "startLong": startLong,
@@ -721,11 +728,14 @@ class _DailyRunState extends State<DailyRun> {
 
   getCaloriesBurnt(){
     var gender = prefs.getString("gender");
-    var height = prefs.getDouble("height"); // in metres
-    var weight = prefs.getDouble("weight"); // in Kg
+    var height = prefs.getInt("height"); // in metres
+    var weight = prefs.getInt("weight"); // in Kg
     var weightMultiple = gender == "Female" ? 0.035 : 0.065;
     var standardMultiple = gender == "Female" ? 0.029 : 0.035;
     var velocity = (distanceInKm * 1000)/(duration);
+    setState(() {
+      showCalories = true;
+    });
 
     return ((weightMultiple * weight) + ((velocity * velocity) / height) * (standardMultiple) * (weight)).toDouble();
   }

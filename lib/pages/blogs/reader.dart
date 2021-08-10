@@ -280,8 +280,8 @@ class _ReaderState extends State<Reader> {
             width: _width(100),
             margin: EdgeInsets.only(bottom: _height(2)),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.all(Radius.circular(15))
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.all(Radius.circular(10))
             ),
             padding: EdgeInsets.all(8.0,),
             child: Column(
@@ -314,7 +314,7 @@ class _ReaderState extends State<Reader> {
                             style: TextStyle(
                                 color: Colors.black87,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16
+                                fontSize: 14
                             ),
                           ),
                         ),

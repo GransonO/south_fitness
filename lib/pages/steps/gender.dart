@@ -18,6 +18,23 @@ class _GenderState extends State<Gender> {
 
   var weight = 55;
   var lheight = 110;
+  Color mainColor = Colors.white;
+
+  setPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setPrefs();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +141,7 @@ class _GenderState extends State<Gender> {
                                   child: Slider(
                                     value: weight + 0.0,
                                     divisions: 20,
-                                    activeColor: Colors.green,
+                                    activeColor: mainColor,
                                     onChanged: (val) async {
                                       setState(() {
                                         weight = val.toInt();
@@ -217,7 +234,7 @@ class _GenderState extends State<Gender> {
                                   child: Slider(
                                     value: lheight + 0.0,
                                     divisions: 20,
-                                    activeColor: Colors.green,
+                                    activeColor: mainColor,
                                     onChanged: (val) async {
                                       setState(() {
                                         lheight = val.toInt();
@@ -297,7 +314,7 @@ class _GenderState extends State<Gender> {
                                       Fluttertoast.showToast(
                                           msg: "Please select your gender",
                                           textColor: Colors.white,
-                                          backgroundColor: Colors.lightGreen
+                                          backgroundColor: mainColor
                                       );
                                     }else{
                                       prefs = await SharedPreferences.getInstance();
@@ -311,7 +328,7 @@ class _GenderState extends State<Gender> {
                                     width: _width(40),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.all(Radius.circular(15)),
-                                      color: Color.fromARGB(255,110,180,63),
+                                      color: mainColor,
                                     ),
                                     child: Center(
                                       child: Text(

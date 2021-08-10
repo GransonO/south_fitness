@@ -55,6 +55,8 @@ class _HomeState extends State<HomeView> {
   bool play = false;
   bool joinLoader = false;
   var theElement = {};
+  Color mainColor = Colors.white;
+  var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   @override
   void initState() {
@@ -74,7 +76,11 @@ class _HomeState extends State<HomeView> {
     bool microphone = await Permission.microphone.isGranted;
     bool phone = await Permission.phone.isGranted;
     bool storage = await Permission.storage.isGranted;
+    bool location = await Permission.location.isGranted;
     bool activityRecognition = await Permission.activityRecognition.isGranted;
+    if (!location) {
+      await Permission.location.request();
+    }
     if (!camera) {
       await Permission.camera.request();
     }
@@ -94,6 +100,12 @@ class _HomeState extends State<HomeView> {
 
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
+    setState(() {
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+    });
+
     user_id = prefs.getString("user_id");
     var suggestions = await HomeResources().getSuggestedActivities();
     var upcomingVideos = await HomeResources().getVideos(Common().displayDateOfWeek(DateFormat('EEEE').format(DateTime.now())));
@@ -110,6 +122,8 @@ class _HomeState extends State<HomeView> {
       activityList = suggestions;
       loading = false;
       allPastActivities = pastActivities;
+
+      img = prefs.getString("institute_logo");
     });
   }
 
@@ -172,6 +186,7 @@ class _HomeState extends State<HomeView> {
   }
 
   initializeVideo(link) {
+    print("======================== $link");
     setState(() {
       _controller = VideoPlayerController.network(
         link,
@@ -494,7 +509,7 @@ class _HomeState extends State<HomeView> {
                                     onTap: () async {
                                       bool locationIsGranted = await Permission.location.isGranted;
                                       if (!locationIsGranted) {
-                                        await Permission.camera.request();
+                                        await Permission.location.request();
                                       }else{
                                         Common().newActivity(context, DailyRun("Running", currentLat, currentLong));
                                       }
@@ -505,7 +520,7 @@ class _HomeState extends State<HomeView> {
                                         width: _width(27),
                                         decoration: BoxDecoration(
                                             borderRadius: BorderRadius.all(Radius.circular(15)),
-                                            border: Border.all(color: Colors.green, width: 1)
+                                            border: Border.all(color: mainColor, width: 1)
                                         ),
                                         child: Row(
                                           children: [
@@ -524,7 +539,7 @@ class _HomeState extends State<HomeView> {
                                     onTap: () async {
                                       bool locationIsGranted = await Permission.location.isGranted;
                                       if (!locationIsGranted) {
-                                        await Permission.camera.request();
+                                        await Permission.location.request();
                                       }else{
                                         Common().newActivity(context, DailyRun("Walking", currentLat, currentLong));
                                       }
@@ -535,7 +550,7 @@ class _HomeState extends State<HomeView> {
                                         width: _width(27),
                                         decoration: BoxDecoration(
                                             borderRadius: BorderRadius.all(Radius.circular(15)),
-                                            border: Border.all(color: Colors.green, width: 1)
+                                            border: Border.all(color: mainColor, width: 1)
                                         ),
                                         child: Row(
                                           children: [
@@ -554,7 +569,7 @@ class _HomeState extends State<HomeView> {
                                     onTap: () async {
                                       bool locationIsGranted = await Permission.location.isGranted;
                                       if (!locationIsGranted) {
-                                        await Permission.camera.request();
+                                        await Permission.location.request();
                                       }else{
                                         Common().newActivity(context, DailyRun("Cycling", currentLat, currentLong));
                                       }
@@ -565,7 +580,7 @@ class _HomeState extends State<HomeView> {
                                         width: _width(27),
                                         decoration: BoxDecoration(
                                             borderRadius: BorderRadius.all(Radius.circular(15)),
-                                            border: Border.all(color: Colors.green, width: 1)
+                                            border: Border.all(color: mainColor, width: 1)
                                         ),
                                         child: Row(
                                           children: [
@@ -603,7 +618,7 @@ class _HomeState extends State<HomeView> {
 
                         loading ? Center(
                           child: SpinKitThreeBounce(
-                            color: Colors.lightGreen,
+                            color: mainColor,
                             size: 30,
                           ),
                         ) : Column(
@@ -644,7 +659,7 @@ class _HomeState extends State<HomeView> {
 
                         loading ? Center(
                           child: SpinKitThreeBounce(
-                            color: Colors.lightGreen,
+                            color: mainColor,
                             size: 30,
                           ),
                         ) : SingleChildScrollView(
@@ -664,13 +679,13 @@ class _HomeState extends State<HomeView> {
                   color: Colors.white,
                   child: Row(
                     children: [
-                      Common().logoOnBar(context),
+                      Common().logoOnBar(context, img),
                       Spacer(),
                       InkWell(
                         onTap: (){
                           _scaffoldKey.currentState.openDrawer();
                         },
-                        child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
+                        child: Icon(Icons.menu, size: 30, color: mainColor),
                       ),
                       SizedBox(width: _width(4),),
                     ],
@@ -698,14 +713,15 @@ class _HomeState extends State<HomeView> {
                               children: [
                                 Spacer(),
                                 InkWell(
-                                    onTap: (){
+                                    onTap: () async {
+                                      _controller.pause();
                                       setState(() {
                                         showVideo = !showVideo;
                                       });
                                     },
                                     child: Icon(
                                       Icons.close_outlined,
-                                      color: Colors.lightGreen,
+                                      color: mainColor,
                                     )
                                 )
                               ],
@@ -763,7 +779,7 @@ class _HomeState extends State<HomeView> {
                                             },
                                             child: Padding(
                                               padding: const EdgeInsets.all(8.0),
-                                              child: play ? Icon(Icons.pause_circle_filled, color: Colors.lightGreen, size: 40,) : Icon(Icons.play_circle_filled_sharp, color: Colors.lightGreen, size: 40,),
+                                              child: play ? Icon(Icons.pause_circle_filled, color: mainColor, size: 40,) : Icon(Icons.play_circle_filled_sharp, color: mainColor, size: 40,),
                                             )
                                         ),
                                         Spacer(),
@@ -892,6 +908,9 @@ class _HomeState extends State<HomeView> {
                           Center(
                             child: InkWell(
                               onTap: () async {
+                                if(_controller != null){
+                                  _controller.pause();
+                                }
                                 setState(() {
                                   joinLoader = true;
                                 });
@@ -927,12 +946,12 @@ class _HomeState extends State<HomeView> {
                                 width: _width(100),
                                 margin: EdgeInsets.only(left: 10, right: 10),
                                 decoration: BoxDecoration(
-                                    color: Color.fromARGB(255,110,180,63),
+                                    color: mainColor,
                                     borderRadius: BorderRadius.all(Radius.circular(10))
                                 ),
                                 child: Center(
                                   child: joinLoader ? SpinKitThreeBounce(color: Colors.white, size: 25,) : Text(
-                                    "Join class",
+                                    "View class",
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 15,
@@ -969,7 +988,7 @@ class _HomeState extends State<HomeView> {
     if(passedDate > DateTime.now().day){
       return Colors.white;
     }else{
-      return dateString == dayName ? Colors.lightGreen : Color.fromARGB(255,233,244,226);
+      return dateString == dayName ? mainColor : Color.fromARGB(255,233,244,226);
     }
   }
 
@@ -1123,7 +1142,7 @@ class _HomeState extends State<HomeView> {
                         children: [
                           Center(
                             child: SpinKitThreeBounce(
-                              color: Colors.lightGreen,
+                              color: mainColor,
                               size: 20,
                             ),
                           ),
@@ -1220,14 +1239,14 @@ class _HomeState extends State<HomeView> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(15)),
               border: Border.all(
-                color: Colors.lightGreen,
+                color: mainColor,
                 width: 2
               )
             ),
             child: Center(
                 child: Text("No Activities Scheduled Today",
                     style: TextStyle(
-                      color: Colors.lightGreen,
+                      color: mainColor,
                       fontSize: 15
                     )
                 )
@@ -1262,7 +1281,7 @@ class _HomeState extends State<HomeView> {
                                 children: [
                                   Center(
                                     child: SpinKitThreeBounce(
-                                      color: Colors.lightGreen,
+                                      color: mainColor,
                                       size: 20,
                                     ),
                                   ),
@@ -1328,7 +1347,7 @@ class _HomeState extends State<HomeView> {
                                 child: Text(
                                   "${dateTimeString("${element["scheduledDate"]} ${element["scheduledTime"]}")}",
                                   style: TextStyle(
-                                      color: Colors.lightGreen,
+                                      color: mainColor,
                                       fontSize: 12
                                   ),
                                   textAlign: TextAlign.left,
@@ -1336,11 +1355,11 @@ class _HomeState extends State<HomeView> {
                               ),
                               Spacer(),
                               Container(
-                                  width: _width(10),
+                                  width: _width(12),
                                   child: Text(
                                     "${convertDateTime("${element["scheduledDate"]} ${element["scheduledTime"]}")}",
                                     style: TextStyle(
-                                        color: Colors.lightGreen,
+                                        color: mainColor,
                                         fontSize: 10
                                     ),
                                     textAlign: TextAlign.left,
@@ -1367,14 +1386,14 @@ class _HomeState extends State<HomeView> {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(15)),
                     border: Border.all(
-                        color: Colors.lightGreen,
+                        color: mainColor,
                         width: 2
                     )
                 ),
                 child: Center(
                     child: Text("No Activities Scheduled Today",
                         style: TextStyle(
-                            color: Colors.lightGreen,
+                            color: mainColor,
                             fontSize: 15
                         )
                     )
@@ -1404,7 +1423,7 @@ class _HomeState extends State<HomeView> {
                     children: [
                       Center(
                         child: SpinKitThreeBounce(
-                          color: Colors.lightGreen,
+                          color: mainColor,
                           size: 20,
                         ),
                       ),
@@ -1456,14 +1475,14 @@ class _HomeState extends State<HomeView> {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(15)),
                   border: Border.all(
-                      color: Colors.lightGreen,
+                      color: mainColor,
                       width: 2
                   )
               ),
               child: Center(
                   child: Text("No Suggested Activities",
                       style: TextStyle(
-                          color: Colors.lightGreen,
+                          color: mainColor,
                           fontSize: 15
                       )
                   )

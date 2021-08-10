@@ -18,11 +18,22 @@ class _GoalsState extends State<Goals> {
   List items = [];
   List selectedItems = [];
   List selectedNums = [];
+  Color mainColor = Colors.white;
+
+  setPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+    });
+  }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    setPrefs();
     items = ["Strength and Muscle building", "Muscular endurance", "Weight loss", "Body toning", "Flexibility and body coordination"];
   }
 
@@ -63,7 +74,7 @@ class _GoalsState extends State<Goals> {
                                       Fluttertoast.showToast(
                                           msg: "Please select your goals",
                                           textColor: Colors.white,
-                                          backgroundColor: Colors.lightGreen
+                                          backgroundColor: mainColor
                                       );
                                     }else{
                                       prefs = await SharedPreferences.getInstance();
@@ -75,7 +86,7 @@ class _GoalsState extends State<Goals> {
                                     width: _width(40),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.all(Radius.circular(15)),
-                                      color: Color.fromARGB(255,110,180,63),
+                                      color: mainColor,
                                     ),
                                     child: Center(
                                       child: Text(

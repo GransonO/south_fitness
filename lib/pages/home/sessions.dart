@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/pages/video_call/videoPlayer.dart' as videoStuff;
@@ -54,6 +55,7 @@ class _SessionState extends State<Session> {
   var isTime = 0;
   bool isLoading = true;
   var element = {};
+  Color mainColor = Colors.white;
 
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
@@ -77,14 +79,19 @@ class _SessionState extends State<Session> {
     getTeam();
     getVideoCallDetails();
   }
+  var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   getTeam() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
+      img = prefs.getString("institute_logo");
       team = prefs.getString("team").trim();
       username = prefs.getString("username");
       email = prefs.getString("email");
       image = prefs.getString("image");
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
     getChallengeMembers();
   }
@@ -210,7 +217,7 @@ class _SessionState extends State<Session> {
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: Icon(Icons.skip_previous_sharp, color: Colors.lightGreen, size: 30,),
+                                        child: Icon(Icons.skip_previous_sharp, color: mainColor, size: 30,),
                                       )
                                   ),
                                   InkWell(
@@ -229,7 +236,7 @@ class _SessionState extends State<Session> {
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: play ? Icon(Icons.pause_circle_filled, color: Colors.lightGreen, size: 40,) : Icon(Icons.play_circle_filled_sharp, color: Colors.lightGreen, size: 40,),
+                                        child: play ? Icon(Icons.pause_circle_filled, color: mainColor, size: 40,) : Icon(Icons.play_circle_filled_sharp, color: mainColor, size: 40,),
                                       )
                                   ),
                                   InkWell(
@@ -244,7 +251,7 @@ class _SessionState extends State<Session> {
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: Icon(Icons.skip_next, color: Colors.lightGreen, size: 30,),
+                                        child: Icon(Icons.skip_next, color: mainColor, size: 30,),
                                       )
                                   ),
                                   Spacer(),
@@ -264,7 +271,7 @@ class _SessionState extends State<Session> {
                                 width: _width(100),
                                 child: Center(
                                   child: SpinKitThreeBounce(
-                                    color: Colors.lightGreen,
+                                    color: mainColor,
                                   ),
                                 ),
                               ) : Container(
@@ -306,12 +313,12 @@ class _SessionState extends State<Session> {
                             height: _height(5),
                             width: _width(80),
                             decoration: BoxDecoration(
-                                color: Color.fromARGB(255,110,180,63),
+                                color: mainColor,
                                 borderRadius: BorderRadius.all(Radius.circular(15))
                             ),
                             child: Center(
                               child: Text(
-                                "Join",
+                                "Start Class",
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 15,
@@ -321,17 +328,12 @@ class _SessionState extends State<Session> {
                             ),
                           ),
                         ) : Container(
-                          height: _height(5),
                           width: _width(80),
-                          decoration: BoxDecoration(
-                              color: Color.fromARGB(255,110,180,63),
-                              borderRadius: BorderRadius.all(Radius.circular(15))
-                          ),
                           child: Center(
                             child: Text(
-                              "Not Started",
+                              "Scheduled for ${dateTimeString("${element["scheduledDate"]} ${element["scheduledTime"]}")} at ${convertDateTime("${element["scheduledDate"]} ${element["scheduledTime"]}")} ",
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.black,
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold
                               ),
@@ -349,13 +351,13 @@ class _SessionState extends State<Session> {
                 color: Colors.white,
                 child: Row(
                   children: [
-                    Common().logoOnBar(context),
+                    Common().logoOnBar(context, img),
                     Spacer(),
                     InkWell(
                       onTap: (){
                         _scaffoldKey.currentState.openDrawer();
                       },
-                      child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
+                      child: Icon(Icons.menu, size: 30, color: mainColor,),
                     ),
                     SizedBox(width: _width(4),),
                   ],
@@ -378,6 +380,16 @@ class _SessionState extends State<Session> {
     }
 
     return false;
+  }
+
+  convertDateTime(date) {
+    DateTime lel = DateTime.parse(date);
+    return DateFormat.jm().format(lel);
+  }
+
+  dateTimeString(date) {
+    DateTime lel = DateTime.parse(date);
+    return DateFormat.MMMMd().format(lel);
   }
 
   displayParticipants() {
@@ -436,7 +448,7 @@ class _SessionState extends State<Session> {
                   width: _height(4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(50)),
-                    color: Color.fromARGB(255,110,180,63),
+                    color: mainColor,
                   ),
                   child: Center(
                     child: Text(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:south_fitness/pages/video_call/videoRating.dart';
 import 'package:south_fitness/services/net.dart';
 import 'package:video_player/video_player.dart';
 
@@ -36,6 +37,7 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
   SharedPreferences prefs;
   var dayName = "";
   bool joined = false;
+  Color mainColor = Colors.white;
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   _SuggestedDetailsState(value){
@@ -53,6 +55,7 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
     super.initState();
     setPrefs();
   }
+  var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
@@ -62,6 +65,11 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
       image = prefs.getString("image");
       team = prefs.getString("team");
       user_id = prefs.getString("user_id");
+
+      img = prefs.getString("institute_logo");
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
   }
 
@@ -167,7 +175,7 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
                                               },
                                               child: Padding(
                                                 padding: const EdgeInsets.all(8.0),
-                                                child: play ? Icon(Icons.pause_circle_filled, color: Colors.lightGreen, size: 50,) : Icon(Icons.play_circle_filled_sharp, color: Colors.lightGreen, size: 50,),
+                                                child: play ? Icon(Icons.pause_circle_filled, color: mainColor, size: 50,) : Icon(Icons.play_circle_filled_sharp, color: mainColor, size: 50,),
                                               )
                                           ),
                                         )
@@ -289,7 +297,31 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
                                   ),
 
                                   SizedBox( height: _height(5)),
-                                  joined ? Container() : Center(
+                                  joined ? Center(
+                                    child: InkWell(
+                                      onTap: () async {
+                                        Common().newActivity(context, VideoRating(vidObj, false));
+                                      },
+                                      child: Container(
+                                        height: _height(5),
+                                        width: _width(80),
+                                        decoration: BoxDecoration(
+                                            color: Color.fromARGB(255,255,174,25),
+                                            borderRadius: BorderRadius.all(Radius.circular(15))
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "Rate challenge",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ) : Center(
                                     child: InkWell(
                                       onTap: () async {
                                         setState(() {
@@ -310,7 +342,7 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
                                           joined = true;
                                           Fluttertoast.showToast(
                                               msg: "Joining success. You shall receive notifications from this challenge",
-                                            backgroundColor: Colors.lightGreen,
+                                            backgroundColor: mainColor,
                                             textColor: Colors.white
                                           );
                                         }else{
@@ -332,7 +364,7 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
                                         ),
                                         child: Center(
                                           child: joinLoader ? SpinKitThreeBounce(color: Colors.white, size: 25,) : Text(
-                                            "Join challenge",
+                                            "Start challenge",
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 15,
@@ -357,13 +389,13 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
                   color: Colors.white,
                   child: Row(
                     children: [
-                      Common().logoOnBar(context),
+                      Common().logoOnBar(context, img),
                       Spacer(),
                       InkWell(
                         onTap: (){
                           _scaffoldKey.currentState.openDrawer();
                         },
-                        child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
+                        child: Icon(Icons.menu, size: 30, color: mainColor,),
                       ),
                       SizedBox(width: _width(4),),
                     ],

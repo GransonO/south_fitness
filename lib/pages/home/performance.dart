@@ -27,6 +27,9 @@ class _PerformanceState extends State<Performance> {
   bool loading = true;
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
+  Color mainColor = Colors.white;
+  var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
+
   @override
   void initState() {
       // TODO: implement initState
@@ -42,6 +45,10 @@ class _PerformanceState extends State<Performance> {
       email = prefs.getString("email");
       team = prefs.getString("team");
       image = prefs.getString("image");
+      img = prefs.getString("institute_logo");
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
     getTeamsPerformance();
   }
@@ -87,7 +94,7 @@ class _PerformanceState extends State<Performance> {
                           ),
                           child: loading ? Center(
                             child: SpinKitThreeBounce(
-                              color: Colors.lightGreen,
+                              color: mainColor,
                               size: 30,
                             ),
                           ) : Column(
@@ -116,13 +123,13 @@ class _PerformanceState extends State<Performance> {
                 color: Colors.white,
                 child: Row(
                   children: [
-                    Common().logoOnBar(context),
+                    Common().logoOnBar(context, img),
                     Spacer(),
                     InkWell(
                       onTap: (){
                         _scaffoldKey.currentState.openDrawer();
                       },
-                      child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
+                      child: Icon(Icons.menu, size: 30, color: mainColor,),
                     ),
                     SizedBox(width: _width(4),),
                   ],
@@ -156,7 +163,7 @@ class _PerformanceState extends State<Performance> {
               child: Center(
                   child: Text("No challenge data to display",
                       style: TextStyle(
-                          color: Colors.lightGreen,
+                          color: mainColor,
                           fontSize: 15,
                         fontWeight: FontWeight.bold
                       )

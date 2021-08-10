@@ -28,7 +28,10 @@ class _CompetitorsState extends State<Competitors> {
   var username = "";
   var email = "";
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
-  bool loading = false;
+  bool loading = true;
+  Color mainColor = Colors.white;
+  var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
+
 
   @override
   void initState() {
@@ -44,6 +47,11 @@ class _CompetitorsState extends State<Competitors> {
       username = prefs.getString("username");
       email = prefs.getString("email");
       image = prefs.getString("image");
+      img = prefs.getString("institute_logo");
+
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
     getParticipatingUsers();
   }
@@ -94,7 +102,7 @@ class _CompetitorsState extends State<Competitors> {
                           ),
                           child: loading ? Center(
                             child: SpinKitThreeBounce(
-                              color: Colors.lightGreen,
+                              color: mainColor,
                               size: 30,
                             ),
                           ) : Column(
@@ -123,13 +131,13 @@ class _CompetitorsState extends State<Competitors> {
                 color: Colors.white,
                 child: Row(
                   children: [
-                    Common().logoOnBar(context),
+                    Common().logoOnBar(context, img),
                     Spacer(),
                     InkWell(
                       onTap: (){
                         _scaffoldKey.currentState.openDrawer();
                       },
-                      child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
+                      child: Icon(Icons.menu, size: 30, color: mainColor,),
                     ),
                     SizedBox(width: _width(4),),
                   ],

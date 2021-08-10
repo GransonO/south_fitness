@@ -31,6 +31,8 @@ class _ChallengeDetailsState extends State<ChallengeDetails> {
 
   bool joinLoader = false;
   SharedPreferences prefs;
+  Color mainColor = Colors.white;
+  var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   bool all = true;
   bool joined = false;
@@ -63,6 +65,10 @@ class _ChallengeDetailsState extends State<ChallengeDetails> {
       image = prefs.getString("image");
       user_id = prefs.getString("user_id");
       team = prefs.getString("team");
+      img = prefs.getString("institute_logo");
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
   }
 
@@ -162,7 +168,7 @@ class _ChallengeDetailsState extends State<ChallengeDetails> {
                                             },
                                             child: Padding(
                                               padding: const EdgeInsets.all(8.0),
-                                              child: play ? Icon(Icons.pause_circle_filled, color: Colors.lightGreen, size: 40,) : Icon(Icons.play_circle_filled_sharp, color: Colors.lightGreen, size: 40,),
+                                              child: play ? Icon(Icons.pause_circle_filled, color: mainColor, size: 40,) : Icon(Icons.play_circle_filled_sharp, color: mainColor, size: 40,),
                                             )
                                         ),
                                         Spacer(),
@@ -295,7 +301,8 @@ class _ChallengeDetailsState extends State<ChallengeDetails> {
                                         "challenge_id": theElement["challenge_id"],
                                         "user_id": user_id,
                                         "user_department": team,
-                                        "username": username
+                                        "username": username,
+                                        "points": 10
                                       }
                                   );
                                   setState(() {
@@ -372,14 +379,14 @@ class _ChallengeDetailsState extends State<ChallengeDetails> {
               color: Colors.white,
               child: Row(
                 children: [
-                  Common().logoOnBar(context),
+                  Common().logoOnBar(context, img),
                   Spacer(),
                   InkWell(
                     onTap: () {
                       _scaffoldKey.currentState.openDrawer();
                     },
                     child: Icon(
-                      Icons.menu, size: 30, color: Colors.lightGreen,),
+                      Icons.menu, size: 30, color: mainColor,),
                   ),
                   SizedBox(width: _width(4),),
                 ],

@@ -26,6 +26,7 @@ class _SuggestedActivitiesState extends State<SuggestedActivities> {
   var email = "";
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
   var theList = [];
+  Color mainColor = Colors.white;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -40,6 +41,7 @@ class _SuggestedActivitiesState extends State<SuggestedActivities> {
     super.initState();
     setPrefs();
   }
+  var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
@@ -47,6 +49,10 @@ class _SuggestedActivitiesState extends State<SuggestedActivities> {
       username = prefs.getString("username");
       email = prefs.getString("email");
       image = prefs.getString("image");
+      img = prefs.getString("institute_logo");
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
   }
 
@@ -95,13 +101,13 @@ class _SuggestedActivitiesState extends State<SuggestedActivities> {
                   color: Colors.white,
                   child: Row(
                     children: [
-                      Common().logoOnBar(context),
+                      Common().logoOnBar(context, img),
                       Spacer(),
                       InkWell(
                         onTap: (){
                           _scaffoldKey.currentState.openDrawer();
                         },
-                        child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
+                        child: Icon(Icons.menu, size: 30, color: mainColor,),
                       ),
                       SizedBox(width: _width(4),),
                     ],
@@ -150,7 +156,7 @@ class _SuggestedActivitiesState extends State<SuggestedActivities> {
                     children: [
                       Center(
                         child: SpinKitThreeBounce(
-                          color: Colors.lightGreen,
+                          color: mainColor,
                           size: 20,
                         ),
                       ),
@@ -181,7 +187,9 @@ class _SuggestedActivitiesState extends State<SuggestedActivities> {
                               child: Text("${theItem["title"]}",
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
+
                               ),
+                                overflow: TextOverflow.ellipsis,
                                 textAlign: TextAlign.left,
                               ),
                             ),

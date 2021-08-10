@@ -42,12 +42,15 @@ class _DashboardState extends State<Dashboard> {
   var pointsCount = 0.0;
   var distanceCount = 0.0;
 
+  Color mainColor = Colors.white;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     setPrefs();
   }
+  var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
@@ -57,6 +60,11 @@ class _DashboardState extends State<Dashboard> {
       team = prefs.getString("team");
       image = prefs.getString("image");
       user_id = prefs.getString("user_id");
+      img = prefs.getString("institute_logo");
+
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
     getUserPerformance(user_id);
   }
@@ -105,7 +113,7 @@ class _DashboardState extends State<Dashboard> {
                                 child: Text(
                                     "Chats",
                                     style: TextStyle(
-                                        color: showChats ? Color.fromARGB(255,110,180,63) : Colors.black,
+                                        color: showChats ? mainColor : Colors.black,
                                         fontSize: 20
                                     )
                                 ),
@@ -129,7 +137,7 @@ class _DashboardState extends State<Dashboard> {
                                     "Teams",
                                     style: TextStyle(
                                       fontSize: 20,
-                                      color: teamChat ? Color.fromARGB(255,110,180,63) : Colors.black,
+                                      color: teamChat ? mainColor : Colors.black,
                                     )
                                 ),
                               ),
@@ -137,7 +145,7 @@ class _DashboardState extends State<Dashboard> {
                               Container(
                                 height: _height(7),
                                 width: _height(7),
-                                decoration: Common().roundedContainer(50.0, Color.fromARGB(255,110,180,63)),
+                                decoration: Common().roundedContainer(50.0, mainColor),
                                 child: Center(child: Icon(Icons.add, color: Colors.white, size:30)),
                               )
                             ]
@@ -216,7 +224,7 @@ class _DashboardState extends State<Dashboard> {
                                               height: _width(5),
                                               decoration: BoxDecoration(
                                                   borderRadius: BorderRadius.all(Radius.circular(100)),
-                                                  color: Colors.lightGreen
+                                                  color: mainColor
                                               ),
                                               child: Center(
                                                 child: Text(
@@ -309,7 +317,7 @@ class _DashboardState extends State<Dashboard> {
                                               height: _width(5),
                                               decoration: BoxDecoration(
                                                   borderRadius: BorderRadius.all(Radius.circular(100)),
-                                                  color: Colors.lightGreen
+                                                  color: mainColor
                                               ),
                                               child: Center(
                                                 child: Text(
@@ -402,7 +410,7 @@ class _DashboardState extends State<Dashboard> {
                                               height: _width(5),
                                               decoration: BoxDecoration(
                                                   borderRadius: BorderRadius.all(Radius.circular(100)),
-                                                  color: Colors.lightGreen
+                                                  color: mainColor
                                               ),
                                               child: Center(
                                                 child: Text(
@@ -440,7 +448,7 @@ class _DashboardState extends State<Dashboard> {
                                 margin: EdgeInsets.only(top: _height(2)),
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.all(Radius.circular(25)),
-                                    color: Colors.lightGreen
+                                    color: mainColor
                                 ),
                                 child: Row(
                                     children: [
@@ -615,7 +623,7 @@ class _DashboardState extends State<Dashboard> {
                                     width: _width(42.5),
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.all(Radius.circular(15)),
-                                        color: Color.fromARGB(205,110,180,63)
+                                        color: mainColor
                                     ),
                                     child: Column(
                                       children: [
@@ -682,7 +690,7 @@ class _DashboardState extends State<Dashboard> {
                                     width: _width(42.5),
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.all(Radius.circular(15)),
-                                        color: Color.fromARGB(205,110,180,63)
+                                        color: mainColor
                                     ),
                                     child: Column(
                                       children: [
@@ -815,40 +823,40 @@ class _DashboardState extends State<Dashboard> {
                                     ),
                                   ),
                                   Spacer(),
-                                  Container(
-                                    height: _height(15),
-                                    width: _width(42.5),
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(Radius.circular(15)),
-                                        color: Color.fromARGB(205,110,180,63)
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Row(
-                                              children: [
-                                                Icon(Icons.arrow_upward_outlined, size: 25, color: Colors.white),
-                                                Spacer(),
-                                              ]
-                                          ),
-                                        ),
-                                        Spacer(),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Container(
-                                              child: Text(
-                                                  "You’ve improved 10% more compared to last week’s progress.",
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 14
-                                                  )
-                                              )
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
+                                  // Container(
+                                  //   height: _height(15),
+                                  //   width: _width(42.5),
+                                  //   decoration: BoxDecoration(
+                                  //       borderRadius: BorderRadius.all(Radius.circular(15)),
+                                  //       color: mainColor
+                                  //   ),
+                                  //   child: Column(
+                                  //     children: [
+                                  //       Padding(
+                                  //         padding: const EdgeInsets.all(8.0),
+                                  //         child: Row(
+                                  //             children: [
+                                  //               Icon(Icons.arrow_upward_outlined, size: 25, color: Colors.white),
+                                  //               Spacer(),
+                                  //             ]
+                                  //         ),
+                                  //       ),
+                                  //       Spacer(),
+                                  //       Padding(
+                                  //         padding: const EdgeInsets.all(8.0),
+                                  //         child: Container(
+                                  //             child: Text(
+                                  //                 "You’ve improved 10% more compared to last week’s progress.",
+                                  //                 style: TextStyle(
+                                  //                     color: Colors.white,
+                                  //                     fontSize: 14
+                                  //                 )
+                                  //             )
+                                  //         ),
+                                  //       )
+                                  //     ],
+                                  //   ),
+                                  // ),
                                 ],
                               )
                             ],
@@ -962,13 +970,13 @@ class _DashboardState extends State<Dashboard> {
                 color: Colors.white,
                 child: Row(
                   children: [
-                    Common().logoOnBar(context),
+                    Common().logoOnBar(context, img),
                     Spacer(),
                     InkWell(
                       onTap: (){
                         _scaffoldKey.currentState.openDrawer();
                       },
-                      child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
+                      child: Icon(Icons.menu, size: 30, color: mainColor,),
                     ),
                     SizedBox(width: _width(4),),
                   ],

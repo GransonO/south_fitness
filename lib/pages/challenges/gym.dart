@@ -233,7 +233,7 @@ class _GymState extends State<Gym> {
               color: Colors.white,
               child: Row(
                 children: [
-                  Common().logoOnBar(context),
+                  // Common().logoOnBar(context),
                   Spacer(),
                   InkWell(
                     onTap: (){

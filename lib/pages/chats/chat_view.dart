@@ -43,6 +43,7 @@ class _chatViewState extends State<chatView> {
   bool clubs = false;
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   String message;
   final _controller = TextEditingController();
@@ -56,6 +57,7 @@ class _chatViewState extends State<chatView> {
   bool isUploading = false;
   bool chatImage = false;
   var chatImageUrl = "no image";
+  Color mainColor = Colors.white;
 
   @override
   void initState() {
@@ -73,11 +75,15 @@ class _chatViewState extends State<chatView> {
       image = prefs.getString("image");
       user_id = prefs.getString("user_id");
       var alias = prefs.getString("alias");
-
+      img = prefs.getString("institute_logo");
       if(groupId == "bb79a16c-8f40-11e-8dbb-f45c89b7cf75"){
         // Is general chat
         username = alias;
       }
+
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
   }
 
@@ -168,7 +174,7 @@ class _chatViewState extends State<chatView> {
                                       ),
                                     ),
                                     isUploading ? Center(
-                                      child: SpinKitCircle(color: Colors.lightGreen,),
+                                      child: SpinKitCircle(color: mainColor,),
                                     ) : Center(
                                       child: IconButton(
                                         icon: Icon(
@@ -216,7 +222,7 @@ class _chatViewState extends State<chatView> {
                                       ],
                                     ),
                                     child: Center(
-                                        child: Icon(chatImage ? Icons.close_outlined : Icons.add, color: Colors.lightGreen,)
+                                        child: Icon(chatImage ? Icons.close_outlined : Icons.add, color: mainColor,)
                                     ),
                                   ),
                                 ),
@@ -265,8 +271,8 @@ class _chatViewState extends State<chatView> {
                                           },
                                           child: Container(
                                               width: _width(5),
-                                              child: posting ? SpinKitThreeBounce(color: Colors.lightGreen, size: 12,) : Icon(
-                                                Icons.send, size: 25, color: Colors.lightGreen,
+                                              child: posting ? SpinKitThreeBounce(color: mainColor, size: 12,) : Icon(
+                                                Icons.send, size: 25, color: mainColor,
                                               )
                                           )),
                                       Spacer()
@@ -338,7 +344,7 @@ class _chatViewState extends State<chatView> {
                                           ],
                                         ),
                                         child: Center(
-                                            child: Icon(chatImage ? Icons.close_outlined : Icons.add, color: Colors.lightGreen,)
+                                            child: Icon(chatImage ? Icons.close_outlined : Icons.add, color: mainColor,)
                                         ),
                                       ),
                                     ),
@@ -386,8 +392,8 @@ class _chatViewState extends State<chatView> {
                                               },
                                               child: Container(
                                                   width: _width(5),
-                                                  child: posting ? SpinKitThreeBounce(color: Colors.lightGreen, size: 12,) : Icon(
-                                                    Icons.send, size: 25, color: Colors.lightGreen,
+                                                  child: posting ? SpinKitThreeBounce(color: mainColor, size: 12,) : Icon(
+                                                    Icons.send, size: 25, color: mainColor,
                                                   )
                                               )),
                                           Spacer()
@@ -411,13 +417,13 @@ class _chatViewState extends State<chatView> {
               color: Colors.white,
               child: Row(
                 children: [
-                  Common().logoOnBar(context),
+                  Common().logoOnBar(context, img),
                   Spacer(),
                   InkWell(
                     onTap: (){
                       _scaffoldKey.currentState.openDrawer();
                     },
-                    child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
+                    child: Icon(Icons.menu, size: 30, color: mainColor,),
                   ),
                   SizedBox(width: _width(4),),
                 ],
@@ -451,7 +457,7 @@ class _chatViewState extends State<chatView> {
               margin: EdgeInsets.only(top: _height(3),left: _width(4), right: _width(4)),
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: checkUser(element["user_id"]) ? Colors.lightGreen : Colors.white,
+                color: checkUser(element["user_id"]) ? mainColor : Colors.white,
                 borderRadius: BorderRadius.only(topLeft: checkUser(element["user_id"]) ? Radius.circular(15) : Radius.circular(0), topRight: checkUser(element["user_id"]) ? Radius.circular(0) : Radius.circular(15), bottomRight: Radius.circular(15), bottomLeft: Radius.circular(15)),
                 boxShadow: [
                   BoxShadow(
@@ -522,7 +528,7 @@ class _chatViewState extends State<chatView> {
               margin: EdgeInsets.only(top: _height(3),left: _width(4), right: _width(4)),
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: checkUser(element["user_id"]) ? Colors.lightGreen : Colors.white,
+                color: checkUser(element["user_id"]) ? mainColor : Colors.white,
                 borderRadius: BorderRadius.only(topLeft: checkUser(element["user_id"]) ? Radius.circular(15) : Radius.circular(0), topRight: checkUser(element["user_id"]) ? Radius.circular(0) : Radius.circular(15), bottomRight: Radius.circular(15), bottomLeft: Radius.circular(15)),
                 boxShadow: [
                   BoxShadow(

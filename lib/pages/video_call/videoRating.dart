@@ -11,20 +11,24 @@ import '../home/Home.dart';
 
 class VideoRating extends StatefulWidget {
   var element = {};
+  bool video = true;
 
-  VideoRating(value){
+  VideoRating(value, isVideo){
     element = value;
+    video = isVideo;
   }
 
   @override
-  _VideoRatingState createState() => _VideoRatingState(element);
+  _VideoRatingState createState() => _VideoRatingState(element, video);
 }
 
 class _VideoRatingState extends State<VideoRating> {
 
   var tElement = {};
-  _VideoRatingState(element){
+  bool isVideo = true;
+  _VideoRatingState(element, video){
     tElement = element;
+    isVideo = video;
   }
 
   VideoPlayerController _controller;
@@ -52,6 +56,8 @@ class _VideoRatingState extends State<VideoRating> {
     _initializeVideoPlayerFuture = _controller.initialize();
     setPrefs();
   }
+  Color mainColor = Colors.white;
+  var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
@@ -60,6 +66,10 @@ class _VideoRatingState extends State<VideoRating> {
       email = prefs.getString("email");
       user_id = prefs.getString("user_id");
       team = prefs.getString("team");
+      img = prefs.getString("institute_logo");
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
   }
 
@@ -85,18 +95,7 @@ class _VideoRatingState extends State<VideoRating> {
                                 margin: EdgeInsets.only(top: _height(9), left: _width(4), right: _width(4)),
                                 child: Column(
                                   children: [
-                                    Container(
-                                      width: _width(100),
-                                      child: Text(
-                                        "${tElement["details"]}",
-                                        style: TextStyle(
-                                            fontSize: 13,
-                                            color: Colors.grey
-                                        ),
-                                        textAlign: TextAlign.left,
-                                      ),
-                                    ),
-                                    SizedBox(height: _height(5),),
+                                    SizedBox(height: _height(1),),
 
                                     Container(
                                       child: Row(
@@ -113,6 +112,8 @@ class _VideoRatingState extends State<VideoRating> {
                                         ],
                                       ),
                                     ),
+
+                                    SizedBox(height: _height(1),),
 
                                     Container(
                                       height: _width(70),
@@ -163,7 +164,7 @@ class _VideoRatingState extends State<VideoRating> {
                                                 },
                                                 child: Padding(
                                                   padding: const EdgeInsets.all(8.0),
-                                                  child: play ? Icon(Icons.pause_circle_filled, color: Colors.lightGreen, size: 50,) : Icon(Icons.play_circle_filled_sharp, color: Colors.lightGreen, size: 50,),
+                                                  child: play ? Icon(Icons.pause_circle_filled, color: mainColor, size: 50,) : Icon(Icons.play_circle_filled_sharp, color: mainColor, size: 50,),
                                                 )
                                             ),
                                           )
@@ -205,7 +206,7 @@ class _VideoRatingState extends State<VideoRating> {
                                                         minRating: 1,
                                                         direction: Axis.horizontal,
                                                         allowHalfRating: true,
-                                                        itemSize: 35.0,
+                                                        itemSize: 30.0,
                                                         itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
                                                         itemBuilder: (context, _) => Icon(
                                                           Icons.star,
@@ -253,7 +254,7 @@ class _VideoRatingState extends State<VideoRating> {
                                                         minRating: 1,
                                                         direction: Axis.horizontal,
                                                         allowHalfRating: true,
-                                                        itemSize: 35.0,
+                                                        itemSize: 30.0,
                                                         itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
                                                         itemBuilder: (context, _) => Icon(
                                                           Icons.star,
@@ -286,7 +287,7 @@ class _VideoRatingState extends State<VideoRating> {
                                           });
                                           var result = await HomeResources().rateLiveClass(
                                               {
-                                                "activity_id": tElement["video_id"],
+                                                "activity_id": isVideo ? tElement["video_id"] : tElement["activity_id"],
                                                 "user_id": user_id,
                                                 "user_department": team,
                                                 "username": username,
@@ -301,7 +302,7 @@ class _VideoRatingState extends State<VideoRating> {
                                             Fluttertoast.showToast(
                                                 msg: "Ratings posted successfully",
                                                 textColor: Colors.white,
-                                                backgroundColor: Colors.lightGreen
+                                                backgroundColor: mainColor
                                             );
                                           }else{
                                             Fluttertoast.showToast(
@@ -321,7 +322,7 @@ class _VideoRatingState extends State<VideoRating> {
                                           ),
                                           child: Center(
                                             child: rateLoading ? SpinKitThreeBounce(size: 25, color: Colors.white,) : Text(
-                                              "Back Home",
+                                              "Submit Review",
                                               style: TextStyle(
                                                   color: Colors.white,
                                                   fontSize: 15,
@@ -343,10 +344,8 @@ class _VideoRatingState extends State<VideoRating> {
                               child: Row(
                                 children: [
                                   SizedBox(width: _width(3),),
-                                  Common().logoOnBar(context),
+                                  Common().logoOnBar(context, img),
                                   Spacer(),
-                                  Icon(Icons.notifications_none, size: 30,),
-                                  SizedBox(width: _width(4),),
                                 ],
                               ),
                             ),
@@ -359,10 +358,8 @@ class _VideoRatingState extends State<VideoRating> {
                     color: Colors.white,
                     child: Row(
                       children: [
-                        Common().logoOnBar(context),
+                        Common().logoOnBar(context, img),
                         Spacer(),
-                        Icon(Icons.notifications_none, size: 30,),
-                        SizedBox(width: _width(4),),
                       ],
                     ),
                   ),

@@ -13,6 +13,7 @@ class ChallengeHistory extends StatefulWidget {
 class _ChallengeHistoryState extends State<ChallengeHistory> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   var username = "";
   var email = "";
@@ -20,6 +21,8 @@ class _ChallengeHistoryState extends State<ChallengeHistory> {
   SharedPreferences prefs;
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
   List history = [];
+
+  Color mainColor = Colors.white;
 
   @override
   void initState() {
@@ -34,6 +37,10 @@ class _ChallengeHistoryState extends State<ChallengeHistory> {
       username = prefs.getString("username");
       email = prefs.getString("email");
       image = prefs.getString("image");
+      img = prefs.getString("institute_logo");
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
     getUserHistory();
   }
@@ -59,7 +66,7 @@ class _ChallengeHistoryState extends State<ChallengeHistory> {
                 margin: EdgeInsets.only(top: _height(9), left: _width(4), right: _width(1)),
                 child: loading ? Center(
                   child: SpinKitThreeBounce(
-                    color: Colors.lightGreen,
+                    color: mainColor,
                     size: 30,
                   ),
                 ) : Column(
@@ -72,13 +79,13 @@ class _ChallengeHistoryState extends State<ChallengeHistory> {
               color: Colors.white,
               child: Row(
                 children: [
-                  Common().logoOnBar(context),
+                  Common().logoOnBar(context, img),
                   Spacer(),
                   InkWell(
                     onTap: (){
                       _scaffoldKey.currentState.openDrawer();
                     },
-                    child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
+                    child: Icon(Icons.menu, size: 30, color: mainColor,),
                   ),
                   SizedBox(width: _width(4),),
                 ],
@@ -118,7 +125,7 @@ class _ChallengeHistoryState extends State<ChallengeHistory> {
                     begin: Alignment.topRight,
                     end: Alignment.bottomLeft,
                     colors: [
-                      element["challengeType"] == "Walking" ? Colors.lightGreen[100] : element["challengeType"] == "Running" ? Colors.orange[100] : Colors.tealAccent[100],
+                      element["challengeType"] == "Walking" ? mainColor : element["challengeType"] == "Running" ? Colors.orange[100] : Colors.tealAccent[100],
                       Color.fromARGB(105,229,227,228)]),
                 borderRadius: BorderRadius.all(Radius.circular(15))
             ),

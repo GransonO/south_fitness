@@ -17,11 +17,13 @@ class _AllActivitiesState extends State<AllActivities> {
   var username = "";
   var email = "";
   var user_id = "";
+  var img = "";
   SharedPreferences prefs;
 
   bool joined = false;
   bool isLoading = false;
   String status = "Challenges";
+  Color mainColor = Colors.white;
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -43,6 +45,11 @@ class _AllActivitiesState extends State<AllActivities> {
       email = prefs.getString("email");
       image = prefs.getString("image") != null ? prefs.getString("image") : image;
       user_id = prefs.getString("user_id");
+
+      img = prefs.getString("institute_logo");
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
     getActivities(user_id);
   }
@@ -118,13 +125,13 @@ class _AllActivitiesState extends State<AllActivities> {
               color: Colors.white,
               child: Row(
                 children: [
-                  Common().logoOnBar(context),
+                  Common().logoOnBar(context, img),
                   Spacer(),
                   InkWell(
                     onTap: (){
                       _scaffoldKey.currentState.openDrawer();
                     },
-                    child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
+                    child: Icon(Icons.menu, size: 30, color: mainColor,),
                   ),
                   SizedBox(width: _width(4),),
                 ],
@@ -132,7 +139,7 @@ class _AllActivitiesState extends State<AllActivities> {
             ),
             isLoading ? Center(
               child: SpinKitThreeBounce(
-                color: Colors.lightGreen,
+                color: mainColor,
                 size: 50,
               ),
             ) : Container()
@@ -165,7 +172,7 @@ class _AllActivitiesState extends State<AllActivities> {
         style: TextStyle(
             fontSize: 25,
             fontWeight: FontWeight.bold,
-            color: status == "Challenges" ? Colors.green : Colors.black
+            color: status == "Challenges" ? mainColor : Colors.black
         ),
         textAlign: TextAlign.left,
       ),
@@ -191,7 +198,7 @@ class _AllActivitiesState extends State<AllActivities> {
         style: TextStyle(
             fontSize: 25,
             fontWeight: FontWeight.bold,
-            color: status == "Joined" ? Colors.green : Colors.black
+            color: status == "Joined" ? mainColor : Colors.black
         ),
         textAlign: TextAlign.left,
       ),
@@ -218,7 +225,7 @@ class _AllActivitiesState extends State<AllActivities> {
             style: TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
-                color: status == element ? Colors.green : Colors.black
+                color: status == element ? mainColor : Colors.black
             ),
             textAlign: TextAlign.left,
           ),
@@ -256,7 +263,7 @@ class _AllActivitiesState extends State<AllActivities> {
                       children: [
                         Center(
                           child: SpinKitThreeBounce(
-                            color: Colors.lightGreen,
+                            color: mainColor,
                             size: 20,
                           ),
                         ),
@@ -323,7 +330,7 @@ class _AllActivitiesState extends State<AllActivities> {
                       Radius.circular(15)
                   ),
                   border: Border.all(
-                      color: Colors.lightGreen,
+                      color: mainColor,
                       width: 2
                   )
               ),
@@ -357,7 +364,7 @@ class _AllActivitiesState extends State<AllActivities> {
                       children: [
                         Center(
                           child: SpinKitThreeBounce(
-                            color: Colors.lightGreen,
+                            color: mainColor,
                             size: 20,
                           ),
                         ),
@@ -424,7 +431,7 @@ class _AllActivitiesState extends State<AllActivities> {
                       Radius.circular(15)
                   ),
                   border: Border.all(
-                      color: Colors.lightGreen,
+                      color: mainColor,
                       width: 2
                   )
               ),
@@ -458,7 +465,7 @@ class _AllActivitiesState extends State<AllActivities> {
                     children: [
                       Center(
                         child: SpinKitThreeBounce(
-                          color: Colors.lightGreen,
+                          color: mainColor,
                           size: 20,
                         ),
                       ),
@@ -524,7 +531,7 @@ class _AllActivitiesState extends State<AllActivities> {
                       Radius.circular(15)
                   ),
                   border: Border.all(
-                      color: Colors.lightGreen,
+                      color: mainColor,
                       width: 2
                   )
               ),

@@ -37,6 +37,7 @@ class _ChatsState extends State<Chats> {
   bool checking = false;
   var groupTitle = "";
   var description = "";
+  Color mainColor = Colors.white;
   var groups = [];
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
   var groupImage =
@@ -47,6 +48,7 @@ class _ChatsState extends State<Chats> {
   File groupImageFile;
   bool isUploading = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   @override
   void initState() {
@@ -63,6 +65,10 @@ class _ChatsState extends State<Chats> {
       image = prefs.getString("image");
       user_id = prefs.getString("user_id");
       institution = prefs.getString("institution");
+      img = prefs.getString("institute_logo");
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
     getAllGroup();
   }
@@ -131,7 +137,7 @@ class _ChatsState extends State<Chats> {
                             style: TextStyle(
                                 fontSize: 25,
                                 fontWeight: FontWeight.bold,
-                                color: chats ? Colors.green : Colors.black),
+                                color: chats ? mainColor : Colors.black),
                             textAlign: TextAlign.left,
                           ),
                         ),
@@ -159,7 +165,7 @@ class _ChatsState extends State<Chats> {
                         //     style: TextStyle(
                         //         fontSize: 25,
                         //         fontWeight: FontWeight.bold,
-                        //         color: clubs ? Colors.green : Colors.black),
+                        //         color: clubs ? mainColor : Colors.black),
                         //     textAlign: TextAlign.left,
                         //   ),
                         // ),
@@ -174,7 +180,7 @@ class _ChatsState extends State<Chats> {
                         //       height: _height(6),
                         //       width: _height(6),
                         //       decoration: BoxDecoration(
-                        //           color: Colors.green,
+                        //           color: mainColor,
                         //           borderRadius:
                         //               BorderRadius.all(Radius.circular(50))),
                         //       child: Center(
@@ -206,7 +212,7 @@ class _ChatsState extends State<Chats> {
                                 ),
                                 Center(
                                     child: SpinKitThreeBounce(
-                                        color: Colors.lightGreen, size: 30))
+                                        color: mainColor, size: 30))
                               ]
                             : populateGroups(),
                       )),
@@ -220,7 +226,7 @@ class _ChatsState extends State<Chats> {
               color: Colors.white,
               child: Row(
                 children: [
-                  Common().logoOnBar(context),
+                  Common().logoOnBar(context, img),
                   Spacer(),
                   InkWell(
                     onTap: () {
@@ -229,7 +235,7 @@ class _ChatsState extends State<Chats> {
                     child: Icon(
                       Icons.menu,
                       size: 30,
-                      color: Colors.lightGreen,
+                      color: mainColor,
                     ),
                   ),
                   SizedBox(
@@ -287,7 +293,7 @@ class _ChatsState extends State<Chats> {
                                         height: _height(15),
                                         width: _height(15),
                                         child: SpinKitCircle(
-                                          color: Colors.lightGreen,
+                                          color: mainColor,
                                         ),
                                       ),
                                       groupImageFile != null
@@ -446,8 +452,7 @@ class _ChatsState extends State<Chats> {
                     ),
                   )
                 : Container(),
-            requestToJoin
-                ? Container(
+            requestToJoin ? Container(
                     height: _height(100),
                     width: _width(100),
                     color: Colors.black54,
@@ -478,7 +483,7 @@ class _ChatsState extends State<Chats> {
                                           },
                                           child: Icon(
                                             Icons.close,
-                                            color: Colors.lightGreen,
+                                            color: mainColor,
                                           )),
                                     ],
                                   )),
@@ -582,7 +587,7 @@ class _ChatsState extends State<Chats> {
             checking
                 ? Center(
                     child:
-                        SpinKitThreeBounce(color: Colors.lightGreen, size: 30))
+                        SpinKitThreeBounce(color: mainColor, size: 30))
                 : Container()
           ],
         ),
@@ -663,20 +668,22 @@ class _ChatsState extends State<Chats> {
             height: _height(5),
             child: Column(
               children: [
-                Container(
-                    height: _width(4.5),
-                    width: _width(4.5),
-                    decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.all(Radius.circular(50))),
-                    child: Center(
-                        child: Text(
-                      "${Random().nextInt(7)}",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 8,
-                      ),
-                    ))),
+                // Container(
+                //     height: _width(4.5),
+                //     width: _width(4.5),
+                //     decoration: BoxDecoration(
+                //         color: mainColor,
+                //         borderRadius: BorderRadius.all(Radius.circular(50))),
+                //     child: Center(
+                //         child: Text(
+                //       "${Random().nextInt(7)}",
+                //       style: TextStyle(
+                //         color: Colors.white,
+                //         fontSize: 8,
+                //       ),
+                //     )
+                //     )
+                // ),
                 Spacer(),
                 TimeWidget(element["group_id"], false),
               ],
@@ -731,7 +738,7 @@ class _ChatsState extends State<Chats> {
           ),
           padding: EdgeInsets.only(left: _width(3), right: _width(2)),
           decoration: BoxDecoration(
-              color: Colors.green,
+              color: mainColor,
               borderRadius: BorderRadius.all(Radius.circular(15))),
           child: Row(children: [
             ClipRRect(
@@ -777,20 +784,20 @@ class _ChatsState extends State<Chats> {
               height: _height(5),
               child: Column(
                 children: [
-                  Container(
-                      height: _width(4.5),
-                      width: _width(4.5),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(50))),
-                      child: Center(
-                          child: Text(
-                        "${Random().nextInt(50)}",
-                        style: TextStyle(
-                          color: Colors.green,
-                          fontSize: 8,
-                        ),
-                      ))),
+                  // Container(
+                  //     height: _width(4.5),
+                  //     width: _width(4.5),
+                  //     decoration: BoxDecoration(
+                  //         color: Colors.white,
+                  //         borderRadius: BorderRadius.all(Radius.circular(50))),
+                  //     child: Center(
+                  //         child: Text(
+                  //       "${Random().nextInt(50)}",
+                  //       style: TextStyle(
+                  //         color: mainColor,
+                  //         fontSize: 8,
+                  //       ),
+                  //     ))),
                   Spacer(),
                   TimeWidget("bb79a16c-8f40-11e-8dbb-f45c89b7cf75", true)
                 ],

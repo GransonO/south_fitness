@@ -28,6 +28,9 @@ class _HistoryState extends State<History> {
   var firstDate;
   var lastDate;
   var displayDate = "Enter date range";
+  Color mainColor = Colors.white;
+  var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
+
 
   @override
   void initState() {
@@ -45,6 +48,10 @@ class _HistoryState extends State<History> {
       image = prefs.getString("image");
       user_id = prefs.getString("user_id");
       team = prefs.getString("team");
+      img = prefs.getString("institute_logo");
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
   }
 
@@ -118,7 +125,7 @@ class _HistoryState extends State<History> {
                               margin: EdgeInsets.only(top: _height(1), bottom: _height(1), ),
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.all(Radius.circular(15)),
-                                  color: Colors.lightGreen,
+                                  color: mainColor,
                               ),
                               child: Center(
                                   child: Text("$displayDate",
@@ -134,7 +141,7 @@ class _HistoryState extends State<History> {
 
                         loading ? Center(
                           child: SpinKitThreeBounce(
-                            color: Colors.lightGreen,
+                            color: mainColor,
                             size: 30,
                           ),
                         ) : Column(
@@ -153,13 +160,13 @@ class _HistoryState extends State<History> {
                   color: Colors.white,
                   child: Row(
                     children: [
-                      Common().logoOnBar(context),
+                      Common().logoOnBar(context, img),
                       Spacer(),
                       InkWell(
                         onTap: (){
                           _scaffoldKey.currentState.openDrawer();
                         },
-                        child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
+                        child: Icon(Icons.menu, size: 30, color: mainColor,),
                       ),
                       SizedBox(width: _width(4),),
                     ],
@@ -169,7 +176,7 @@ class _HistoryState extends State<History> {
             ),
           ),
         ),
-        drawer: Common().navDrawer(context, username, email, "home", image),
+        drawer: Common().navDrawer(context, username, email, "history", image),
       ),
     );
   }
@@ -200,7 +207,7 @@ class _HistoryState extends State<History> {
                           children: [
                             Center(
                               child: SpinKitThreeBounce(
-                                color: Colors.lightGreen,
+                                color: mainColor,
                                 size: 20,
                               ),
                             ),
@@ -293,14 +300,14 @@ class _HistoryState extends State<History> {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(15)),
                   border: Border.all(
-                      color: Colors.lightGreen,
+                      color: mainColor,
                       width: 2
                   )
               ),
               child: Center(
                   child: Text("No History",
                       style: TextStyle(
-                          color: Colors.lightGreen,
+                          color: mainColor,
                           fontSize: 15
                       )
                   )

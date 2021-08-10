@@ -39,6 +39,7 @@ class _ProfileState extends State<Profile> {
   var posting = false;
   bool isUploading = false;
 
+  Color mainColor = Colors.white;
   String id = '';
   File avatarImageFile;
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
@@ -50,6 +51,7 @@ class _ProfileState extends State<Profile> {
 
     setPrefs();
   }
+  var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
@@ -59,6 +61,12 @@ class _ProfileState extends State<Profile> {
       username = prefs.getString("username");
       email = prefs.getString("email");
       image = prefs.getString("image");
+
+      img = prefs.getString("institute_logo");
+
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
   }
 
@@ -101,71 +109,70 @@ class _ProfileState extends State<Profile> {
                   child: Column(
                     children: [
                       SizedBox(height: _height(9)),
-                      Container(
-                        width: _width(80),
-                        child: Text("Complete your member profile and get first access to the very best of Products, Inspiration and community."),
-                      ),
 
                       Container(
                         height: _height(17),
-                        width: _height(17),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                              height: _height(17),
-                              width: _height(17),
-                              margin: EdgeInsets.all(_width(2)),
-                              child: Stack(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.all(Radius.circular(50)),
-                                    child: Stack(
-                                      children: [
-                                        avatarImageFile != null ? Container(
-                                          height: _height(17),
-                                          width: _height(17),
-                                          child: Image.file(
-                                            avatarImageFile,
-                                            height: _height(17),
-                                            width: _height(17),
-                                            fit: BoxFit.cover,
+                        width: _width(80),
+
+                        child: Row(
+                          children: [
+                            Container(
+                                height: _height(15),
+                                width: _height(15),
+                                margin: EdgeInsets.all(_width(2)),
+                                child: Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.all(Radius.circular(50)),
+                                      child: Stack(
+                                        children: [
+                                          avatarImageFile != null ? Container(
+                                            height: _height(15),
+                                            width: _height(15),
+                                            child: Image.file(
+                                              avatarImageFile,
+                                              height: _height(15),
+                                              width: _height(15),
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ) : Container(
+                                            height: _height(15),
+                                            width: _height(15),
+                                            child: Image.network(
+                                              image,
+                                              height: _height(15),
+                                              width: _height(15),
+                                              fit: BoxFit.cover,
+                                            ),
                                           ),
-                                        ) : Container(
-                                          height: _height(17),
-                                          width: _height(17),
-                                          child: Image.network(
-                                            image,
-                                            height: _height(17),
-                                            width: _height(17),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  Align(
-                                      alignment: Alignment.bottomRight,
-                                      child: InkWell(
-                                        onTap: (){
-                                          getImage();
-                                        },
-                                        child: Container(
-                                          margin: EdgeInsets.all(_width(1)),
-                                          height: _width(7),
-                                          width: _width(7),
-                                          decoration: BoxDecoration(
-                                              color: Colors.green,
-                                              borderRadius: BorderRadius.all(Radius.circular(50))
+                                    Align(
+                                        alignment: Alignment.bottomRight,
+                                        child: InkWell(
+                                          onTap: (){
+                                            getImage();
+                                          },
+                                          child: Container(
+                                            margin: EdgeInsets.all(_width(1)),
+                                            height: _width(7),
+                                            width: _width(7),
+                                            decoration: BoxDecoration(
+                                                color: Colors.green,
+                                                borderRadius: BorderRadius.all(Radius.circular(50))
+                                            ),
+                                            child: Center(
+                                                child: Icon(Icons.add, color: Colors.white, size: 15,)
+                                            ),
                                           ),
-                                          child: Center(
-                                              child: Icon(Icons.add, color: Colors.white, size: 15,)
-                                          ),
-                                        ),
-                                      )
-                                  ),
-                                ],
-                              )
-                          ),
+                                        )
+                                    ),
+                                  ],
+                                )
+                            ),
+                            Spacer()
+                          ]
                         ),
                       ),
 
@@ -639,10 +646,10 @@ class _ProfileState extends State<Profile> {
                             }
                           },
                           child: Container(
-                            height: _height(5),
+                            height: _height(7),
                             width: _width(80),
                             decoration: BoxDecoration(
-                                color: Color.fromARGB(255,110,180,63),
+                                color: mainColor,
                                 borderRadius: BorderRadius.all(Radius.circular(15))
                             ),
                             child: Center(
@@ -670,13 +677,13 @@ class _ProfileState extends State<Profile> {
                   color: Colors.white,
                   child: Row(
                     children: [
-                      Common().logoOnBar(context),
+                      Common().logoOnBar(context, img),
                       Spacer(),
                       InkWell(
                         onTap: (){
                           _scaffoldKey.currentState.openDrawer();
                         },
-                        child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
+                        child: Icon(Icons.menu, size: 30, color: mainColor,),
                       ),
                       SizedBox(width: _width(4),),
                     ],

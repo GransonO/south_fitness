@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/pages/common.dart';
 import 'package:south_fitness/pages/home/Home.dart';
@@ -25,6 +26,7 @@ class _LoginState extends State<Login> {
   bool login = false;
   SharedPreferences prefs;
   bool _obscurePass = true;
+  bool fetchingSettings = false;
 
   @override
   void initState() {
@@ -32,9 +34,38 @@ class _LoginState extends State<Login> {
     super.initState();
     checkUsage();
   }
+
+  permissions() async {
+    bool camera = await Permission.camera.isGranted;
+    bool microphone = await Permission.microphone.isGranted;
+    bool phone = await Permission.phone.isGranted;
+    bool storage = await Permission.storage.isGranted;
+    bool location = await Permission.location.isGranted;
+    bool activityRecognition = await Permission.activityRecognition.isGranted;
+    if (!location) {
+      await Permission.location.request();
+    }
+    if (!camera) {
+      await Permission.camera.request();
+    }
+    if (!microphone) {
+      await Permission.microphone.request();
+    }
+    if (!phone) {
+      await Permission.phone.request();
+    }
+    if (!storage) {
+      await Permission.storage.request();
+    }
+    if (!activityRecognition) {
+      await Permission.activityRecognition.request();
+    }
+  }
+
   void checkUsage() async {
     prefs = await SharedPreferences.getInstance();
     var connectivityResult = await (Connectivity().checkConnectivity());
+    bool location = await Permission.location.isGranted;
     if (connectivityResult == ConnectivityResult.none) {
       // No connectivity
       Fluttertoast.showToast(
@@ -45,6 +76,10 @@ class _LoginState extends State<Login> {
           textColor: Colors.white,
           fontSize: 16.0
       );
+      Timer(Duration(seconds: 3), () => checkUsage());
+    }else if(!location) {
+      // No location
+      await Permission.location.request();
       Timer(Duration(seconds: 3), () => checkUsage());
     }else{
       var isLoggedIn = prefs.getBool("isLoggedIn") != null ? prefs.getBool("isLoggedIn") : false;
@@ -185,10 +220,9 @@ class _LoginState extends State<Login> {
                               },
                               child: Container(
                                   width: _width(5),
-                                  child:Icon(
-                                      _obscurePass ? Icons.remove_red_eye_outlined : Icons.visibility_off_outlined
-                                  )
-                              ))
+                                  child:Icon( _obscurePass ? Icons.remove_red_eye_outlined : Icons.visibility_off_outlined)
+                              )
+                          )
                         ],
                       ),
                     ),
@@ -206,13 +240,33 @@ class _LoginState extends State<Login> {
                             setState(() {
                               login = false;
                             });
-                            if(result["success"]){
-                              if(result["payload"]["isRegistered"]){
-                                Common().newActivity(context, HomeView());
-                              }else{
-                                // Registration process
-                                Common().newActivity(context, EntryOne());
-                              }
+                            if(result["success"] ){
+                              SharedPreferences prefs = await SharedPreferences.getInstance();
+                                // Account not set up
+                                setState(() {
+                                  fetchingSettings = true;
+                                });
+                                var homeSetup = await HomeResources()
+                                    .getSettings(
+                                    result["payload"]["institution_id"]
+                                );
+                                prefs.setString("institution_id",homeSetup["institution_id"]);
+                                prefs.setString("institute_primary_color",homeSetup["institute_primary_color"]);
+                                prefs.setString("institute_secondary_color",homeSetup["institute_secondary_color"]);
+                                prefs.setString("institute_logo",homeSetup["institute_logo"]);
+                                prefs.setString("institute_img1",homeSetup["institute_img1"]);
+                                prefs.setString("institute_img2",homeSetup["institute_img2"]);
+                                prefs.setString("institute_img3",homeSetup["institute_img3"]);
+                                prefs.setString("institute_message1",homeSetup["institute_message1"]);
+                                prefs.setString("institute_message2",homeSetup["institute_message2"]);
+                                prefs.setString("institute_message3",homeSetup["institute_message3"]);
+
+                                if(result["payload"]["isRegistered"]){
+                                   Common().newActivity(context, HomeView());
+                                 }else{
+                                  // Registration process
+                                  Common().newActivity(context, EntryOne());
+                                 }
                             }else{
                               Fluttertoast.showToast(msg: "Login error. Please check your credentials", backgroundColor: Colors.red);
                             }
@@ -260,7 +314,34 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     SizedBox(height: _height(3)),
-                    Center(
+                    fetchingSettings ? Center(
+                      child: Container(
+                          width: _width(80),
+                          child: Column(
+                            children: [
+                              Container(
+                                width: _width(100),
+                                child: Center(
+                                  child: Text(
+                                    "Fetching Settings",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 13,
+                                    ),
+                                    textAlign: TextAlign.left,
+                                  ),
+                                )
+                              ),
+                              Container(
+                                width: _width(100),
+                                child: Center(
+                                  child: SpinKitThreeBounce(color: Colors.yellow, size: 25,)
+                                )
+                              ),
+                            ],
+                          )
+                      ),
+                    ) : Center(
                       child: Container(
                           width: _width(80),
                           child: Column(

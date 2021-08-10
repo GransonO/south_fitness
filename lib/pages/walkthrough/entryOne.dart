@@ -24,6 +24,14 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
   var team = "FINANCE DIVISION";
   var code;
   bool login = false;
+  var institute_logo;
+  var institute_img1 = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1627461186/South_Fitness/insitutions/legUp.png";
+  var institute_img2 = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1627461186/South_Fitness/insitutions/legUp.png";
+  var institute_img3 = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1627461186/South_Fitness/insitutions/legUp.png";
+  var institute_message1 = "";
+  var institute_message2 = "";
+  var institute_message3 = "";
+  Color mainColor = Colors.grey;
 
   SharedPreferences prefs;
   final format = DateFormat("yyyy-MM-dd");
@@ -43,9 +51,20 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
     prefs = await SharedPreferences.getInstance();
     setState(() {
       username = prefs.getString("username");
-      lastname = prefs.getString("lastname");
-      firstname = prefs.getString("firstname");
+      lastname = prefs.getString("last_name");
+      firstname = prefs.getString("first_name");
       email = prefs.getString("email");
+
+      institute_logo = prefs.getString("institute_logo") != null ? prefs.getString("institute_logo") : institute_logo;
+      institute_img1 = prefs.getString("institute_img1");
+      institute_img2 = prefs.getString("institute_img2");
+      institute_img3 = prefs.getString("institute_img3");
+      institute_message1 = prefs.getString("institute_message1");
+      institute_message2 = prefs.getString("institute_message2");
+      institute_message3 = prefs.getString("institute_message3");
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
   }
 
@@ -84,134 +103,11 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
                             SizedBox(height: _height(3)),
                             Center(
                               child: Container(
-                                height: _height(50),
-                                width: _width(100),
-                                child: Image.asset(
-                                  'assets/images/yoga.png',
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: _height(1)),
-                            Center(
-                              child: Row(
-                                children: [
-                                  Spacer(),
-                                  Text("Powered by "),
-                                  Container(
-                                    height: _height(3),
-                                    width: _width(15),
-                                    child: Image.asset(
-                                      'assets/images/power.png',
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                  Spacer(),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: _height(3)),
-                            Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  "“Strength does not come from the physical capacity. It comes from an indomitable will.”",
-                                  style: TextStyle(
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: _height(100),
-                      width: _width(100),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            SizedBox(height: _height(5)),
-                            Center(
-                              child: Container(
-                                height: _height(15),
-                                width: _width(50),
-                                child: Image.asset(
-                                  'assets/images/tukiuke.png',
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: _height(3)),
-                            Center(
-                              child: Container(
-                                height: _height(50),
-                                width: _width(100),
-                                child: Image.asset(
-                                  'assets/images/runner.png',
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: _height(1)),
-                            Center(
-                              child: Row(
-                                children: [
-                                  Spacer(),
-                                  Text("Powered by "),
-                                  Container(
-                                    height: _height(3),
-                                    width: _width(15),
-                                    child: Image.asset(
-                                      'assets/images/power.png',
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                  Spacer(),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: _height(3)),
-                            Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  "“Your body can stand almost anything. It’s your mind that you have to convince.”",
-                                  style: TextStyle(
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: _height(100),
-                      width: _width(100),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            SizedBox(height: _height(5)),
-                            Center(
-                              child: Container(
-                                height: _height(15),
-                                width: _width(50),
-                                child: Image.asset(
-                                  'assets/images/tukiuke.png',
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: _height(3)),
-                            Center(
-                              child: Container(
+                                padding: EdgeInsets.all(15),
                                 height: _height(50),
                                 width: _width(100),
                                 child: Image.network(
-                                  'https://res.cloudinary.com/dolwj4vkq/image/upload/v1617256436/South_Fitness/video_images/IMG-20210131-WA0000.jpg',
+                                  institute_img1,
                                   fit: BoxFit.fill,
                                 ),
                               ),
@@ -239,7 +135,133 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                  "“Your body bends to your rules, make it your vision to be your best”",
+                                  "“$institute_message1”",
+                                  style: TextStyle(
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Container(
+                      height: _height(100),
+                      width: _width(100),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            SizedBox(height: _height(5)),
+                            Center(
+                              child: Container(
+                                height: _height(15),
+                                width: _width(50),
+                                child: Image.asset(
+                                  'assets/images/tukiuke.png',
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: _height(3)),
+                            Center(
+                              child: Container(
+                                padding: EdgeInsets.all(15),
+                                height: _height(50),
+                                width: _width(100),
+                                child: Image.network(
+                                  institute_img2,
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: _height(1)),
+                            Center(
+                              child: Row(
+                                children: [
+                                  Spacer(),
+                                  Text("Powered by "),
+                                  Container(
+                                    height: _height(3),
+                                    width: _width(15),
+                                    child: Image.asset(
+                                      'assets/images/power.png',
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                  Spacer(),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: _height(3)),
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  "“$institute_message2”",
+                                  style: TextStyle(
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Container(
+                      height: _height(100),
+                      width: _width(100),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            SizedBox(height: _height(5)),
+                            Center(
+                              child: Container(
+                                height: _height(15),
+                                width: _width(50),
+                                child: Image.asset(
+                                  'assets/images/tukiuke.png',
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: _height(3)),
+                            Center(
+                              child: Container(
+                                padding: EdgeInsets.all(15),
+                                height: _height(50),
+                                width: _width(100),
+                                child: Image.network(
+                                  institute_img3,
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: _height(1)),
+                            Center(
+                              child: Row(
+                                children: [
+                                  Spacer(),
+                                  Text("Powered by "),
+                                  Container(
+                                    height: _height(3),
+                                    width: _width(15),
+                                    child: Image.asset(
+                                      'assets/images/power.png',
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                  Spacer(),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: _height(3)),
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  "“$institute_message3”",
                                   style: TextStyle(
                                   ),
                                   textAlign: TextAlign.center,
@@ -258,12 +280,8 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
                             SingleChildScrollView(
                               child: Column(
                                 children: [
+                                  
                                   SizedBox(height: _height(9)),
-                                  Container(
-                                    width: _width(80),
-                                    child: Text("Complete your member profile and get first access to the very best of Products, Inspiration and community."),
-                                  ),
-
                                   Container(
                                     height: _height(7),
                                     width: _width(80),
@@ -769,10 +787,10 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
                                         }
                                       },
                                       child: Container(
-                                        height: _height(5),
+                                        height: _height(7),
                                         width: _width(80),
                                         decoration: BoxDecoration(
-                                            color: Color.fromARGB(255,110,180,63),
+                                            color: mainColor,
                                             borderRadius: BorderRadius.all(Radius.circular(15))
                                         ),
                                         child: Center(
@@ -815,7 +833,7 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
                                                     Text(
                                                       "Privacy Policy ",
                                                       style: TextStyle(
-                                                        color: Colors.lightGreenAccent,
+                                                        color: Colors.green,
                                                         fontSize: 15,
                                                       ),
                                                       textAlign: TextAlign.left,
@@ -830,7 +848,7 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
                                                     Text(
                                                       "Terms of Service",
                                                       style: TextStyle(
-                                                        color: Colors.lightGreenAccent,
+                                                        color: Colors.green,
                                                         fontSize: 15,
                                                       ),
                                                     ),
@@ -847,17 +865,18 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
                             ),
                             Container(
                               height: _height(7),
+                              width: _width(80),
                               color: Colors.white,
+                              margin: EdgeInsets.only(top: _height(2)),
                               child: Row(
                                 children: [
-                                  SizedBox(width: _width(7),),
+                                  SizedBox(width: _width(10),),
                                   Text(
                                     "Update your profile",
                                     style: TextStyle(
                                         fontSize: 16
                                     ),
                                   ),
-                                  Spacer()
                                 ],
                               ),
                             ),
@@ -878,7 +897,7 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
                       AnimatedContainer(
                         height: _width(2),
                         width: _width(_page(0)),
-                        decoration: Common().roundedContainer(15.0, Color.fromARGB(255, 232,196,40)),
+                        decoration: Common().roundedContainer(15.0, mainColor),
                         duration: Duration(seconds: 2),
                         curve: Curves.fastOutSlowIn,
                       ),
@@ -886,7 +905,7 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
                       AnimatedContainer(
                         height: _width(2),
                         width: _width(_page(1)),
-                        decoration: Common().roundedContainer(15.0, Color.fromARGB(255, 232,196,40)),
+                        decoration: Common().roundedContainer(15.0, mainColor),
                         duration: Duration(seconds: 2),
                         curve: Curves.fastOutSlowIn,
                       ),
@@ -894,7 +913,7 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
                       AnimatedContainer(
                         height: _width(2),
                         width: _width(_page(2)),
-                        decoration: Common().roundedContainer(15.0, Color.fromARGB(255, 232,196,40)),
+                        decoration: Common().roundedContainer(15.0, mainColor),
                         duration: Duration(seconds: 2),
                         curve: Curves.fastOutSlowIn,
                       ),
@@ -902,7 +921,7 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
                       AnimatedContainer(
                         height: _width(2),
                         width: _width(_page(3)),
-                        decoration: Common().roundedContainer(15.0, Color.fromARGB(255, 232,196,40)),
+                        decoration: Common().roundedContainer(15.0, mainColor),
                         duration: Duration(seconds: 2),
                         curve: Curves.fastOutSlowIn,
                       ),

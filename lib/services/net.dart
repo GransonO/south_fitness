@@ -27,14 +27,20 @@ class Authentication {
         prefs.setString("access_token", result["access_token"]);
         prefs.setString("email", result["user"]["email"]);
         prefs.setString("username", "${result["user"]["first_name"]} ${result["user"]["last_name"]}");
+        prefs.setString("first_name", "${result["user"]["first_name"]}");
+        prefs.setString("last_name", "${result["user"]["last_name"]}");
+        prefs.setString("institution_id", result["institution_id"]);
+        prefs.setString("institution", result["institution"]);
 
-        prefs.setString("team", result["profile"]["team"]);
-        prefs.setString("gender", result["profile"]["gender"]);
-        prefs.setDouble("weight", result["profile"]["weight"]);
-        prefs.setDouble("height", result["profile"]["height"]);
-        prefs.setString("image", result["profile"]["image"]);
-        prefs.setString("institution", result["profile"]["institution"]);
-        prefs.setString("user_id", result["profile"]["user_id"]);
+        if(result["profile"] != null){
+          prefs.setString("team", result["profile"]["team"]);
+          prefs.setString("gender", result["profile"]["gender"]);
+          prefs.setDouble("weight", result["profile"]["weight"]);
+          prefs.setDouble("height", result["profile"]["height"]);
+          prefs.setString("image", result["profile"]["image"]);
+          prefs.setString("user_id", result["profile"]["user_id"]);
+        }
+
         return {"success": true, "payload": result, "status": 200};
       } else{
         // Unauthorised
@@ -166,6 +172,15 @@ class HomeResources {
     dio = Dio();
   }
 
+  getSettings(instituteId) async {
+    print("----------------------------------------- institute Id $instituteId");
+    var result = await dio.get(baseUrl + "/institution/$instituteId");
+    var institute = result.data;
+    print("----------------------------------------- Home Setup $institute");
+
+    return institute[0];
+  }
+
   getVideos(day) async {
     var startTime = DateTime.now();
     var yesterday = "${startTime.year}-${startTime.month}-$day";
@@ -239,6 +254,8 @@ class HomeResources {
       if (result["status"] == "success") {
         return true;
       } else {
+
+        print("---------- result : $result");
         return false;
       }
     } catch (e) {
@@ -317,7 +334,7 @@ class HomeResources {
   }
 
   joinLiveClass(challengeData) async {
-    print("--------Sending this: --------- $challengeData");
+    print("--------Sending this class: --------- $challengeData");
     try {
       var user = await dio.put(
         baseUrl + "/videos/activities/",
@@ -333,7 +350,6 @@ class HomeResources {
   }
 
   joinListedActivity(activityData) async {
-    print("--------Sending this: --------- $activityData");
     try {
       var user = await dio.post(
         baseUrl + "/challenge/members_added/",
@@ -394,9 +410,10 @@ class PerformanceResource {
   getPerformance() async {
     try {
       var perform = await dio.get(
-        baseUrl + "/challenge/members/"
+        baseUrl + "/videos/participants/"
       );
       var result = perform.data;
+      print("--------Result is: --------- $result");
       return result["members_list"] ;
     } catch (e) {
       return [];
@@ -436,7 +453,7 @@ class PerformanceResource {
   getIndividualPerformance(department) async {
     try {
       var perform = await dio.put(
-        baseUrl + "/challenge/members/",
+        baseUrl + "/videos/participants/",
         data: {
           "user_department": department
         },
@@ -577,7 +594,6 @@ class ChatService{
     var member = await dio.put(
         baseUrl + "/chats/general/", data: memberData);
     var result = member.data;
-
     if (result["status"]) {
       return {"success": true, "alias": result["alias"]};
     } else {

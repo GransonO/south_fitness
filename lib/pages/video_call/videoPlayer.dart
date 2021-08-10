@@ -2,6 +2,7 @@ import 'package:agora_rtc_engine/rtc_engine.dart' as rtc_engine_x;
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/pages/video_call/videoRating.dart';
 
 import '../common.dart';
@@ -59,6 +60,16 @@ class _VideoPlayerState extends State<VideoPlayer> {
     _engine.leaveChannel();
     _engine.destroy();
     super.dispose();
+  }
+  Color mainColor = Colors.white;
+
+  setPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+    });
   }
 
   @override
@@ -281,7 +292,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
                           horizontal: 5,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.lightGreen,
+                          color: mainColor,
                           borderRadius: BorderRadius.circular(5),
                         ),
                         child: Text(
@@ -302,7 +313,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   void _onCallEnd(BuildContext context) async {
     await _engine.leaveChannel();
-   Common().newActivity(context, VideoRating(element));
+   Common().newActivity(context, VideoRating(element, true));
   }
 
   void _onToggleMute() {
@@ -330,7 +341,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
               child: InkWell(
                 onTap: () async {
                   await _engine.leaveChannel();
-                  Common().newActivity(context, VideoRating(element));
+                  Common().newActivity(context, VideoRating(element, true));
                 },
                 child: Container(
                     height: _height(5),

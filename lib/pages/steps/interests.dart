@@ -18,11 +18,22 @@ class _InterestsState extends State<Interests> {
   List items = [];
   List selectedItems = [];
   List selectedNums = [];
+  Color mainColor = Colors.white;
+
+  setPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      var institutePrimaryColor = prefs.getString("institute_primary_color");
+      List colors = institutePrimaryColor.split(",");
+      mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+    });
+  }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    setPrefs();
     items = ["Cross Fit","Dance Fusion","Yoga", "Running","Cycling", "Walking", "Mental Challenge"];
   }
 
@@ -63,7 +74,7 @@ class _InterestsState extends State<Interests> {
                                       Fluttertoast.showToast(
                                           msg: "Please select your discipline",
                                           textColor: Colors.white,
-                                          backgroundColor: Colors.lightGreen
+                                          backgroundColor: mainColor
                                       );
                                     }else{
 
@@ -76,7 +87,7 @@ class _InterestsState extends State<Interests> {
                                     width: _width(40),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.all(Radius.circular(15)),
-                                      color: Color.fromARGB(255,110,180,63),
+                                      color: mainColor,
                                     ),
                                     child: Center(
                                       child: Text(
