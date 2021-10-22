@@ -24,6 +24,8 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
   var team = "FINANCE DIVISION";
   var code;
   bool login = false;
+  bool loadingState = true;
+
   var institute_logo;
   var institute_img1 = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1627461186/South_Fitness/insitutions/legUp.png";
   var institute_img2 = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1627461186/South_Fitness/insitutions/legUp.png";
@@ -65,6 +67,7 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
       var institutePrimaryColor = prefs.getString("institute_primary_color");
       List colors = institutePrimaryColor.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+      loadingState = false;
     });
   }
 
@@ -73,7 +76,16 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Container(
+        child: loadingState ? Container(
+          height: _height(100),
+          width: _width(100),
+          child: Center(
+            child: SpinKitThreeBounce(
+              color: Colors.grey,
+              size: 30,
+            ),
+          ),
+        ) : Container(
           height: _height(100),
           width: _width(100),
           child: Stack(
@@ -433,6 +445,7 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
                                         Container(
                                           width: _width(40),
                                           child: TextField(
+                                            readOnly: true,
                                             onChanged: (value){
                                               setState(() {
                                                 email = value;

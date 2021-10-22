@@ -34,6 +34,7 @@ class _VideoRatingState extends State<VideoRating> {
   VideoPlayerController _controller;
   Future<void> _initializeVideoPlayerFuture;
   bool play = false;
+  bool loadingState = true;
   bool rateLoading = false;
   double trainerRate = 0.0;
   double sessionRate = 0.0;
@@ -70,6 +71,7 @@ class _VideoRatingState extends State<VideoRating> {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
       List colors = institutePrimaryColor.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+      loadingState = false;
     });
   }
 
@@ -79,7 +81,16 @@ class _VideoRatingState extends State<VideoRating> {
       onWillPop: () async => false,
       child: Scaffold(
         body: SafeArea(
-          child: Container(
+          child: loadingState ? Container(
+            height: _height(100),
+            width: _width(100),
+            child: Center(
+              child: SpinKitThreeBounce(
+                color: Colors.grey,
+                size: 30,
+              ),
+            ),
+          ) : Container(
             height: _height(100),
             width: _width(100),
             child: Stack(

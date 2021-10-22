@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/pages/steps/duration.dart';
@@ -19,6 +20,7 @@ class _InterestsState extends State<Interests> {
   List selectedItems = [];
   List selectedNums = [];
   Color mainColor = Colors.white;
+  bool loadingState = true;
 
   setPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -26,6 +28,7 @@ class _InterestsState extends State<Interests> {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
       List colors = institutePrimaryColor.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+      loadingState = false;
     });
   }
 
@@ -42,7 +45,16 @@ class _InterestsState extends State<Interests> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Container(
+        child: loadingState ? Container(
+          height: _height(100),
+          width: _width(100),
+          child: Center(
+            child: SpinKitThreeBounce(
+              color: Colors.grey,
+              size: 30,
+            ),
+          ),
+        ) : Container(
             height: _height(100),
             width: _width(100),
             child: Stack(

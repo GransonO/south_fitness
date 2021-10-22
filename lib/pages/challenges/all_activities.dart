@@ -22,6 +22,7 @@ class _AllActivitiesState extends State<AllActivities> {
 
   bool joined = false;
   bool isLoading = false;
+  bool loadingState = true;
   String status = "Challenges";
   Color mainColor = Colors.white;
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
@@ -50,6 +51,7 @@ class _AllActivitiesState extends State<AllActivities> {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
       List colors = institutePrimaryColor.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+      loadingState = false;
     });
     getActivities(user_id);
   }
@@ -83,7 +85,16 @@ class _AllActivitiesState extends State<AllActivities> {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Stack(
+        child: loadingState ? Container(
+          height: _height(100),
+          width: _width(100),
+          child: Center(
+            child: SpinKitThreeBounce(
+              color: Colors.grey,
+              size: 30,
+            ),
+          ),
+        ) : Stack(
           children: [
             SingleChildScrollView(
               child: Container(

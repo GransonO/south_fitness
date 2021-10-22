@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../common.dart';
@@ -13,6 +14,7 @@ class _GymState extends State<Gym> {
   var username = "";
   var email = "";
   SharedPreferences prefs;
+  bool loadingState = true;
 
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -30,6 +32,7 @@ class _GymState extends State<Gym> {
       username = prefs.getString("username");
       email = prefs.getString("email");
       image = prefs.getString("image");
+      loadingState = false;
     });
   }
 
@@ -39,7 +42,16 @@ class _GymState extends State<Gym> {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Stack(
+        child: loadingState ? Container(
+          height: _height(100),
+          width: _width(100),
+          child: Center(
+            child: SpinKitThreeBounce(
+              color: Colors.grey,
+              size: 30,
+            ),
+          ),
+        ) : Stack(
           children: [
             SingleChildScrollView(
               child: Container(

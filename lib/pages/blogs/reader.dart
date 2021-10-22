@@ -165,40 +165,32 @@ class _ReaderState extends State<Reader> {
                             ),
                           ),
                           SizedBox( height: _height(2)),
-                          addComment ? Container(
-                              height: _height(10),
+                          addComment ? Card(
+                            color: Colors.white,
+                            elevation: 3.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            shadowColor: Colors.grey[100],
+                            child: Container(
                               width: _width(100),
-                              margin: EdgeInsets.only(bottom: _height(2)),
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.all(Radius.circular(15)),
-                                  border: Border.all(
-                                      width: 0.5,
-                                      color: Colors.grey
-                                  )
-                              ),
-                              child: Center(
-                                child: Container(
-                                  width: _width(100),
-                                  height: _height(8),
-                                  padding: EdgeInsets.all(5),
-                                  child: TextField(
-                                    onChanged: (value){
-                                      setState(() {
-                                        comment = value;
-                                      });
-                                    },
-                                    maxLines: 5,
-                                    keyboardType: TextInputType.name,
-                                    decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
-                                        hintText: comment
-                                    ),
-                                    style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
-                                  ),
+                              padding: EdgeInsets.all(5),
+                              child: TextField(
+                                onChanged: (value){
+                                  setState(() {
+                                    comment = value;
+                                  });
+                                },
+                                keyboardType: TextInputType.multiline,
+                                maxLines: null,
+                                decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
+                                    hintText: comment
                                 ),
-                              )
+                                style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
+                              ),
+                            ),
                           ) : Container(),
                           Column(
                             children: displayComments(),
@@ -233,10 +225,10 @@ class _ReaderState extends State<Reader> {
             var result = await HomeResources().postBlogComment(
                 {
                   "blog_id": reader["blog_id"],
-                  "username": "Granson_tester",
-                  "uploader_id": "user_id",
+                  "username": "$username",
+                  "uploader_id": "$user_id",
                   "body": comment,
-                  "user_image": "https://res.cloudinary.com/dolwj4vkq/image/upload/v1621418365/HelloAlfie/ic_launcher.png"
+                  "user_image": "$image"
                 }
             );
             if(result){
@@ -276,84 +268,90 @@ class _ReaderState extends State<Reader> {
     var children = <Widget>[];
     comments.forEach((element) {
       children.add(
-          Container(
-            width: _width(100),
-            margin: EdgeInsets.only(bottom: _height(2)),
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              borderRadius: BorderRadius.all(Radius.circular(10))
+          Card(
+            color: Colors.white,
+            elevation: 3.0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
             ),
-            padding: EdgeInsets.all(8.0,),
-            child: Column(
-              children: [
-                SizedBox(height: _height(1),),
-                Container(
-                  height: _height(4),
-                  child: Row(
-                    children: [
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Container(
-                            height: _height(5),
-                            width: _height(5),
-                            decoration: new BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: new DecorationImage(
-                                    fit: BoxFit.cover, image: new NetworkImage(element["profile_image"])
-                                )
-                            )
+            shadowColor: Colors.grey[100],
+            child: Container(
+              width: _width(100),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.all(Radius.circular(10))
+              ),
+              padding: EdgeInsets.all(8.0,),
+              child: Column(
+                children: [
+                  SizedBox(height: _height(1),),
+                  Container(
+                    height: _height(4),
+                    child: Row(
+                      children: [
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Container(
+                              height: _height(5),
+                              width: _height(5),
+                              decoration: new BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: new DecorationImage(
+                                      fit: BoxFit.cover, image: new NetworkImage(element["profile_image"])
+                                  )
+                              )
+                          ),
                         ),
-                      ),
-                      SizedBox(width: _width(1),),
-                      Align(
-                        alignment: Alignment.bottomLeft,
-                        child: Container(
-                          width: _width(70),
-                          child: Text(
-                            element["username"],
-                            style: TextStyle(
-                                color: Colors.black87,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14
+                        SizedBox(width: _width(1),),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            width: _width(70),
+                            child: Text(
+                              element["username"],
+                              style: TextStyle(
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 13
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(height: _width(2),),
-                Container(
-                    padding: EdgeInsets.only(left: 5),
-                    width: _width(100),
-                    child: Text(
-                      element["body"],
-                      style: TextStyle(
-                          color: Colors.black87,
-                          fontWeight: FontWeight.normal,
-                          fontStyle: FontStyle.italic,
-                          fontSize: 13
-                      ),
-                    )
-                ),
-                SizedBox(height: _width(2),),
-                Container(
-                    width: _width(100),
-                    padding: EdgeInsets.only(right: 5),
-                    child: Align(
-                        alignment: Alignment.bottomRight,
-                        child: Text(
-                          convertDate(element["updatedAt"]),
-                          style: TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.normal,
-                              fontSize: 11
-                          ),
-                        )
-                    )
-                ),
-                SizedBox(height: _height(1),),
-              ],
+                  SizedBox(height: _width(2),),
+                  Container(
+                      padding: EdgeInsets.only(left: 5),
+                      width: _width(100),
+                      child: Text(
+                        element["body"],
+                        style: TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.normal,
+                            fontSize: 12
+                        ),
+                      )
+                  ),
+                  SizedBox(height: _width(2),),
+                  Container(
+                      width: _width(100),
+                      padding: EdgeInsets.only(right: 5),
+                      child: Align(
+                          alignment: Alignment.bottomRight,
+                          child: Text(
+                            convertDate(element["updatedAt"]),
+                            style: TextStyle(
+                                color: Colors.black87,
+                                fontWeight: FontWeight.normal,
+                                fontSize: 10
+                            ),
+                          )
+                      )
+                  ),
+                  SizedBox(height: _height(1),),
+                ],
+              ),
             ),
           )
       );

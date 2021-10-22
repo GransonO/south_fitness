@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/pages/home/Home.dart';
 import 'package:south_fitness/services/net.dart';
@@ -27,6 +28,7 @@ class _ProfileState extends State<Profile> {
   var team = "FINANCE DIVISION";
   var code;
   bool login = false;
+  bool loadingState = true;
 
   SharedPreferences prefs;
   final format = DateFormat("yyyy-MM-dd");
@@ -48,7 +50,7 @@ class _ProfileState extends State<Profile> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    permissions();
     setPrefs();
   }
   var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
@@ -67,6 +69,7 @@ class _ProfileState extends State<Profile> {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
       List colors = institutePrimaryColor.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+      loadingState = false;
     });
   }
 
@@ -93,14 +96,33 @@ class _ProfileState extends State<Profile> {
     });
   }
 
+  permissions() async {
+    bool camera = await Permission.camera.isGranted;
+    bool storage = await Permission.storage.isGranted;
+    if (!camera) {
+      await Permission.camera.request();
+    }
+    if (!storage) {
+      await Permission.storage.request();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       body: SafeArea(
-        child:
-        Container(
+        child: loadingState ? Container(
+          height: _height(100),
+          width: _width(100),
+          child: Center(
+            child: SpinKitThreeBounce(
+              color: Colors.grey,
+              size: 30,
+            ),
+          ),
+        ) : Container(
             height: _height(100),
             width: _width(100),
             child: Stack(
@@ -177,222 +199,236 @@ class _ProfileState extends State<Profile> {
                       ),
 
                       Container(
-                        height: _height(7),
-                        width: _width(80),
                         margin: EdgeInsets.only(right: _width(2), top: _height(2)),
-                        padding: EdgeInsets.only(left: 10),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(15)),
-                            border: Border.all(
-                                width: 0.5,
-                                color: Colors.grey
-                            )
-                        ),
-                        child: Row(
-                          children: [
-                            Text(
-                              "First Name: ",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black
-                              ),
-                            ),
-                            Container(
-                              width: _width(40),
-                              child: TextField(
-                                onChanged: (value){
-                                  setState(() {
-                                    firstname = value;
-                                  });
-                                },
-                                keyboardType: TextInputType.name,
-                                decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
-                                    hintText: firstname
+                        child: Card(
+                          color: Colors.white,
+                          elevation: 3.0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          shadowColor: Colors.grey[100],
+                          child: Container(
+                            height: _height(7),
+                            width: _width(80),
+                            padding: EdgeInsets.only(left: 10),
+                            child: Row(
+                              children: [
+                                Text(
+                                  "First Name: ",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black
+                                  ),
                                 ),
-                                style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
-                              ),
-                            )
-                          ],
+                                Container(
+                                  width: _width(40),
+                                  child: TextField(
+                                    onChanged: (value){
+                                      setState(() {
+                                        firstname = value;
+                                      });
+                                    },
+                                    keyboardType: TextInputType.name,
+                                    decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
+                                        hintText: firstname
+                                    ),
+                                    style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
                         ),
                       ),
+
                       Container(
-                        height: _height(7),
-                        width: _width(80),
                         margin: EdgeInsets.only(right: _width(2), top: _height(2)),
-                        padding: EdgeInsets.only(left: 10),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(15)),
-                            border: Border.all(
-                                width: 0.5,
-                                color: Colors.grey
-                            )
-                        ),
-                        child: Row(
-                          children: [
-                            Text(
-                              "Last Name: ",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black
-                              ),
-                            ),
-                            Container(
-                              width: _width(40),
-                              child: TextField(
-                                onChanged: (value){
-                                  setState(() {
-                                    lastname = value;
-                                  });
-                                },
-                                keyboardType: TextInputType.name,
-                                decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
-                                    hintText: lastname
+                        child: Card(
+                          color: Colors.white,
+                          elevation: 3.0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          shadowColor: Colors.grey[100],
+                          child: Container(
+                            height: _height(7),
+                            width: _width(80),
+                            padding: EdgeInsets.only(left: 10),
+                            child: Row(
+                              children: [
+                                Text(
+                                  "Last Name: ",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black
+                                  ),
                                 ),
-                                style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
-                              ),
-                            )
-                          ],
+                                Container(
+                                  width: _width(40),
+                                  child: TextField(
+                                    onChanged: (value){
+                                      setState(() {
+                                        lastname = value;
+                                      });
+                                    },
+                                    keyboardType: TextInputType.name,
+                                    decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
+                                        hintText: lastname
+                                    ),
+                                    style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
                         ),
                       ),
+
                       Container(
-                        height: _height(7),
-                        width: _width(80),
                         margin: EdgeInsets.only(right: _width(2), top: _height(2)),
-                        padding: EdgeInsets.only(left: 10),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(15)),
-                            border: Border.all(
-                                width: 0.5,
-                                color: Colors.grey
-                            )
-                        ),
-                        child: Row(
-                          children: [
-                            Text(
-                              "Username: ",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black
-                              ),
-                            ),
-                            Container(
-                              width: _width(40),
-                              child: TextField(
-                                onChanged: (value){
-                                  setState(() {
-                                    username = value;
-                                  });
-                                },
-                                keyboardType: TextInputType.name,
-                                decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
-                                    hintText: username
+                        child: Card(
+                          color: Colors.white,
+                          elevation: 3.0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          shadowColor: Colors.grey[100],
+                          child: Container(
+                            height: _height(7),
+                            width: _width(80),
+                            padding: EdgeInsets.only(left: 10),
+                            child: Row(
+                              children: [
+                                Text(
+                                  "Username: ",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black
+                                  ),
                                 ),
-                                style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
-                              ),
-                            )
-                          ],
+                                Container(
+                                  width: _width(40),
+                                  child: TextField(
+                                    onChanged: (value){
+                                      setState(() {
+                                        username = value;
+                                      });
+                                    },
+                                    keyboardType: TextInputType.name,
+                                    decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
+                                        hintText: username
+                                    ),
+                                    style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
                         ),
                       ),
+
                       Container(
-                        height: _height(7),
-                        width: _width(80),
                         margin: EdgeInsets.only(right: _width(2), top: _height(2)),
-                        padding: EdgeInsets.only(left: 10),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(15)),
-                            border: Border.all(
-                                width: 0.5,
-                                color: Colors.grey
-                            )
-                        ),
-                        child: Row(
-                          children: [
-                            Text(
-                              "Email Address: ",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black
-                              ),
-                            ),
-                            Container(
-                              width: _width(40),
-                              child: TextField(
-                                enabled: false,
-                                onChanged: (value){
-                                  setState(() {
-                                    email = value;
-                                  });
-                                },
-                                keyboardType: TextInputType.emailAddress,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
-                                  hintText: email
+                        child: Card(
+                          color: Colors.white,
+                          elevation: 3.0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          shadowColor: Colors.grey[100],
+                          child: Container(
+                            height: _height(7),
+                            width: _width(80),
+                            padding: EdgeInsets.only(left: 10),
+                            child: Row(
+                              children: [
+                                Text(
+                                  "Email Address: ",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black
+                                  ),
                                 ),
-                                style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
-                              ),
-                            )
-                          ],
+                                Container(
+                                  width: _width(40),
+                                  child: TextField(
+                                    enabled: false,
+                                    onChanged: (value){
+                                      setState(() {
+                                        email = value;
+                                      });
+                                    },
+                                    keyboardType: TextInputType.emailAddress,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
+                                      hintText: email
+                                    ),
+                                    style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
                         ),
                       ),
+
                       Container(
-                        height: _height(7),
-                        width: _width(80),
                         margin: EdgeInsets.only(right: _width(2), top: _height(2)),
-                        padding: EdgeInsets.only(left: 10),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(15)),
-                            border: Border.all(
-                                width: 0.5,
-                                color: Colors.grey
-                            )
-                        ),
-                        child: Row(
-                          children: [
-                            Text(
-                              "Date of birth: ",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black
-                              ),
-                            ),
-                            Spacer(),
-                            Container(
-                              width: _width(40),
-                              child: DateTimeField(
-                                format: format,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: '${birthDate.toString()}',
-                                  hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(175, 169, 169, 169)),
+                        child: Card(
+                          color: Colors.white,
+                          elevation: 3.0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          shadowColor: Colors.grey[100],
+                          child: Container(
+                            height: _height(7),
+                            width: _width(80),
+                            padding: EdgeInsets.only(left: 10),
+                            child: Row(
+                              children: [
+                                Text(
+                                  "Date of birth: ",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black
+                                  ),
                                 ),
-                                style: TextStyle(fontSize: 13, color: Color.fromARGB(175, 0, 0, 0)),
-                                onShowPicker: (context, currentValue) {
-                                  return showDatePicker(
-                                    context: context,
-                                    firstDate: DateTime(date.year - 120),
-                                    initialDate: currentValue ?? DateTime.now(),
-                                    lastDate: DateTime.now(),
-                                  );
-                                },
-                                onChanged: ((value){
-                                  birthDate = value;
-                                }),
-                              ),
+                                Spacer(),
+                                Container(
+                                  width: _width(40),
+                                  child: DateTimeField(
+                                    format: format,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: '${birthDate.toString()}',
+                                      hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(175, 169, 169, 169)),
+                                    ),
+                                    style: TextStyle(fontSize: 13, color: Color.fromARGB(175, 0, 0, 0)),
+                                    onShowPicker: (context, currentValue) {
+                                      return showDatePicker(
+                                        context: context,
+                                        firstDate: DateTime(date.year - 120),
+                                        initialDate: currentValue ?? DateTime.now(),
+                                        lastDate: DateTime.now(),
+                                      );
+                                    },
+                                    onChanged: ((value){
+                                      birthDate = value;
+                                    }),
+                                  ),
+                                ),
+                                Spacer(),
+                              ],
                             ),
-                            Spacer(),
-                          ],
+                          ),
                         ),
                       ),
                       // Container(
@@ -645,23 +681,31 @@ class _ProfileState extends State<Profile> {
                               }
                             }
                           },
-                          child: Container(
-                            height: _height(7),
-                            width: _width(80),
-                            decoration: BoxDecoration(
-                                color: mainColor,
-                                borderRadius: BorderRadius.all(Radius.circular(15))
+                          child: Card(
+                            color: Colors.white,
+                            elevation: 3.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
                             ),
-                            child: Center(
-                              child: login ? SpinKitThreeBounce(
-                                color: Colors.white,
-                                size: 15,
-                              ) : Text(
-                                "Update Profile",
-                                style: TextStyle(
+                            shadowColor: Colors.grey[100],
+                            child: Container(
+                              height: _height(7),
+                              width: _width(80),
+                              decoration: BoxDecoration(
+                                  color: mainColor,
+                                  borderRadius: BorderRadius.all(Radius.circular(10))
+                              ),
+                              child: Center(
+                                child: login ? SpinKitThreeBounce(
                                   color: Colors.white,
+                                  size: 15,
+                                ) : Text(
+                                  "Update Profile",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                  textAlign: TextAlign.left,
                                 ),
-                                textAlign: TextAlign.left,
                               ),
                             ),
                           ),

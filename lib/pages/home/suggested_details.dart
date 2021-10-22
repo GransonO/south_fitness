@@ -37,6 +37,7 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
   SharedPreferences prefs;
   var dayName = "";
   bool joined = false;
+  bool loadingState = true;
   Color mainColor = Colors.white;
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
@@ -70,6 +71,7 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
       List colors = institutePrimaryColor.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+      loadingState = false;
     });
   }
 
@@ -81,7 +83,16 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Container(
+        child: loadingState ? Container(
+          height: _height(100),
+          width: _width(100),
+          child: Center(
+            child: SpinKitThreeBounce(
+              color: Colors.grey,
+              size: 30,
+            ),
+          ),
+        ) : Container(
           height: _height(100),
           width: _width(100),
           child: Stack(

@@ -4,15 +4,16 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/auth/login.dart';
 import 'package:south_fitness/pages/common.dart';
+import 'package:south_fitness/pages/profile/Profile.dart';
 import 'package:south_fitness/services/net.dart';
 
-class ResetPage extends StatefulWidget {
+class PasswordUpdate extends StatefulWidget {
   @override
   _ResetPageState createState() => _ResetPageState();
 }
 
 
-class _ResetPageState extends State<ResetPage> {
+class _ResetPageState extends State<PasswordUpdate> {
 
   var email = "", resetCode = "", newPass = "", confPass = "";
   bool login = false;
@@ -274,7 +275,7 @@ class _ResetPageState extends State<ResetPage> {
                                   color: Colors.white,
                                   size: 15,
                                 ) : Text(
-                                  reset ? "Update password": "Reset",
+                                  reset ? "Update password": "Submit",
                                   style: TextStyle(
                                     color: Colors.white,
                                   ),
@@ -361,7 +362,7 @@ class _ResetPageState extends State<ResetPage> {
             login = false;
             reset = false;
           });
-          Common().newActivity(context, Login());
+          Common().newActivity(context, Profile());
         }else{
           Fluttertoast.showToast(msg: "Reset failed. Check your details and the reset code ", backgroundColor: Colors.red, textColor: Colors.white);
           setState(() {

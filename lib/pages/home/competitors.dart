@@ -29,6 +29,7 @@ class _CompetitorsState extends State<Competitors> {
   var email = "";
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
   bool loading = true;
+  bool loadingState = true;
   Color mainColor = Colors.white;
   var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
@@ -52,6 +53,7 @@ class _CompetitorsState extends State<Competitors> {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
       List colors = institutePrimaryColor.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+      loadingState = false;
     });
     getParticipatingUsers();
   }
@@ -74,7 +76,16 @@ class _CompetitorsState extends State<Competitors> {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Container(
+        child: loadingState ? Container(
+          height: _height(100),
+          width: _width(100),
+          child: Center(
+            child: SpinKitThreeBounce(
+              color: Colors.grey,
+              size: 30,
+            ),
+          ),
+        ) : Container(
           height: _height(100),
           width: _width(100),
           child: Stack(
@@ -96,10 +107,6 @@ class _CompetitorsState extends State<Competitors> {
                         Container(
                           width: _width(100),
                           margin: EdgeInsets.only(top: _height(1), bottom: _height(4)),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15), ),
-                              color: Color.fromARGB(255,246,246,246)
-                          ),
                           child: loading ? Center(
                             child: SpinKitThreeBounce(
                               color: mainColor,
@@ -165,54 +172,64 @@ class _CompetitorsState extends State<Competitors> {
     teamsData.forEach((element) {
       children.add(
         Container(
-          width: _width(100),
-          height: _height(10),
           margin: EdgeInsets.only(right: _width(3), left: _width(3), bottom: _height(3)),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(15)),
-              color: _selectColor(teamsData.indexOf(element))
-          ),
-          child: Row(
-            children: [
-              SizedBox(width: _width(3),),
-              Text(
-                "${teamsData.indexOf(element) + 1}",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20
-                ),
+          child: Card(
+            color: Colors.white,
+            elevation: 3.0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            shadowColor: Colors.grey[100],
+            child: Container(
+              width: _width(100),
+              height: _height(10),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  color: _selectColor(teamsData.indexOf(element))
               ),
-              Text(
-                "${(teamsData.indexOf(element) + 1) == 1 ? "st" : (teamsData.indexOf(element) + 1) == 2 ? "nd" : "th" }",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12
-                ),
-              ),
-              Spacer(),
-              Column(
+              child: Row(
                 children: [
-                  Spacer(),
+                  SizedBox(width: _width(3),),
                   Text(
-                    "${Common().capitalize(element["name"])}",
+                    "${teamsData.indexOf(element) + 1}",
                     style: TextStyle(
                         color: Colors.white,
-                        fontSize: 16
+                        fontSize: 20
                     ),
                   ),
                   Text(
-                    "Score: ${element["count"] * 5}",
+                    "${(teamsData.indexOf(element) + 1) == 1 ? "st" : (teamsData.indexOf(element) + 1) == 2 ? "nd" : "th" }",
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 12
                     ),
                   ),
                   Spacer(),
+                  Column(
+                    children: [
+                      Spacer(),
+                      Text(
+                        "${Common().capitalize(element["name"])}",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16
+                        ),
+                      ),
+                      Text(
+                        "Score: ${element["count"] * 5}",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12
+                        ),
+                      ),
+                      Spacer(),
+                    ],
+                  ),
+                  Spacer(),
+                  SizedBox(width: _width(3),),
                 ],
               ),
-              Spacer(),
-              SizedBox(width: _width(3),),
-            ],
+            ),
           ),
         ),
       );

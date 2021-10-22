@@ -25,8 +25,10 @@ class _ChatsState extends State<Chats> {
   var email = "";
   var alias = "";
   var institution = "";
+  var institution_id = "";
   SharedPreferences prefs;
   bool chats = true;
+  bool loadingState = true;
   bool clubs = false;
   bool loading = true;
   bool posting = false;
@@ -65,16 +67,21 @@ class _ChatsState extends State<Chats> {
       image = prefs.getString("image");
       user_id = prefs.getString("user_id");
       institution = prefs.getString("institution");
+      institution_id = prefs.getString("institution_id");
       img = prefs.getString("institute_logo");
       var institutePrimaryColor = prefs.getString("institute_primary_color");
       List colors = institutePrimaryColor.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+      loadingState = false;
     });
+    print("================username=============================$username");
+    print("================user_id=============================$user_id");
+    print("================institution_id=============================$institution_id");
     getAllGroup();
   }
 
   getAllGroup() async {
-    var results = await ChatService().allGroups(institution);
+    var results = await ChatService().allGroups(institution_id);
     setState(() {
       groups = results;
       loading = false;
@@ -111,7 +118,16 @@ class _ChatsState extends State<Chats> {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Stack(
+        child: loadingState ? Container(
+          height: _height(100),
+          width: _width(100),
+          child: Center(
+            child: SpinKitThreeBounce(
+              color: Colors.grey,
+              size: 30,
+            ),
+          ),
+        ) : Stack(
           children: [
             SingleChildScrollView(
               child: Container(
@@ -137,7 +153,8 @@ class _ChatsState extends State<Chats> {
                             style: TextStyle(
                                 fontSize: 25,
                                 fontWeight: FontWeight.bold,
-                                color: chats ? mainColor : Colors.black),
+                                color: Colors.black87
+                            ),
                             textAlign: TextAlign.left,
                           ),
                         ),

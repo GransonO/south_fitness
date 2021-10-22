@@ -18,6 +18,7 @@ class _DurationState extends State<TrainDuration> {
 
   int num = 0;
   bool loading = false;
+  bool loadingState = true;
   Color mainColor = Colors.white;
 
   setPrefs() async {
@@ -26,6 +27,7 @@ class _DurationState extends State<TrainDuration> {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
       List colors = institutePrimaryColor.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+      loadingState = false;
     });
   }
   @override
@@ -40,7 +42,16 @@ class _DurationState extends State<TrainDuration> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Container(
+        child: loadingState ? Container(
+          height: _height(100),
+          width: _width(100),
+          child: Center(
+            child: SpinKitThreeBounce(
+              color: Colors.grey,
+              size: 30,
+            ),
+          ),
+        ) : Container(
             height: _height(100),
             width: _width(100),
             child: Stack(

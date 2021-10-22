@@ -33,6 +33,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
   bool play = false;
   bool showVideo = false;
   bool loading = true;
+  bool loadingState = true;
   bool joinLoader = false;
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
@@ -59,6 +60,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
       List colors = institutePrimaryColor.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+      loadingState = false;
     });
   }
 
@@ -304,7 +306,16 @@ class _ReadyVideoState extends State<ReadyVideo> {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Stack(
+        child: loadingState ? Container(
+          height: _height(100),
+          width: _width(100),
+          child: Center(
+            child: SpinKitThreeBounce(
+              color: Colors.grey,
+              size: 30,
+            ),
+          ),
+        ) : Stack(
           children: [
             SingleChildScrollView(
               child: Container(
@@ -377,20 +388,11 @@ class _ReadyVideoState extends State<ReadyVideo> {
                     ) : Container(
                       height: _height(15),
                       margin: EdgeInsets.only(right: _width(2), left: _width(2),top: _height(2),bottom: _height(2),),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(15)
-                          ),
-                          border: Border.all(
-                              color: mainColor,
-                              width: 2
-                          )
-                      ),
                       child: Center(
                           child: Text(
-                            "No Upcoming Classes",
+                            "No Classes",
                             style: TextStyle(
-                                color: Colors.black45,
+                                color: Colors.grey,
                                 fontSize: 17,
                                 fontWeight: FontWeight.bold
                             ),

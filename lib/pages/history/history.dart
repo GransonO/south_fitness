@@ -25,6 +25,7 @@ class _HistoryState extends State<History> {
   var user_id = "";
   var team = "";
   bool loading = false;
+  bool loadingState = true;
   var firstDate;
   var lastDate;
   var displayDate = "Enter date range";
@@ -52,6 +53,7 @@ class _HistoryState extends State<History> {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
       List colors = institutePrimaryColor.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+      loadingState = false;
     });
   }
 
@@ -65,7 +67,16 @@ class _HistoryState extends State<History> {
         key: _scaffoldKey,
         backgroundColor: Colors.white,
         body: SafeArea(
-          child: Container(
+          child: loadingState ? Container(
+            height: _height(100),
+            width: _width(100),
+            child: Center(
+              child: SpinKitThreeBounce(
+                color: Colors.grey,
+                size: 30,
+              ),
+            ),
+          ) : Container(
             height: _height(100),
             width: _width(100),
             child: Stack(
@@ -83,7 +94,8 @@ class _HistoryState extends State<History> {
                             "History",
                             style: TextStyle(
                                 fontSize: 25,
-                                fontWeight: FontWeight.bold
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87
                             ),
                             textAlign: TextAlign.left,
                           ),
@@ -119,22 +131,29 @@ class _HistoryState extends State<History> {
                               });
                             }
                           },
-                          child: Container(
-                              height: _height(7),
-                              width: _width(100),
-                              margin: EdgeInsets.only(top: _height(1), bottom: _height(1), ),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.all(Radius.circular(15)),
-                                  color: mainColor,
-                              ),
-                              child: Center(
-                                  child: Text("$displayDate",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 15
-                                      )
-                                  )
-                              )
+                          child: Card(
+                            color: Colors.white,
+                            elevation: 3.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            shadowColor: Colors.grey[100],
+                            child: Container(
+                                height: _height(8),
+                                width: _width(100),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                    color: mainColor,
+                                ),
+                                child: Center(
+                                    child: Text("$displayDate",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 15
+                                        )
+                                    )
+                                )
+                            ),
                           ),
                         ),
                         SizedBox(height: _height(3),),
@@ -297,17 +316,10 @@ class _HistoryState extends State<History> {
               height: _height(15),
               width: _width(100),
               margin: EdgeInsets.only(bottom: _height(2), left: _height(1), right:_height(1)),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(15)),
-                  border: Border.all(
-                      color: mainColor,
-                      width: 2
-                  )
-              ),
               child: Center(
                   child: Text("No History",
                       style: TextStyle(
-                          color: mainColor,
+                          color: Colors.grey,
                           fontSize: 15
                       )
                   )

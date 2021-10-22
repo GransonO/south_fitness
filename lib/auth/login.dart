@@ -35,33 +35,6 @@ class _LoginState extends State<Login> {
     checkUsage();
   }
 
-  permissions() async {
-    bool camera = await Permission.camera.isGranted;
-    bool microphone = await Permission.microphone.isGranted;
-    bool phone = await Permission.phone.isGranted;
-    bool storage = await Permission.storage.isGranted;
-    bool location = await Permission.location.isGranted;
-    bool activityRecognition = await Permission.activityRecognition.isGranted;
-    if (!location) {
-      await Permission.location.request();
-    }
-    if (!camera) {
-      await Permission.camera.request();
-    }
-    if (!microphone) {
-      await Permission.microphone.request();
-    }
-    if (!phone) {
-      await Permission.phone.request();
-    }
-    if (!storage) {
-      await Permission.storage.request();
-    }
-    if (!activityRecognition) {
-      await Permission.activityRecognition.request();
-    }
-  }
-
   void checkUsage() async {
     prefs = await SharedPreferences.getInstance();
     var connectivityResult = await (Connectivity().checkConnectivity());
@@ -128,102 +101,102 @@ class _LoginState extends State<Login> {
                       )
                     ),
                     SizedBox(height: _height(1)),
-                    Container(
-                      height: _height(7),
-                      width: _width(80),
-                      margin: EdgeInsets.only(right: _width(2)),
-                      padding: EdgeInsets.only(left: 10),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(15)),
-                          border: Border.all(
-                              width: 0.5,
-                              color: Colors.grey
-                          )
+                    Card(
+                      color: Colors.grey[50],
+                      elevation: 5.0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
                       ),
-                      child: Row(
-                        children: [
-                          Text(
-                            "Email Address: ",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                                fontSize: 12
-                            ),
-                          ),
-                          Container(
-                            width: _width(50),
-                            child: TextField(
-                              onChanged: (value){
-                                setState(() {
-                                  email = value;
-                                });
-                                prefs.setString("email", value);
-                              },
-                              keyboardType: TextInputType.emailAddress,
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
+                      shadowColor: Colors.grey[100],
+                      child: Container(
+                        height: _height(7),
+                        width: _width(80),
+                        margin: EdgeInsets.only(right: _width(2)),
+                        padding: EdgeInsets.only(left: 10),
+                        child: Row(
+                          children: [
+                            Text(
+                              "Email Address: ",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                  fontSize: 12
                               ),
-                              style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
                             ),
-                          )
-                        ],
+                            Container(
+                              width: _width(50),
+                              child: TextField(
+                                onChanged: (value){
+                                  setState(() {
+                                    email = value;
+                                  });
+                                  prefs.setString("email", value);
+                                },
+                                keyboardType: TextInputType.emailAddress,
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
+                                ),
+                                style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
                     SizedBox(height: _height(1)),
-                    Container(
-                      height: _height(7),
-                      width: _width(80),
-                      margin: EdgeInsets.only(right: _width(2)),
-                      padding: EdgeInsets.only(left: 10),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(15)),
-                          border: Border.all(
-                              width: 0.5,
-                              color: Colors.grey
-                          )
+                    Card(
+                      color: Colors.grey[50],
+                      elevation: 5.0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
                       ),
-                      child: Row(
-                        children: [
-                          Text(
-                            "Enter password: ",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                                fontSize: 12
-                            ),
-                          ),
-                          Container(
-                            width: _width(45),
-                            child: TextField(
-                              onChanged: (value){
-                                setState(() {
-                                  password = value;
-                                });
-                              },
-                              keyboardType: TextInputType.visiblePassword,
-                              obscureText: _obscurePass,
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
+                      shadowColor: Colors.grey[100],
+                      child: Container(
+                        height: _height(7),
+                        width: _width(80),
+                        margin: EdgeInsets.only(right: _width(2)),
+                        padding: EdgeInsets.only(left: 10),
+                        child: Row(
+                          children: [
+                            Text(
+                              "Enter password: ",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                  fontSize: 12
                               ),
-                              style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
                             ),
-                          ),
-                          InkWell(
-                              onTap: (){
-                                setState(() {
-                                  _obscurePass = !_obscurePass;
-                                });
-                              },
-                              child: Container(
-                                  width: _width(5),
-                                  child:Icon( _obscurePass ? Icons.remove_red_eye_outlined : Icons.visibility_off_outlined)
-                              )
-                          )
-                        ],
+                            Container(
+                              width: _width(45),
+                              child: TextField(
+                                onChanged: (value){
+                                  setState(() {
+                                    password = value;
+                                  });
+                                },
+                                keyboardType: TextInputType.visiblePassword,
+                                obscureText: _obscurePass,
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintStyle: TextStyle(fontSize: 13, color: Color.fromARGB(200, 169, 169, 169)),
+                                ),
+                                style: TextStyle(fontSize: 13, color: Color.fromARGB(255, 0, 0, 0)),
+                              ),
+                            ),
+                            InkWell(
+                                onTap: (){
+                                  setState(() {
+                                    _obscurePass = !_obscurePass;
+                                  });
+                                },
+                                child: Container(
+                                    width: _width(5),
+                                    child:Icon( _obscurePass ? Icons.remove_red_eye_outlined : Icons.visibility_off_outlined)
+                                )
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     SizedBox(height: _height(2)),
@@ -250,7 +223,6 @@ class _LoginState extends State<Login> {
                                     .getSettings(
                                     result["payload"]["institution_id"]
                                 );
-                                prefs.setString("institution_id",homeSetup["institution_id"]);
                                 prefs.setString("institute_primary_color",homeSetup["institute_primary_color"]);
                                 prefs.setString("institute_secondary_color",homeSetup["institute_secondary_color"]);
                                 prefs.setString("institute_logo",homeSetup["institute_logo"]);
@@ -272,23 +244,27 @@ class _LoginState extends State<Login> {
                             }
                           }
                         },
-                        child: Container(
-                          height: _height(5),
-                          width: _width(80),
-                          decoration: BoxDecoration(
-                              color: Color.fromARGB(255,232,196,40),
-                              borderRadius: BorderRadius.all(Radius.circular(15))
+                        child: Card(
+                          color: Color.fromARGB(255,232,196,40),
+                          elevation: 5.0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
                           ),
-                          child: Center(
-                            child: login ? SpinKitThreeBounce(
-                              color: Colors.white,
-                              size: 15,
-                            ) : Text(
-                              "Login",
-                              style: TextStyle(
+                          shadowColor: Colors.grey[100],
+                          child: Container(
+                            height: _height(5),
+                            width: _width(80),
+                            child: Center(
+                              child: login ? SpinKitThreeBounce(
                                 color: Colors.white,
+                                size: 15,
+                              ) : Text(
+                                "Login",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                                textAlign: TextAlign.left,
                               ),
-                              textAlign: TextAlign.left,
                             ),
                           ),
                         ),
@@ -343,11 +319,11 @@ class _LoginState extends State<Login> {
                       ),
                     ) : Center(
                       child: Container(
-                          width: _width(80),
+                          width: _width(90),
                           child: Column(
                             children: [
                               Container(
-                                width: _width(80),
+                                width: _width(90),
                                 child: Row(
                                   children: [
                                     Text(
@@ -370,10 +346,9 @@ class _LoginState extends State<Login> {
                                 ),
                               ),
                               Container(
-                                  width: _width(80),
+                                  width: _width(90),
                                   child: Row(
                                     children: [
-
                                       Text(
                                         "& ",
                                         style: TextStyle(

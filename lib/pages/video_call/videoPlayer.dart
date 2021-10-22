@@ -33,7 +33,8 @@ class VideoPlayer extends StatefulWidget {
 class _VideoPlayerState extends State<VideoPlayer> {
   final _users = <int>[];
   final _infoStrings = <String>[];
-  bool muted = false;
+  bool muted = true;
+  bool hideVideo = true;
   rtc_engine_x.RtcEngine _engine;
 
   var APP_ID;
@@ -61,6 +62,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
     _engine.destroy();
     super.dispose();
   }
+
   Color mainColor = Colors.white;
 
   setPrefs() async {
@@ -244,18 +246,31 @@ class _VideoPlayerState extends State<VideoPlayer> {
             fillColor: Colors.redAccent,
             padding: const EdgeInsets.all(15.0),
           ),
+          // RawMaterialButton(
+          //   onPressed: _onSwitchCamera,
+          //   child: Icon(
+          //     Icons.switch_camera,
+          //     color: Colors.blueAccent,
+          //     size: 20.0,
+          //   ),
+          //   shape: CircleBorder(),
+          //   elevation: 2.0,
+          //   fillColor: Colors.white,
+          //   padding: const EdgeInsets.all(12.0),
+          // ),
+
           RawMaterialButton(
-            onPressed: _onSwitchCamera,
+            onPressed: _onToggleCam,
             child: Icon(
-              Icons.switch_camera,
-              color: Colors.blueAccent,
+              hideVideo ? Icons.videocam_off : Icons.videocam,
+              color: hideVideo ? Colors.white : Colors.blueAccent,
               size: 20.0,
             ),
             shape: CircleBorder(),
             elevation: 2.0,
-            fillColor: Colors.white,
+            fillColor: hideVideo ? Colors.blueAccent : Colors.white,
             padding: const EdgeInsets.all(12.0),
-          )
+          ),
         ],
       ),
     );
@@ -321,6 +336,13 @@ class _VideoPlayerState extends State<VideoPlayer> {
       muted = !muted;
     });
     _engine.muteLocalAudioStream(muted);
+  }
+
+  void _onToggleCam() {
+    setState(() {
+      hideVideo = !hideVideo;
+    });
+    _engine.muteLocalVideoStream(hideVideo);
   }
 
   void _onSwitchCamera() {

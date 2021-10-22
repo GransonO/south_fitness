@@ -56,6 +56,7 @@ class _HomeState extends State<HomeView> {
   bool joinLoader = false;
   var theElement = {};
   Color mainColor = Colors.white;
+  bool loadingState = true;
   var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   @override
@@ -68,34 +69,6 @@ class _HomeState extends State<HomeView> {
 
     setPrefs();
     checkUsage();
-    permissions();
-  }
-
-  permissions() async {
-    bool camera = await Permission.camera.isGranted;
-    bool microphone = await Permission.microphone.isGranted;
-    bool phone = await Permission.phone.isGranted;
-    bool storage = await Permission.storage.isGranted;
-    bool location = await Permission.location.isGranted;
-    bool activityRecognition = await Permission.activityRecognition.isGranted;
-    if (!location) {
-      await Permission.location.request();
-    }
-    if (!camera) {
-      await Permission.camera.request();
-    }
-    if (!microphone) {
-      await Permission.microphone.request();
-    }
-    if (!phone) {
-      await Permission.phone.request();
-    }
-    if (!storage) {
-      await Permission.storage.request();
-    }
-    if (!activityRecognition) {
-      await Permission.activityRecognition.request();
-    }
   }
 
   setPrefs() async {
@@ -107,15 +80,17 @@ class _HomeState extends State<HomeView> {
     });
 
     user_id = prefs.getString("user_id");
+    var institution_id = prefs.getString("institution_id");
+
     var suggestions = await HomeResources().getSuggestedActivities();
     var upcomingVideos = await HomeResources().getVideos(Common().displayDateOfWeek(DateFormat('EEEE').format(DateTime.now())));
 
     var pastActivities = await HomeResources().getTodayActivities(user_id);
+    print("==========HOME======institution_id=============================$institution_id");
     setState(() {
       username = prefs.getString("username");
       email = prefs.getString("email");
       image = prefs.getString("image");
-      user_id = prefs.getString("user_id");
       team = prefs.getString("team");
       prefs.setBool("isLoggedIn", true);
       allVideos = upcomingVideos;
@@ -124,6 +99,7 @@ class _HomeState extends State<HomeView> {
       allPastActivities = pastActivities;
 
       img = prefs.getString("institute_logo");
+      loadingState = false;
     });
   }
 
@@ -186,7 +162,6 @@ class _HomeState extends State<HomeView> {
   }
 
   initializeVideo(link) {
-    print("======================== $link");
     setState(() {
       _controller = VideoPlayerController.network(
         link,
@@ -205,17 +180,27 @@ class _HomeState extends State<HomeView> {
         key: _scaffoldKey,
         backgroundColor: Colors.white,
         body: SafeArea(
-          child: Container(
+          child: loadingState ? Container(
+            height: _height(100),
+            width: _width(100),
+            child: Center(
+              child: SpinKitThreeBounce(
+                color: Colors.grey,
+                size: 30,
+              ),
+            ),
+          ) : Container(
             height: _height(100),
             width: _width(100),
             child: Stack(
               children: [
                 SingleChildScrollView(
                   child: Container(
-                    margin: EdgeInsets.only(top: _height(9), left: _width(4), right: _width(4)),
+                    margin: EdgeInsets.only(top: _height(11)),
                     child: Column(
                       children: [
                         Container(
+                          margin: EdgeInsets.only( left: _width(4), right: _width(4)),
                           width: _width(100),
                           child: Text(
                             "Hello, $username",
@@ -228,6 +213,7 @@ class _HomeState extends State<HomeView> {
                         SizedBox(height: _height(2),),
 
                         Container(
+                          margin: EdgeInsets.only( left: _width(4), right: _width(4)),
                           width: _width(100),
                           child: Text(
                             "Today's routine",
@@ -241,6 +227,7 @@ class _HomeState extends State<HomeView> {
                         SizedBox(height: _height(3),),
 
                         Container(
+                            margin: EdgeInsets.only(left: _width(2), right: _width(2)),
                             width: _width(100),
                             child: Row(
                               children: [
@@ -248,38 +235,42 @@ class _HomeState extends State<HomeView> {
                                   onTap: () async {
                                     verifyDateRange("Monday", displayDates("Monday"));
                                   },
-                                  child: Container(
-                                    height: _height(7),
-                                    width: _width(12),
-                                    decoration: BoxDecoration(
-                                      color: compareDate("Monday", displayDates("Monday")),
-                                      borderRadius: BorderRadius.all(Radius.circular(15)),
-                                        border: Border.all(
-                                            width: 0.5,
-                                            color: Colors.grey
-                                        )
+                                  child: Card(
+                                    color: Colors.grey[50],
+                                    elevation: 5.0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
-                                    child: Center(
-                                      child: Column(
-                                        children: [
-                                          Spacer(),
-                                          Text(
-                                            "${displayDates("Monday")}",
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: compareText("Monday")
+                                    shadowColor: Colors.grey[100],
+                                    child: Container(
+                                      height: _height(7),
+                                      width: _width(11),
+                                      decoration: BoxDecoration(
+                                        color: compareDate("Monday", displayDates("Monday")),
+                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                      ),
+                                      child: Center(
+                                        child: Column(
+                                          children: [
+                                            Spacer(),
+                                            Text(
+                                              "${displayDates("Monday")}",
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: compareText("Monday")
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            "Mon",
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold,
-                                                color: compareText("Monday")
+                                            Text(
+                                              "Mon",
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: compareText("Monday")
+                                              ),
                                             ),
-                                          ),
-                                          Spacer(),
-                                        ],
+                                            Spacer(),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -289,38 +280,42 @@ class _HomeState extends State<HomeView> {
                                   onTap: () async {
                                     verifyDateRange("Tuesday", displayDates("Tuesday"));
                                   },
-                                  child: Container(
-                                    height: _height(7),
-                                    width: _width(12),
-                                    decoration: BoxDecoration(
-                                      color: compareDate("Tuesday", displayDates("Tuesday")),
-                                      borderRadius: BorderRadius.all(Radius.circular(15)),
-                                        border: Border.all(
-                                            width: 0.5,
-                                            color: Colors.grey
-                                        )
+                                  child: Card(
+                                    color: Colors.grey[50],
+                                    elevation: 5.0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
-                                    child: Center(
-                                      child: Column(
-                                        children: [
-                                          Spacer(),
-                                          Text(
-                                            "${displayDates("Tuesday")}",
-                                            style: TextStyle(
-                                                fontSize: 12,
+                                    shadowColor: Colors.grey[100],
+                                    child: Container(
+                                      height: _height(7),
+                                      width: _width(11),
+                                      decoration: BoxDecoration(
+                                        color: compareDate("Tuesday", displayDates("Tuesday")),
+                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                      ),
+                                      child: Center(
+                                        child: Column(
+                                          children: [
+                                            Spacer(),
+                                            Text(
+                                              "${displayDates("Tuesday")}",
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: compareText("Tuesday")
+                                              ),
+                                            ),
+                                            Text(
+                                              "Tue",
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
                                                 color: compareText("Tuesday")
                                             ),
-                                          ),
-                                          Text(
-                                            "Tue",
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold,
-                                              color: compareText("Tuesday")
-                                          ),
-                                          ),
-                                          Spacer(),
-                                        ],
+                                            ),
+                                            Spacer(),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -330,34 +325,38 @@ class _HomeState extends State<HomeView> {
                                   onTap: () async {
                                     verifyDateRange("Wednesday", displayDates("Wednesday"));
                                   },
-                                  child: Container(
-                                    height: _height(7),
-                                    width: _width(12),
-                                    decoration: BoxDecoration(
-                                      color: compareDate("Wednesday", displayDates("Wednesday")),
-                                      borderRadius: BorderRadius.all(Radius.circular(15)),
-                                        border: Border.all(
-                                            width: 0.5,
-                                            color: Colors.grey
-                                        )
+                                  child: Card(
+                                    color: Colors.grey[50],
+                                    elevation: 5.0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
-                                    child: Center(
-                                      child: Column(
-                                        children: [
-                                          Spacer(),
-                                          Text(
-                                            "${displayDates("Wednesday")}",
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: compareText("Wednesday")
+                                    shadowColor: Colors.grey[100],
+                                    child: Container(
+                                      height: _height(7),
+                                      width: _width(11),
+                                      decoration: BoxDecoration(
+                                        color: compareDate("Wednesday", displayDates("Wednesday")),
+                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                      ),
+                                      child: Center(
+                                        child: Column(
+                                          children: [
+                                            Spacer(),
+                                            Text(
+                                              "${displayDates("Wednesday")}",
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: compareText("Wednesday")
+                                              ),
                                             ),
-                                          ),
-                                          Text("Wed", style: TextStyle(
-                                              fontSize: 12,
-                                              color: compareText("Wednesday"),
-                                              fontWeight: FontWeight.bold),),
-                                          Spacer(),
-                                        ],
+                                            Text("Wed", style: TextStyle(
+                                                fontSize: 12,
+                                                color: compareText("Wednesday"),
+                                                fontWeight: FontWeight.bold),),
+                                            Spacer(),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -367,31 +366,35 @@ class _HomeState extends State<HomeView> {
                                   onTap: () async {
                                     verifyDateRange("Thursday", displayDates("Thursday"));
                                   },
-                                  child: Container(
-                                    height: _height(7),
-                                    width: _width(12),
-                                    decoration: BoxDecoration(
-                                      color: compareDate("Thursday", displayDates("Thursday")),
-                                      borderRadius: BorderRadius.all(Radius.circular(15)),
-                                        border: Border.all(
-                                            width: 0.5,
-                                            color: Colors.grey
-                                        )
+                                  child: Card(
+                                    color: Colors.grey[50],
+                                    elevation: 5.0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
-                                    child: Center(
-                                      child: Column(
-                                        children: [
-                                          Spacer(),
-                                          Text(
-                                            "${displayDates("Thursday")}",
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: compareText("Thursday")
+                                    shadowColor: Colors.grey[100],
+                                    child: Container(
+                                      height: _height(7),
+                                      width: _width(11),
+                                      decoration: BoxDecoration(
+                                        color: compareDate("Thursday", displayDates("Thursday")),
+                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                      ),
+                                      child: Center(
+                                        child: Column(
+                                          children: [
+                                            Spacer(),
+                                            Text(
+                                              "${displayDates("Thursday")}",
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: compareText("Thursday")
+                                              ),
                                             ),
-                                          ),
-                                          Text("Thu", style: TextStyle(fontSize: 12,color: compareText("Thursday"), fontWeight: FontWeight.bold),),
-                                          Spacer(),
-                                        ],
+                                            Text("Thu", style: TextStyle(fontSize: 12,color: compareText("Thursday"), fontWeight: FontWeight.bold),),
+                                            Spacer(),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -401,32 +404,36 @@ class _HomeState extends State<HomeView> {
                                   onTap: () async {
                                     verifyDateRange("Friday", displayDates("Friday"));
                                   },
-                                  child: Container(
-                                    height: _height(7),
-                                    width: _width(12),
-                                    decoration: BoxDecoration(
-                                      color: compareDate("Friday", displayDates("Friday")),
-                                      borderRadius: BorderRadius.all(Radius.circular(15)),
-                                      border: Border.all(
-                                        width: 0.5,
-                                        color: Colors.grey
-                                      )
+                                  child: Card(
+                                    color: Colors.grey[50],
+                                    elevation: 5.0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
-                                    child: Center(
-                                      child: Column(
-                                        children: [
-                                          Spacer(),
-                                          Text(
-                                            "${displayDates("Friday")}",
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: compareText("Friday")
+                                    shadowColor: Colors.grey[100],
+                                    child: Container(
+                                      height: _height(7),
+                                      width: _width(11),
+                                      decoration: BoxDecoration(
+                                        color: compareDate("Friday", displayDates("Friday")),
+                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                      ),
+                                      child: Center(
+                                        child: Column(
+                                          children: [
+                                            Spacer(),
+                                            Text(
+                                              "${displayDates("Friday")}",
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: compareText("Friday")
+                                              ),
                                             ),
-                                          ),
-                                          Text("Fri", style: TextStyle(fontSize: 12,
-                                              color: compareText("Friday"), fontWeight: FontWeight.bold),),
-                                          Spacer(),
-                                        ],
+                                            Text("Fri", style: TextStyle(fontSize: 12,
+                                                color: compareText("Friday"), fontWeight: FontWeight.bold),),
+                                            Spacer(),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -436,31 +443,35 @@ class _HomeState extends State<HomeView> {
                                   onTap: () async {
                                     verifyDateRange("Saturday", displayDates("Saturday"));
                                   },
-                                  child: Container(
-                                    height: _height(7),
-                                    width: _width(12),
-                                    decoration: BoxDecoration(
-                                      color: compareDate("Saturday", displayDates("Saturday")),
-                                      borderRadius: BorderRadius.all(Radius.circular(15)),
-                                      border: Border.all(
-                                        width: 0.5,
-                                        color: Colors.grey
-                                      )
+                                  child: Card(
+                                    color: Colors.grey[50],
+                                    elevation: 5.0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
-                                    child: Center(
-                                      child: Column(
-                                        children: [
-                                          Spacer(),
-                                          Text(
-                                            "${displayDates("Saturday")}",
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: compareText("Saturday")
-                                            ),),
-                                          Text("Sat", style: TextStyle(fontSize: 12,
-                                              color: compareText("Saturday"), fontWeight: FontWeight.bold),),
-                                          Spacer(),
-                                        ],
+                                    shadowColor: Colors.grey[100],
+                                    child: Container(
+                                      height: _height(7),
+                                      width: _width(11),
+                                      decoration: BoxDecoration(
+                                        color: compareDate("Saturday", displayDates("Saturday")),
+                                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                                      ),
+                                      child: Center(
+                                        child: Column(
+                                          children: [
+                                            Spacer(),
+                                            Text(
+                                              "${displayDates("Saturday")}",
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: compareText("Saturday")
+                                              ),),
+                                            Text("Sat", style: TextStyle(fontSize: 12,
+                                                color: compareText("Saturday"), fontWeight: FontWeight.bold),),
+                                            Spacer(),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -470,27 +481,31 @@ class _HomeState extends State<HomeView> {
                                   onTap: () async {
                                     verifyDateRange("Sunday", displayDates("Sunday"));
                                   },
-                                  child: Container(
-                                    height: _height(7),
-                                    width: _width(12),
-                                    decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.all(Radius.circular(15)),
-                                        border: Border.all(
-                                            width: 0.5,
-                                            color: Colors.grey
-                                        )
+                                  child: Card(
+                                    color: Colors.grey[50],
+                                    elevation: 5.0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
-                                    child: Center(
-                                      child: Column(
-                                        children: [
-                                          Spacer(),
-                                          Text("${findLastDateOfTheWeek(DateTime.now()).day}", style: TextStyle(
-                                            fontSize: 12,
-                                          )),
-                                          Text("Sun", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),),
-                                          Spacer(),
-                                        ],
+                                    shadowColor: Colors.grey[100],
+                                    child: Container(
+                                      height: _height(7),
+                                      width: _width(11),
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                                      ),
+                                      child: Center(
+                                        child: Column(
+                                          children: [
+                                            Spacer(),
+                                            Text("${findLastDateOfTheWeek(DateTime.now()).day}", style: TextStyle(
+                                              fontSize: 12,
+                                            )),
+                                            Text("Sun", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),),
+                                            Spacer(),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -503,6 +518,7 @@ class _HomeState extends State<HomeView> {
                         showPast || showFuture ? Container() : Container(
                             height: _height(7),
                             width: _width(100),
+                            margin: EdgeInsets.only(left: _width(4), right: _width(4)),
                             child: Row(
                                 children: [
                                   InkWell(
@@ -514,20 +530,25 @@ class _HomeState extends State<HomeView> {
                                         Common().newActivity(context, DailyRun("Running", currentLat, currentLong));
                                       }
                                     },
-                                    child: Center(
+                                    child: Card(
+                                      color: Colors.grey[50],
+                                      elevation: 2.0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10.0),
+                                      ),
+                                      shadowColor: mainColor,
                                       child: Container(
                                         height: _height(5.5),
                                         width: _width(27),
                                         decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.all(Radius.circular(15)),
-                                            border: Border.all(color: mainColor, width: 1)
+                                            borderRadius: BorderRadius.all(Radius.circular(10)),
                                         ),
                                         child: Row(
                                           children: [
                                             Spacer(),
                                             Icon(Icons.directions_run, size: 27,),
-                                            SizedBox(width: _width(2),),
-                                            Text("Running", style: TextStyle(fontSize: 16),),
+                                            SizedBox(width: _width(1),),
+                                            Text("Running", style: TextStyle(fontSize: 15),),
                                             Spacer(),
                                           ],
                                         ),
@@ -544,20 +565,25 @@ class _HomeState extends State<HomeView> {
                                         Common().newActivity(context, DailyRun("Walking", currentLat, currentLong));
                                       }
                                     },
-                                    child: Center(
+                                    child: Card(
+                                      color: Colors.grey[50],
+                                      elevation: 2.0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10.0),
+                                      ),
+                                      shadowColor: mainColor,
                                       child: Container(
                                         height: _height(5.5),
                                         width: _width(27),
                                         decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.all(Radius.circular(15)),
-                                            border: Border.all(color: mainColor, width: 1)
+                                            borderRadius: BorderRadius.all(Radius.circular(10)),
                                         ),
                                         child: Row(
                                           children: [
                                             Spacer(),
                                             Icon(Icons.directions_walk, size: 27,),
                                             SizedBox(width: _width(2),),
-                                            Text("Walking", style: TextStyle(fontSize: 16),),
+                                            Text("Walking", style: TextStyle(fontSize: 15),),
                                             Spacer(),
                                           ],
                                         ),
@@ -574,20 +600,25 @@ class _HomeState extends State<HomeView> {
                                         Common().newActivity(context, DailyRun("Cycling", currentLat, currentLong));
                                       }
                                     },
-                                    child: Center(
+                                    child: Card(
+                                      color: Colors.grey[50],
+                                      elevation: 2.0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10.0),
+                                      ),
+                                      shadowColor: mainColor,
                                       child: Container(
                                         height: _height(5.5),
                                         width: _width(27),
                                         decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.all(Radius.circular(15)),
-                                            border: Border.all(color: mainColor, width: 1)
+                                            borderRadius: BorderRadius.all(Radius.circular(10)),
                                         ),
                                         child: Row(
                                           children: [
                                             Spacer(),
                                             Icon(Icons.directions_bike, size: 27,),
                                             SizedBox(width: _width(2),),
-                                            Text("Cycling", style: TextStyle(fontSize: 16),),
+                                            Text("Cycling", style: TextStyle(fontSize: 15),),
                                             Spacer(),
                                           ],
                                         ),
@@ -599,12 +630,16 @@ class _HomeState extends State<HomeView> {
                         ),
                         SizedBox(height: _height(3),),
 
-                        allPastActivities.isNotEmpty ? Column(
-                            children: displayTodayActivities(),
+                        allPastActivities.isNotEmpty ? Container(
+                          margin: EdgeInsets.only( left: _width(4), right: _width(1)),
+                          child: Column(
+                              children: displayTodayActivities(),
+                          ),
                         ) : Container(),
 
                         Container(
                           width: _width(100),
+                          margin: EdgeInsets.only( left: _width(4), right: _width(4)),
                           child: Text(
                             showPast ? "Past Live Classes" : showFuture ? "Scheduled Live Classes" : "Upcoming Live Classes",
                             style: TextStyle(
@@ -621,13 +656,17 @@ class _HomeState extends State<HomeView> {
                             color: mainColor,
                             size: 30,
                           ),
-                        ) : Column(
-                          children: displayThemVideos(),
+                        ) : Container(
+                          margin: EdgeInsets.only( left: _width(4), right: _width(4)),
+                          child: Column(
+                            children: displayThemVideos(),
+                          ),
                         ),
                         SizedBox(height: _height(3),),
 
                         Container(
                           width: _width(100),
+                          margin: EdgeInsets.only( left: _width(4), right: _width(4)),
                           child: Row(
                             children : [
                               Text(
@@ -675,7 +714,7 @@ class _HomeState extends State<HomeView> {
                   ),
                 ),
                 Container(
-                  height: _height(7),
+                  height: _height(10),
                   color: Colors.white,
                   child: Row(
                     children: [
@@ -698,271 +737,272 @@ class _HomeState extends State<HomeView> {
                   child: Align(
                     alignment: Alignment.bottomCenter,
                     child: Container(
-                      height: _height(67),
+                      height: _height(70),
                       width: _width(100),
-                      margin: EdgeInsets.only(left: 10, right: 10),
                       decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15))
                       ),
-                      child: Column(
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(right: _width(3), top: _width(2)),
-                            child: Row(
-                              children: [
-                                Spacer(),
-                                InkWell(
-                                    onTap: () async {
-                                      _controller.pause();
-                                      setState(() {
-                                        showVideo = !showVideo;
-                                      });
-                                    },
-                                    child: Icon(
-                                      Icons.close_outlined,
-                                      color: mainColor,
-                                    )
-                                )
-                              ],
-                            ),
-                          ),
-                          Container(
-                            height: _width(70),
-                            width: _width(90),
-                            child: Stack(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.all(Radius.circular(15)),
-                                  child: Container(
-                                    height: _width(70),
-                                    width: _width(90),
-                                    margin: EdgeInsets.only(top: _height(2), bottom: _height(4)),
-                                    child: FutureBuilder(
-                                      future: _initializeVideoPlayerFuture,
-                                      builder: (context, snapshot) {
-                                        if (snapshot.connectionState == ConnectionState.done) {
-                                          // If the VideoPlayerController has finished initialization, use
-                                          // the data it provides to limit the aspect ratio of the VideoPlayer.
-                                          return AspectRatio(
-                                            aspectRatio: _controller.value.aspectRatio,
-                                            // Use the VideoPlayer widget to display the video.
-                                            child: VideoPlayer(_controller),
-                                          );
-                                        } else {
-                                          // If the VideoPlayerController is still initializing, show a
-                                          // loading spinner.
-                                          return Center(child: CircularProgressIndicator());
-                                        }
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            Container(
+                              margin: EdgeInsets.only(right: _width(3), top: _width(2)),
+                              child: Row(
+                                children: [
+                                  Spacer(),
+                                  InkWell(
+                                      onTap: () async {
+                                        _controller.dispose();
+                                        setState(() {
+                                          showVideo = !showVideo;
+                                        });
                                       },
+                                      child: Icon(
+                                        Icons.close_outlined,
+                                        color: Colors.black87,
+                                      )
+                                  )
+                                ],
+                              ),
+                            ),
+                            Container(
+                              height: _width(70),
+                              width: _width(90),
+                              child: Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                                    child: Container(
+                                      height: _width(70),
+                                      width: _width(90),
+                                      margin: EdgeInsets.only(top: _height(2), bottom: _height(4)),
+                                      child: FutureBuilder(
+                                        future: _initializeVideoPlayerFuture,
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState == ConnectionState.done) {
+                                            // If the VideoPlayerController has finished initialization, use
+                                            // the data it provides to limit the aspect ratio of the VideoPlayer.
+                                            return AspectRatio(
+                                              aspectRatio: _controller.value.aspectRatio,
+                                              // Use the VideoPlayer widget to display the video.
+                                              child: VideoPlayer(_controller),
+                                            );
+                                          } else {
+                                            // If the VideoPlayerController is still initializing, show a
+                                            // loading spinner.
+                                            return Center(child: CircularProgressIndicator());
+                                          }
+                                        },
+                                      ),
                                     ),
                                   ),
+                                  Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Row(
+                                        children: [
+                                          Spacer(),
+                                          InkWell(
+                                              onTap: (){
+                                                setState(() {
+                                                  // If the video is playing, pause it.
+                                                  if (_controller.value.isPlaying) {
+                                                    play = false;
+                                                    _controller.pause();
+                                                  } else {
+                                                    play = true;
+                                                    // If the video is paused, play it.
+                                                    _controller.play();
+                                                  }
+                                                });
+                                              },
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: play ? Icon(Icons.pause_circle_filled, color: mainColor, size: 45,) : Icon(Icons.play_circle_filled_sharp, color: mainColor, size: 45,),
+                                              )
+                                          ),
+                                          Spacer(),
+                                        ],
+                                      )
+                                  )
+                                ],
+                              ),
+                            ),
+                            SizedBox( height: _height(2)),
+
+                            Container(
+                                height: _height(15),
+                                width: _width(100),
+                                margin: EdgeInsets.only(left: 10, right: 10),
+                                padding: EdgeInsets.all(10.0),
+                                decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    borderRadius: BorderRadius.all(Radius.circular(15))
                                 ),
-                                Align(
-                                    alignment: Alignment.bottomCenter,
-                                    child: Row(
+                                child: Column(
+                                  children: [
+                                    Spacer(),
+                                    Row(
                                       children: [
-                                        Spacer(),
-                                        InkWell(
-                                            onTap: (){
-                                              setState(() {
-                                                // If the video is playing, pause it.
-                                                if (_controller.value.isPlaying) {
-                                                  play = false;
-                                                  _controller.pause();
-                                                } else {
-                                                  play = true;
-                                                  // If the video is paused, play it.
-                                                  _controller.play();
-                                                }
-                                              });
-                                            },
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: play ? Icon(Icons.pause_circle_filled, color: mainColor, size: 40,) : Icon(Icons.play_circle_filled_sharp, color: mainColor, size: 40,),
+                                        Column(
+                                          children: [
+                                            Container(
+                                              width: _width(25),
+                                              child: Text(
+                                                "Coach Name",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.normal
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                                width: _width(25),
+                                                child: Text(theElement["instructor"],
+                                                  style: TextStyle(
+                                                      fontWeight: FontWeight.bold
+                                                  ),
+                                                )
                                             )
+                                          ],
+                                        ),
+                                        Spacer(),
+                                        Column(
+                                          children: [
+                                            Container(
+                                              width: _width(25),
+                                              child: Text(
+                                                "Fitness level",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.normal
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                                width: _width(25),
+                                                child: Text(
+                                                  "5",
+                                                  style: TextStyle(
+                                                      fontWeight: FontWeight.bold
+                                                  ),)
+                                            )
+                                          ],
+                                        ),
+                                        Spacer(),
+                                        Column(
+                                          children: [
+                                            Container(
+                                              width: _width(25),
+                                              child: Text(
+                                                "Duration",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.normal
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                                width: _width(25),
+                                                child: Text(
+                                                  theElement["duration"],
+                                                  style: TextStyle(
+                                                      fontWeight: FontWeight.bold
+                                                  ),)
+                                            )
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    Spacer(),
+                                    Row(
+                                      children: [
+                                        Column(
+                                          children: [
+                                            Container(
+                                              width: _width(25),
+                                              child: Text(
+                                                "Category",
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.normal
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                                width: _width(25),
+                                                child: Text(theElement["type"],
+                                                  style: TextStyle(
+                                                      fontWeight: FontWeight.bold
+                                                  ),
+                                                )
+                                            )
+                                          ],
                                         ),
                                         Spacer(),
                                       ],
-                                    )
+                                    ),
+                                    Spacer(),
+                                  ],
                                 )
-                              ],
                             ),
-                          ),
-                          SizedBox( height: _height(2)),
+                            SizedBox( height: _height(2)),
 
-                          Container(
-                              height: _height(15),
-                              width: _width(100),
-                              margin: EdgeInsets.only(left: 10, right: 10),
-                              padding: EdgeInsets.all(10.0),
-                              decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  borderRadius: BorderRadius.all(Radius.circular(15))
-                              ),
-                              child: Column(
-                                children: [
-                                  Spacer(),
-                                  Row(
-                                    children: [
-                                      Column(
-                                        children: [
-                                          Container(
-                                            width: _width(25),
-                                            child: Text(
-                                              "Coach Name",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.normal
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                              width: _width(25),
-                                              child: Text(theElement["instructor"],
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold
-                                                ),
-                                              )
-                                          )
-                                        ],
-                                      ),
-                                      Spacer(),
-                                      Column(
-                                        children: [
-                                          Container(
-                                            width: _width(25),
-                                            child: Text(
-                                              "Fitness level",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.normal
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                              width: _width(25),
-                                              child: Text(
-                                                "5",
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold
-                                                ),)
-                                          )
-                                        ],
-                                      ),
-                                      Spacer(),
-                                      Column(
-                                        children: [
-                                          Container(
-                                            width: _width(25),
-                                            child: Text(
-                                              "Duration",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.normal
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                              width: _width(25),
-                                              child: Text(
-                                                theElement["duration"],
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold
-                                                ),)
-                                          )
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  Spacer(),
-                                  Row(
-                                    children: [
-                                      Column(
-                                        children: [
-                                          Container(
-                                            width: _width(25),
-                                            child: Text(
-                                              "Category",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.normal
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                              width: _width(25),
-                                              child: Text(theElement["type"],
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold
-                                                ),
-                                              )
-                                          )
-                                        ],
-                                      ),
-                                      Spacer(),
-                                    ],
-                                  ),
-                                  Spacer(),
-                                ],
-                              )
-                          ),
-                          SizedBox( height: _height(2)),
-
-                          Center(
-                            child: InkWell(
-                              onTap: () async {
-                                if(_controller != null){
-                                  _controller.pause();
-                                }
-                                setState(() {
-                                  joinLoader = true;
-                                });
-                                var result = await HomeResources().joinLiveClass(
-                                    {
-                                      "activity_id": theElement["video_id"],
-                                      "user_id": user_id,
-                                      "user_department": team,
-                                      "username": username
-                                    }
-                                );
-                                setState(() {
-                                  joinLoader = false;
-                                });
-                                if(result){
-                                  Common().newActivity(context,
-                                      Session(
-                                          theElement["type"],
-                                          theElement["video_url"],
-                                          theElement["video_id"],
-                                          theElement["participants"],
-                                          theElement["title"].toString().replaceAll(" ", "_"),
-                                          Common().getDateTimeDifference("${theElement["scheduledDate"]} ${theElement["scheduledTime"]}"),
-                                          theElement
-                                      )
+                            Center(
+                              child: InkWell(
+                                onTap: () async {
+                                  if(_controller != null){
+                                    _controller.pause();
+                                  }
+                                  setState(() {
+                                    joinLoader = true;
+                                  });
+                                  var result = await HomeResources().joinLiveClass(
+                                      {
+                                        "activity_id": theElement["video_id"],
+                                        "user_id": user_id,
+                                        "user_department": team,
+                                        "username": username
+                                      }
                                   );
-                                }else{
-                                  Fluttertoast.showToast(msg: "Could not join the class. Try again later");
-                                }
-                              },
-                              child: Container(
-                                height: _height(5),
-                                width: _width(100),
-                                margin: EdgeInsets.only(left: 10, right: 10),
-                                decoration: BoxDecoration(
-                                    color: mainColor,
-                                    borderRadius: BorderRadius.all(Radius.circular(10))
-                                ),
-                                child: Center(
-                                  child: joinLoader ? SpinKitThreeBounce(color: Colors.white, size: 25,) : Text(
-                                    "View class",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold
+                                  setState(() {
+                                    joinLoader = false;
+                                  });
+                                  if(result){
+                                    Common().newActivity(context,
+                                        Session(
+                                            theElement["type"],
+                                            theElement["video_url"],
+                                            theElement["video_id"],
+                                            theElement["participants"],
+                                            theElement["title"].toString().replaceAll(" ", "_"),
+                                            Common().getDateTimeDifference("${theElement["scheduledDate"]} ${theElement["scheduledTime"]}"),
+                                            theElement
+                                        )
+                                    );
+                                  }else{
+                                    Fluttertoast.showToast(msg: "Could not join the class. Try again later");
+                                  }
+                                },
+                                child: Container(
+                                  height: _height(5),
+                                  width: _width(100),
+                                  margin: EdgeInsets.only(left: 10, right: 10),
+                                  decoration: BoxDecoration(
+                                      color: mainColor,
+                                      borderRadius: BorderRadius.all(Radius.circular(10))
+                                  ),
+                                  child: Center(
+                                    child: joinLoader ? SpinKitThreeBounce(color: Colors.white, size: 25,) : Text(
+                                      "View class",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -1130,97 +1170,109 @@ class _HomeState extends State<HomeView> {
       }
       children.add(
           Container(
-              height: _height(10),
-              width: _width(100),
-              margin: EdgeInsets.only(bottom: _height(2)),
-              child: Row(
-                children: [
-                  Container(
-                      height: _height(10),
-                      width: _height(10),
-                      child: Stack(
-                        children: [
-                          Center(
-                            child: SpinKitThreeBounce(
-                              color: mainColor,
-                              size: 20,
-                            ),
-                          ),
-                          Container(
-                            height: _height(10),
-                            width: _height(10),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.all(Radius.circular(15)),
-                              child: Image.network(
-                                "$imageUrl",
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                  ),
-                  SizedBox(
-                    width: _width(4),
-                  ),
-                  Column(
+            width: _width(100),
+            margin: EdgeInsets.only(bottom: _height(2)),
+            child: Card(
+              color: Colors.white,
+              elevation: 3.0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              shadowColor: Colors.grey[100],
+              child: Container(
+                  height: _height(10),
+                  width: _width(100),
+                  child: Row(
                     children: [
-                      Spacer(),
                       Container(
-                        width: _width(68.5),
-                        child: Text(
-                          "You've completed today's ${element["challengeType"]} challenge",
-                          style: TextStyle(
-                              fontSize: 13
-                          ),
-                          textAlign: TextAlign.left,
-                        ),
-                      ),
-                      SizedBox(height: _height(2),),
-                      Container(
-                          width: _width(68.5),
-                          child: Row(
+                          height: _height(10),
+                          width: _height(10),
+                          child: Stack(
                             children: [
-                              Text(
-                                "Distance: ",
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey
+                              Center(
+                                child: SpinKitThreeBounce(
+                                  color: mainColor,
+                                  size: 20,
                                 ),
-                                textAlign: TextAlign.left,
                               ),
-                              Text(
-                                "${element["distance"]} KM",
-                                style: TextStyle(
-                                    fontSize: 13
+                              Container(
+                                height: _height(10),
+                                width: _height(10),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
+                                  child: Image.network(
+                                    "$imageUrl",
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
-                                textAlign: TextAlign.left,
                               ),
-                              Spacer(),
-                              Text(
-                                "Calories: ",
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey
-                                ),
-                                textAlign: TextAlign.left,
-                              ),
-                              Text(
-                                "${element["caloriesBurnt"]}".split(".")[0],
-                                style: TextStyle(
-                                    fontSize: 13
-                                ),
-                                textAlign: TextAlign.left,
-                              ),
-                              SizedBox(width: _width(3))
                             ],
                           )
                       ),
-                      Spacer(),
+                      SizedBox(
+                        width: _width(4),
+                      ),
+                      Column(
+                        children: [
+                          Spacer(),
+                          Container(
+                            width: _width(67),
+                            child: Text(
+                              "You've completed today's ${element["challengeType"]} challenge",
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey
+                              ),
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
+                          SizedBox(height: _height(2),),
+                          Container(
+                              width: _width(67),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    "Distance: ",
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey
+                                    ),
+                                    textAlign: TextAlign.left,
+                                  ),
+                                  Text(
+                                    "${element["distance"]} KM",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),
+                                    textAlign: TextAlign.left,
+                                  ),
+                                  Spacer(),
+                                  Text(
+                                    "Calories: ",
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey
+                                    ),
+                                    textAlign: TextAlign.left,
+                                  ),
+                                  Text(
+                                    "${element["caloriesBurnt"]}".split(".")[0],
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),
+                                    textAlign: TextAlign.left,
+                                  ),
+                                  SizedBox(width: _width(3))
+                                ],
+                              )
+                          ),
+                          Spacer(),
+                        ],
+                      ),
                     ],
-                  ),
-                ],
-              )
+                  )
+              ),
+            ),
           )
       );
     });
@@ -1236,17 +1288,10 @@ class _HomeState extends State<HomeView> {
             height: _height(15),
             width: _width(100),
             margin: EdgeInsets.all(_height(1)),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(15)),
-              border: Border.all(
-                color: mainColor,
-                width: 2
-              )
-            ),
             child: Center(
-                child: Text("No Activities Scheduled Today",
+                child: Text("No Activities",
                     style: TextStyle(
-                      color: mainColor,
+                      color: Colors.grey,
                       fontSize: 15
                     )
                 )
@@ -1347,7 +1392,7 @@ class _HomeState extends State<HomeView> {
                                 child: Text(
                                   "${dateTimeString("${element["scheduledDate"]} ${element["scheduledTime"]}")}",
                                   style: TextStyle(
-                                      color: mainColor,
+                                      color: Colors.black87,
                                       fontSize: 12
                                   ),
                                   textAlign: TextAlign.left,
@@ -1359,7 +1404,7 @@ class _HomeState extends State<HomeView> {
                                   child: Text(
                                     "${convertDateTime("${element["scheduledDate"]} ${element["scheduledTime"]}")}",
                                     style: TextStyle(
-                                        color: mainColor,
+                                        color: Colors.black87,
                                         fontSize: 10
                                     ),
                                     textAlign: TextAlign.left,
@@ -1472,17 +1517,10 @@ class _HomeState extends State<HomeView> {
               height: _height(15),
               width: _width(90),
               margin: EdgeInsets.all(_height(1)),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(15)),
-                  border: Border.all(
-                      color: mainColor,
-                      width: 2
-                  )
-              ),
               child: Center(
-                  child: Text("No Suggested Activities",
+                  child: Text("No Activities",
                       style: TextStyle(
-                          color: mainColor,
+                          color: Colors.grey,
                           fontSize: 15
                       )
                   )
@@ -1501,6 +1539,13 @@ class _HomeState extends State<HomeView> {
   dateTimeString(date) {
     DateTime lel = DateTime.parse(date);
     return DateFormat.MMMMd().format(lel);
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _controller.dispose();
   }
 
 }

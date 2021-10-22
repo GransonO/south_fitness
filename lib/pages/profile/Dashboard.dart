@@ -4,11 +4,13 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/auth/login.dart';
+import 'package:south_fitness/pages/profile/PasswordUpdate.dart';
 import 'package:south_fitness/services/net.dart';
 
 import '../common.dart';
@@ -26,6 +28,7 @@ class _DashboardState extends State<Dashboard> {
   bool showChats = false;
   bool teamChat = false;
   bool isUploading = false;
+  bool loadingState = true;
 
   SharedPreferences prefs;
   var username = "";
@@ -65,6 +68,7 @@ class _DashboardState extends State<Dashboard> {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
       List colors = institutePrimaryColor.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+      loadingState = false;
     });
     getUserPerformance(user_id);
   }
@@ -88,7 +92,16 @@ class _DashboardState extends State<Dashboard> {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Container(
+        child: loadingState ? Container(
+          height: _height(100),
+          width: _width(100),
+          child: Center(
+            child: SpinKitThreeBounce(
+              color: Colors.grey,
+              size: 30,
+            ),
+          ),
+        ) : Container(
           height: _height(100),
           width: _width(100),
           child: Stack(
@@ -912,6 +925,35 @@ class _DashboardState extends State<Dashboard> {
                                   SizedBox(width: _width(5),),
                                   Text(
                                       "Edit Profile",
+                                      style: TextStyle(
+                                          fontSize: 16
+                                      )
+                                  ),
+                                  Spacer(),
+                                  Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16)
+                                ],
+                              ),
+                            )
+                        ),
+                      ),
+                      InkWell(
+                        onTap: (){
+                          Common().newActivity(context, PasswordUpdate());
+                        },
+                        child: Container(
+                            width: _width(90),
+                            height: _height(6),
+                            child: Center(
+                              child: Row(
+                                children: [
+                                  Container(
+                                    height: _height(3),
+                                    width: _width(5),
+                                    child: Icon(Icons.visibility_off),
+                                  ),
+                                  SizedBox(width: _width(5),),
+                                  Text(
+                                      "Edit Password",
                                       style: TextStyle(
                                           fontSize: 16
                                       )

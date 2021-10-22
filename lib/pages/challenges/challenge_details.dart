@@ -42,6 +42,7 @@ class _ChallengeDetailsState extends State<ChallengeDetails> {
   VideoPlayerController _controller;
   Future<void> _initializeVideoPlayerFuture;
   bool play = false;
+  bool loadingState = true;
   var theElement = {};
 
   _ChallengeDetailsState(element, joined){
@@ -69,6 +70,7 @@ class _ChallengeDetailsState extends State<ChallengeDetails> {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
       List colors = institutePrimaryColor.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+      loadingState = false;
     });
   }
 
@@ -87,7 +89,16 @@ class _ChallengeDetailsState extends State<ChallengeDetails> {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Stack(
+        child: loadingState ? Container(
+          height: _height(100),
+          width: _width(100),
+          child: Center(
+            child: SpinKitThreeBounce(
+              color: Colors.grey,
+              size: 30,
+            ),
+          ),
+        ) : Stack(
           children: [
             SingleChildScrollView(
               child: Container(

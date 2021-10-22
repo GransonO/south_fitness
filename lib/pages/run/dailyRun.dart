@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pedometer/pedometer.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/pages/home/Home.dart';
 import 'package:south_fitness/services/net.dart';
@@ -34,6 +35,7 @@ class _DailyRunState extends State<DailyRun> {
   var stopRun = false;
   var postToServer = false;
   var posting = false;
+  var loadingState = true;
   var distance = 0;
   var calories = 0.0;
 
@@ -112,8 +114,16 @@ class _DailyRunState extends State<DailyRun> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    permissions();
     checkUsage();
     setPrefs();
+  }
+
+  permissions() async {
+    bool activityRecognition = await Permission.activityRecognition.isGranted;
+    if (!activityRecognition) {
+      await Permission.activityRecognition.request();
+    }
   }
 
   @override
@@ -134,6 +144,7 @@ class _DailyRunState extends State<DailyRun> {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
       List colors = institutePrimaryColor.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+      loadingState = false;
     });
   }
 
@@ -274,7 +285,16 @@ class _DailyRunState extends State<DailyRun> {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Container(
+        child: loadingState ? Container(
+          height: _height(100),
+          width: _width(100),
+          child: Center(
+            child: SpinKitThreeBounce(
+              color: Colors.grey,
+              size: 30,
+            ),
+          ),
+        ) : Container(
           height: _height(100),
           width: _width(100),
           child: Stack(
@@ -307,7 +327,7 @@ class _DailyRunState extends State<DailyRun> {
                           textAlign: TextAlign.left,
                         ),
                       ),
-                      SizedBox(height: _height(2),),
+                      SizedBox(height: _height(1),),
 
                       Container(
                           width: _width(100),
@@ -429,34 +449,42 @@ class _DailyRunState extends State<DailyRun> {
                           )
                       ),
                       SizedBox( height: _height(3)),
-                      Container(
-                        width: _width(100),
-                        height: _height(45),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          child: Stack(
-                              children: [
-                                myLong == 0.0 ? Container() : (startRun ? GoogleMap(
-                                  mapType: MapType.normal,
-                                  initialCameraPosition: CameraPosition(target: LatLng(myLat, myLong), zoom: 15),
-                                  myLocationEnabled: true,
-                                  tiltGesturesEnabled: true,
-                                  compassEnabled: true,
-                                  scrollGesturesEnabled: true,
-                                  zoomGesturesEnabled: true,
-                                  onMapCreated: _onMapCreated,
-                                  markers: Set<Marker>.of(markers.values),
-                                  polylines: Set<Polyline>.of(polylines.values),
-                                ) : GoogleMap(
-                                  mapType: MapType.normal,
-                                  initialCameraPosition: CameraPosition(
-                                    // Set initial location to Nairobi
-                                    target: LatLng(myLat, myLong),
-                                    zoom: 12,
-                                  ),
-                                  markers: _markers.values.toSet(),
-                                )),
-                              ]
+                      Card(
+                        color: Colors.grey[50],
+                        elevation: 3.0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        shadowColor: Colors.grey[50],
+                        child: Container(
+                          width: _width(100),
+                          height: _height(45),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            child: Stack(
+                                children: [
+                                  myLong == 0.0 ? Container() : (startRun ? GoogleMap(
+                                    mapType: MapType.normal,
+                                    initialCameraPosition: CameraPosition(target: LatLng(myLat, myLong), zoom: 15),
+                                    myLocationEnabled: true,
+                                    tiltGesturesEnabled: true,
+                                    compassEnabled: true,
+                                    scrollGesturesEnabled: true,
+                                    zoomGesturesEnabled: true,
+                                    onMapCreated: _onMapCreated,
+                                    markers: Set<Marker>.of(markers.values),
+                                    polylines: Set<Polyline>.of(polylines.values),
+                                  ) : GoogleMap(
+                                    mapType: MapType.normal,
+                                    initialCameraPosition: CameraPosition(
+                                      // Set initial location to Nairobi
+                                      target: LatLng(myLat, myLong),
+                                      zoom: 12,
+                                    ),
+                                    markers: _markers.values.toSet(),
+                                  )),
+                                ]
+                            ),
                           ),
                         ),
                       ),
@@ -475,20 +503,27 @@ class _DailyRunState extends State<DailyRun> {
                           onTap: (){
                             postFinalData();
                           },
-                          child: Container(
-                            height: _height(5),
-                            width: _width(100),
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.all(Radius.circular(15)),
-                              border: Border.all(color: Colors.green)
+                          child: Card(
+                            color: Colors.grey[50],
+                            elevation: 5.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
                             ),
-                            child: Center(
-                              child: Text(
-                                "Post the challenge",
-                                style: TextStyle(
-                                  color: Colors.green,
-                                  fontSize: 15,
+                            shadowColor: Colors.grey[100],
+                            child: Container(
+                              height: _height(5),
+                              width: _width(100),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "Post the challenge",
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 15,
+                                  ),
                                 ),
                               ),
                             ),
@@ -512,19 +547,27 @@ class _DailyRunState extends State<DailyRun> {
                               }
                             });
                           },
-                          child: Container(
-                            height: _height(5),
-                            width: _width(100),
-                            decoration: BoxDecoration(
-                                color: startRun ? Color.fromARGB(255,232,196,40): Color.fromARGB(255,110,180,63),
-                                borderRadius: BorderRadius.all(Radius.circular(15))
+                          child: Card(
+                            color: Colors.grey[50],
+                            elevation: 5.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
                             ),
-                            child: Center(
-                              child: Text(
-                                startRun ? "FINISH":"START",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
+                            shadowColor: Colors.grey[100],
+                            child: Container(
+                              height: _height(5),
+                              width: _width(100),
+                              decoration: BoxDecoration(
+                                  color: startRun ? Color.fromARGB(255,232,196,40): Color.fromARGB(255,110,180,63),
+                                  borderRadius: BorderRadius.all(Radius.circular(10))
+                              ),
+                              child: Center(
+                                child: Text(
+                                  startRun ? "FINISH":"START",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                  ),
                                 ),
                               ),
                             ),
@@ -727,9 +770,13 @@ class _DailyRunState extends State<DailyRun> {
   }
 
   getCaloriesBurnt(){
+    if(distanceInKm < 0.1){
+      Fluttertoast.showToast(msg: "You haven't covered enough distance to calculate calories");
+      return 0.0;
+    }
     var gender = prefs.getString("gender");
-    var height = prefs.getInt("height"); // in metres
-    var weight = prefs.getInt("weight"); // in Kg
+    var height = prefs.getDouble("height"); // in metres
+    var weight = prefs.getDouble("weight"); // in Kg
     var weightMultiple = gender == "Female" ? 0.035 : 0.065;
     var standardMultiple = gender == "Female" ? 0.029 : 0.035;
     var velocity = (distanceInKm * 1000)/(duration);

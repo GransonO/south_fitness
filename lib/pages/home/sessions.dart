@@ -54,6 +54,7 @@ class _SessionState extends State<Session> {
   bool showCall = true;
   var isTime = 0;
   bool isLoading = true;
+  bool loadingState = true;
   var element = {};
   Color mainColor = Colors.white;
 
@@ -92,6 +93,7 @@ class _SessionState extends State<Session> {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
       List colors = institutePrimaryColor.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+      loadingState = false;
     });
     getChallengeMembers();
   }
@@ -124,6 +126,17 @@ class _SessionState extends State<Session> {
     super.dispose();
   }
 
+  permissions() async {
+    bool camera = await Permission.camera.isGranted;
+    bool microphone = await Permission.microphone.isGranted;
+    if (!camera) {
+      await Permission.camera.request();
+    }
+    if (!microphone) {
+      await Permission.microphone.request();
+    }
+  }
+
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
@@ -131,7 +144,16 @@ class _SessionState extends State<Session> {
     return Scaffold(
       key: _scaffoldKey,
       body: SafeArea(
-        child: Container(
+        child: loadingState ? Container(
+          height: _height(100),
+          width: _width(100),
+          child: Center(
+            child: SpinKitThreeBounce(
+              color: Colors.grey,
+              size: 30,
+            ),
+          ),
+        ) : Container(
           height: _height(100),
           width: _width(100),
           child: Stack(

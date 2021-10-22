@@ -21,7 +21,6 @@ class Authentication {
         data: loginData,
       );
       var result = user.data;
-      print("----------------------------------------- $result");
       prefs = await SharedPreferences.getInstance();
       if (result["status"] == "success") {
         prefs.setString("access_token", result["access_token"]);
@@ -29,7 +28,9 @@ class Authentication {
         prefs.setString("username", "${result["user"]["first_name"]} ${result["user"]["last_name"]}");
         prefs.setString("first_name", "${result["user"]["first_name"]}");
         prefs.setString("last_name", "${result["user"]["last_name"]}");
-        prefs.setString("institution_id", result["institution_id"]);
+        prefs.setString("institution_id", "${result["institution_id"]}");
+        print("------------------------institution id---------------------------${result["institution_id"]}");
+
         prefs.setString("institution", result["institution"]);
 
         if(result["profile"] != null){
@@ -182,8 +183,14 @@ class HomeResources {
   }
 
   getVideos(day) async {
+    print("---------------------------- passed day : $day");
     var startTime = DateTime.now();
-    var yesterday = "${startTime.year}-${startTime.month}-$day";
+    print("---------------------------- Today's day : ${startTime.day}");
+    var theMonth = startTime.month;
+    if(startTime.day == 1){
+      theMonth = theMonth - 1;
+    }
+    var yesterday = "${startTime.year}-${theMonth < 10 ? "0$theMonth" : theMonth}-$day";
 
     print("---------------------------- Yesterday : $yesterday");
     var result = await dio.get(baseUrl + "/videos/all/$yesterday");
@@ -242,6 +249,24 @@ class HomeResources {
     print("The video call ------------------------------------------------ $videoCall");
 
     return {"video": videoCall, "uid": uid};
+  }
+
+  getTestVideo(videoId, channelName) async {
+    var random = new Random();
+    var uid = random.nextInt(1000000) + 1000;
+    var result = await dio.post("https://hello-alfie.herokuapp.com/connect/token/", data: {
+        "channel_name": "name_14567_8765",
+        "callUid": uid,
+        "is_patient":true
+      }
+    );
+
+    var videoCall = result.data;
+    videoCall["isStarted"] = true;
+
+    print("The video call ------------------------------**************----------------------------- $videoCall");
+
+    return {"video": videoCall,"uid": uid};
   }
 
   rateLiveClass(rateData) async {
@@ -572,6 +597,8 @@ class ChatService{
   allGroups(institution) async {
     // get all group chats
     var chat = await dio.get(baseUrl + "/chats/groups/all/$institution");
+    print("================tHE CHAT DATA=============================$institution");
+    print("================tHE CHAT DATA=============================$chat");
     var result = chat.data;
 
     return result;

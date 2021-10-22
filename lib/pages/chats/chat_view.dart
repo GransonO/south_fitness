@@ -51,6 +51,7 @@ class _chatViewState extends State<chatView> {
   var photoUrl = "";
   var chats = [];
   bool loading = true;
+  bool loadingState = true;
   bool posting = false;
 
   File chatImageFile;
@@ -84,6 +85,7 @@ class _chatViewState extends State<chatView> {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
       List colors = institutePrimaryColor.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+      loadingState = false;
     });
   }
 
@@ -119,7 +121,16 @@ class _chatViewState extends State<chatView> {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Stack(
+        child: loadingState ? Container(
+          height: _height(100),
+          width: _width(100),
+          child: Center(
+            child: SpinKitThreeBounce(
+              color: Colors.grey,
+              size: 30,
+            ),
+          ),
+        ) : Stack(
           children: [
             SingleChildScrollView(
               child: Container(
@@ -228,7 +239,6 @@ class _chatViewState extends State<chatView> {
                                 ),
                                 Spacer(),
                                 Container(
-                                  height: _height(6),
                                   width: _width(77),
                                   padding: EdgeInsets.all(5),
                                   decoration: BoxDecoration(
@@ -249,6 +259,8 @@ class _chatViewState extends State<chatView> {
                                         width: _width(65),
                                         child: TextField(
                                           controller: _controller,
+                                          keyboardType: TextInputType.multiline,
+                                          maxLines: null,
                                           onChanged: (value){
                                             setState(() {
                                               message = value;
@@ -305,11 +317,13 @@ class _chatViewState extends State<chatView> {
                                   return Center(child: Text(stream.error.toString()));
                                 }
                                 QuerySnapshot querySnapshot = stream.data;
+                                List itemsList = querySnapshot != null ? querySnapshot.docs.reversed.toList() : [];
 
                                 return ListView.builder(
                                   padding: EdgeInsets.only(bottom: _height(12)),
+                                  reverse: true,
                                   itemCount: querySnapshot != null ? querySnapshot.size : 0,
-                                  itemBuilder: (context, index) => chatItem(querySnapshot.docs[index], querySnapshot.size, index),
+                                  itemBuilder: (context, index) => chatItem(itemsList[index], querySnapshot.size, index),
                                 );
                               },
                             ),
@@ -350,7 +364,6 @@ class _chatViewState extends State<chatView> {
                                     ),
                                     Spacer(),
                                     Container(
-                                      height: _height(7),
                                       width: _width(80),
                                       padding: EdgeInsets.all(5),
                                       decoration: BoxDecoration(
@@ -370,8 +383,9 @@ class _chatViewState extends State<chatView> {
                                           Container(
                                             width: _width(70),
                                             child: TextField(
-                                              maxLines: 5,
                                               controller: _controller,
+                                              keyboardType: TextInputType.multiline,
+                                              maxLines: null,
                                               onChanged: (value){
                                                 setState(() {
                                                   message = value;
@@ -391,6 +405,8 @@ class _chatViewState extends State<chatView> {
                                                   postChat();
                                               },
                                               child: Container(
+                                                color: Colors.red,
+                                                  height: _height(5),
                                                   width: _width(5),
                                                   child: posting ? SpinKitThreeBounce(color: mainColor, size: 12,) : Icon(
                                                     Icons.send, size: 25, color: mainColor,
@@ -544,7 +560,7 @@ class _chatViewState extends State<chatView> {
                   ClipRRect(
                     borderRadius: BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
                     child: Container(
-                      height: _width(70),
+                      height: _width(100),
                       child: Image.network(
                         element["image"],
                         height: _width(70),
@@ -643,6 +659,7 @@ class _chatViewState extends State<chatView> {
           posting = false;
           chatImage = false;
           chatImageUrl = "no image";
+          message = null;
         });
         _controller.clear();
     }

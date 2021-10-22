@@ -100,11 +100,12 @@ class Common{
 
   logoOnBar(BuildContext context, img){
     return Container(
-      height: componentHeight(context, 7),
-      width: componentWidth(context, 40),
+      height: componentHeight(context, 10),
+      width: componentWidth(context, 30),
+      margin: EdgeInsets.only(top: componentHeight(context, 2)),
       child: Image.network(
         img,
-        fit: BoxFit.cover,
+        fit: BoxFit.contain,
       ),
     );
   }

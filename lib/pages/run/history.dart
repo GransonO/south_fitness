@@ -18,6 +18,7 @@ class _ChallengeHistoryState extends State<ChallengeHistory> {
   var username = "";
   var email = "";
   bool loading = true;
+  bool loadingState = true;
   SharedPreferences prefs;
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
   List history = [];
@@ -41,6 +42,7 @@ class _ChallengeHistoryState extends State<ChallengeHistory> {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
       List colors = institutePrimaryColor.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
+      loadingState = false;
     });
     getUserHistory();
   }
@@ -59,7 +61,16 @@ class _ChallengeHistoryState extends State<ChallengeHistory> {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Stack(
+        child: loadingState ? Container(
+          height: _height(100),
+          width: _width(100),
+          child: Center(
+            child: SpinKitThreeBounce(
+              color: Colors.grey,
+              size: 30,
+            ),
+          ),
+        ) : Stack(
           children: [
             SingleChildScrollView(
               child: Container(
