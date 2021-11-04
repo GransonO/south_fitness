@@ -1,10 +1,7 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/services/net.dart';
-import 'package:date_range_picker/date_range_picker.dart' as DateRangePicker;
 
 import '../common.dart';
 
@@ -15,7 +12,7 @@ class History extends StatefulWidget {
 
 class _HistoryState extends State<History> {
 
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   var allPastActivities = [];
@@ -31,7 +28,7 @@ class _HistoryState extends State<History> {
   var displayDate = "Enter date range";
   Color mainColor = Colors.white;
   var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
-
+  late DateTimeRange dateRange;
 
   @override
   void initState() {
@@ -41,17 +38,23 @@ class _HistoryState extends State<History> {
   }
 
   setPrefs() async {
-    prefs = await SharedPreferences.getInstance();
-    user_id = prefs.getString("user_id");
     setState(() {
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      image = prefs.getString("image");
-      user_id = prefs.getString("user_id");
-      team = prefs.getString("team");
-      img = prefs.getString("institute_logo");
+      dateRange = DateTimeRange(
+        start: DateTime.now().subtract(Duration(hours: 24 * 3)),
+        end: DateTime.now().add(Duration(hours: 24 * 3)),
+      );
+    });
+    prefs = await SharedPreferences.getInstance();
+    user_id = prefs.getString("user_id")!;
+    setState(() {
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      image = prefs.getString("image")!;
+      user_id = prefs.getString("user_id")!;
+      team = prefs.getString("team")!;
+      img = prefs.getString("institute_logo")!;
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });
@@ -103,18 +106,19 @@ class _HistoryState extends State<History> {
                         SizedBox(height: _height(1),),
                         InkWell(
                           onTap: () async {
-                            final List<DateTime> picked = await DateRangePicker.showDatePicker(
-                                context: context,
-                                initialFirstDate: new DateTime.now(),
-                                initialLastDate: (new DateTime.now()).add(new Duration(days: 7)),
-                                firstDate: new DateTime(2020),
-                                lastDate: new DateTime(DateTime.now().year + 2)
+                            DateTimeRange? newDateRange = await showDateRangePicker(
+                              context: context,
+                              firstDate: DateTime(DateTime.now().year - 5),
+                              lastDate: DateTime(DateTime.now().year + 5),
+                              currentDate: DateTime.now(),
+                              initialDateRange: dateRange,
                             );
-                            if (picked != null && picked.length == 2) {
-                              print(picked);
+
+                            print(newDateRange);
+                            if(newDateRange != null){
                               setState(() {
-                                firstDate = Common().dateStringHistory(picked[0]);
-                                lastDate = Common().dateStringHistory(picked[1]);
+                                firstDate = Common().dateStringHistory(newDateRange.start);
+                                lastDate = Common().dateStringHistory(newDateRange.end);
                                 displayDate = "$firstDate - $lastDate";
                                 loading = true;
                               });
@@ -129,6 +133,8 @@ class _HistoryState extends State<History> {
                                 loading = false;
                                 allPastActivities = result;
                               });
+                            }else{
+                              return;
                             }
                           },
                           child: Card(
@@ -183,7 +189,7 @@ class _HistoryState extends State<History> {
                       Spacer(),
                       InkWell(
                         onTap: (){
-                          _scaffoldKey.currentState.openDrawer();
+                          _scaffoldKey.currentState!.openDrawer();
                         },
                         child: Icon(Icons.menu, size: 30, color: mainColor,),
                       ),

@@ -7,8 +7,8 @@ class Authentication {
 
   var baseUrl = "https://southfitness.epitomesoftware.live";
   var uploadUrl = "https://api.cloudinary.com/v1_1/dolwj4vkq/image/upload";
-  Dio dio;
-  SharedPreferences prefs;
+  late Dio dio;
+  late SharedPreferences prefs;
 
   Authentication() {
     dio = Dio();
@@ -56,17 +56,17 @@ class Authentication {
     prefs = await SharedPreferences.getInstance();
     var profileData = {
       "workout_duration" : prefs.getInt("duration"),
-      "discipline": prefs.getString("interest").trim(),
-      "goal": prefs.getString("goal").trim(),
+      "discipline": prefs.getString("interest")!.trim(),
+      "goal": prefs.getString("goal")!.trim(),
       "height": prefs.getInt("height"),
       "weight": prefs.getInt("weight"),
-      "gender": prefs.getString("gender").trim(),
+      "gender": prefs.getString("gender")!.trim(),
 
       "fullname": "${prefs.getString("firstname")} ${prefs.getString("lastname")}",
-      "email": prefs.getString("email").trim(),
-      "birthDate": prefs.getString("birthDate").trim(),
-      "team": prefs.getString("team").trim(),
-      "activation_code": prefs.getString("code").trim()
+      "email": prefs.getString("email")!.trim(),
+      "birthDate": prefs.getString("birthDate")!.trim(),
+      "team": prefs.getString("team")!.trim(),
+      "activation_code": prefs.getString("code")!.trim()
     };
     print("ProfileData------------$profileData");
     // dio.options.headers["Authorization"] = "Bearer ${prefs.getString("token")}";
@@ -166,8 +166,8 @@ class Authentication {
 class HomeResources {
 
   var baseUrl = "https://southfitness.epitomesoftware.live";
-  Dio dio;
-  SharedPreferences prefs;
+  late Dio dio;
+  late SharedPreferences prefs;
 
   HomeResources() {
     dio = Dio();
@@ -342,9 +342,7 @@ class HomeResources {
       var user = await dio.post(
         baseUrl + "/challenge/",
         data: challengeData,
-      ).onError((error, stackTrace){
-        return;
-      });
+      );
       var result = user.data;
 
       if (result["status"] == "success") {
@@ -422,8 +420,8 @@ class HomeResources {
 class PerformanceResource {
 
   var baseUrl = "https://southfitness.epitomesoftware.live";
-  Dio dio;
-  SharedPreferences prefs;
+  late Dio dio;
+  late SharedPreferences prefs;
 
   PerformanceResource() {
     dio = Dio();
@@ -527,7 +525,7 @@ class PerformanceResource {
 
 class ChatService{
 
-  Dio dio;
+  late Dio dio;
   var baseUrl = "https://southfitness.epitomesoftware.live";
   ChatService(){
     dio = Dio();

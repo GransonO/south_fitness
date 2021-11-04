@@ -22,8 +22,8 @@ class SuggestedDetails extends StatefulWidget {
 class _SuggestedDetailsState extends State<SuggestedDetails> {
 
 
-  VideoPlayerController _controller;
-  Future<void> _initializeVideoPlayerFuture;
+  late VideoPlayerController _controller;
+  late Future<void> _initializeVideoPlayerFuture;
   bool play = false;
   var videoUrl = "https://res.cloudinary.com/dolwj4vkq/video/upload/v1612826611/South_Fitness/yoga.mp4";
   var title = "";
@@ -34,7 +34,7 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
   var username = "";
   var email = "";
   var user_id = "";
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   var dayName = "";
   bool joined = false;
   bool loadingState = true;
@@ -42,10 +42,9 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   _SuggestedDetailsState(value){
-    videoUrl = value["videoUrl"];
+    videoUrl = value["video_url"];
     title = value["title"];
     vidObj = value;
-    print("The Vids Object ----------------------------------------------------> $vidObj");
     _controller = VideoPlayerController.network(videoUrl);
     _initializeVideoPlayerFuture = _controller.initialize();
   }
@@ -61,15 +60,15 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      image = prefs.getString("image");
-      team = prefs.getString("team");
-      user_id = prefs.getString("user_id");
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      image = prefs.getString("image")!;
+      team = prefs.getString("team")!;
+      user_id = prefs.getString("user_id")!;
 
-      img = prefs.getString("institute_logo");
+      img = prefs.getString("institute_logo")!;
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });
@@ -404,7 +403,7 @@ class _SuggestedDetailsState extends State<SuggestedDetails> {
                       Spacer(),
                       InkWell(
                         onTap: (){
-                          _scaffoldKey.currentState.openDrawer();
+                          _scaffoldKey.currentState!.openDrawer();
                         },
                         child: Icon(Icons.menu, size: 30, color: mainColor,),
                       ),

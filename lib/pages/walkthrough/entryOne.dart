@@ -35,11 +35,11 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
   var institute_message3 = "";
   Color mainColor = Colors.grey;
 
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   final format = DateFormat("yyyy-MM-dd");
   var date = new DateTime.now();
 
-  TabController _controller;
+  late TabController _controller;
   var tab = 0;
   void initState() {
     // TODO: implement initState
@@ -58,14 +58,14 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
       email = prefs.getString("email");
 
       institute_logo = prefs.getString("institute_logo") != null ? prefs.getString("institute_logo") : institute_logo;
-      institute_img1 = prefs.getString("institute_img1");
-      institute_img2 = prefs.getString("institute_img2");
-      institute_img3 = prefs.getString("institute_img3");
-      institute_message1 = prefs.getString("institute_message1");
-      institute_message2 = prefs.getString("institute_message2");
-      institute_message3 = prefs.getString("institute_message3");
+      institute_img1 = prefs.getString("institute_img1")!;
+      institute_img2 = prefs.getString("institute_img2")!;
+      institute_img3 = prefs.getString("institute_img3")!;
+      institute_message1 = prefs.getString("institute_message1")!;
+      institute_message2 = prefs.getString("institute_message2")!;
+      institute_message3 = prefs.getString("institute_message3")!;
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });
@@ -744,9 +744,6 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
                                                 value: 'ENTERPRISE BUSINESS UNIT',
                                               ),
                                             ],
-                                            onChanged: (String value) {
-                                              team = value;
-                                            },
                                             hint: Text(
                                               'Select Division',
                                               style: TextStyle(
@@ -757,6 +754,11 @@ class _EntryOneState extends State<EntryOne> with SingleTickerProviderStateMixin
                                               textAlign: TextAlign.left,
                                             ),
                                             value: team,
+                                            onChanged: (value){
+                                              setState(() {
+                                                team = value!;
+                                              });
+                                            },
                                           ),
                                         ),
                                         Spacer()

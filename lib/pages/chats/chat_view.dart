@@ -28,8 +28,8 @@ class chatView extends StatefulWidget {
 
 class _chatViewState extends State<chatView> {
 
-  var groupId;
-  var groupName;
+  late var groupId;
+  late var groupName;
 
   _chatViewState(id, name){
     groupId = id;
@@ -39,13 +39,13 @@ class _chatViewState extends State<chatView> {
   var username = "";
   var email = "";
   var user_id = "";
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   bool clubs = false;
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
-  String message;
+  String message = "";
   final _controller = TextEditingController();
 
   var photoUrl = "";
@@ -54,7 +54,7 @@ class _chatViewState extends State<chatView> {
   bool loadingState = true;
   bool posting = false;
 
-  File chatImageFile;
+  late File chatImageFile;
   bool isUploading = false;
   bool chatImage = false;
   var chatImageUrl = "no image";
@@ -71,19 +71,19 @@ class _chatViewState extends State<chatView> {
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      image = prefs.getString("image");
-      user_id = prefs.getString("user_id");
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      image = prefs.getString("image")!;
+      user_id = prefs.getString("user_id")!;
       var alias = prefs.getString("alias");
-      img = prefs.getString("institute_logo");
+      img = prefs.getString("institute_logo")!;
       if(groupId == "bb79a16c-8f40-11e-8dbb-f45c89b7cf75"){
         // Is general chat
-        username = alias;
+        username = alias!;
       }
 
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });
@@ -91,10 +91,12 @@ class _chatViewState extends State<chatView> {
 
 
   getImage() async {
-    File image = await ImagePicker.pickImage(source: ImageSource.gallery);
-    var path = image.path;
+    final ImagePicker _picker = ImagePicker();
+    // Pick an image
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    var path = image!.path;
     setState(() {
-      chatImageFile = image;
+      chatImageFile = File(path);
       isUploading = true;
     });
     cloudReviewUpload(path,"group_image");
@@ -316,14 +318,14 @@ class _chatViewState extends State<chatView> {
                                 if (stream.hasError) {
                                   return Center(child: Text(stream.error.toString()));
                                 }
-                                QuerySnapshot querySnapshot = stream.data;
+                                QuerySnapshot<Object?>? querySnapshot = stream.data;
                                 List itemsList = querySnapshot != null ? querySnapshot.docs.reversed.toList() : [];
 
                                 return ListView.builder(
                                   padding: EdgeInsets.only(bottom: _height(12)),
                                   reverse: true,
                                   itemCount: querySnapshot != null ? querySnapshot.size : 0,
-                                  itemBuilder: (context, index) => chatItem(itemsList[index], querySnapshot.size, index),
+                                  itemBuilder: (context, index) => chatItem(itemsList[index], querySnapshot!.size, index),
                                 );
                               },
                             ),
@@ -405,7 +407,6 @@ class _chatViewState extends State<chatView> {
                                                   postChat();
                                               },
                                               child: Container(
-                                                color: Colors.red,
                                                   height: _height(5),
                                                   width: _width(5),
                                                   child: posting ? SpinKitThreeBounce(color: mainColor, size: 12,) : Icon(
@@ -437,7 +438,7 @@ class _chatViewState extends State<chatView> {
                   Spacer(),
                   InkWell(
                     onTap: (){
-                      _scaffoldKey.currentState.openDrawer();
+                      _scaffoldKey.currentState!.openDrawer();
                     },
                     child: Icon(Icons.menu, size: 30, color: mainColor,),
                   ),
@@ -635,7 +636,7 @@ class _chatViewState extends State<chatView> {
 
   postChat() async {
     CollectionReference chats = FirebaseFirestore.instance.collection('$groupId');
-    if(message == null){
+    if(message == ""){
       Fluttertoast.showToast(msg: "Cant post an empty message");
     }else{
       setState(() {
@@ -659,7 +660,7 @@ class _chatViewState extends State<chatView> {
           posting = false;
           chatImage = false;
           chatImageUrl = "no image";
-          message = null;
+          message = "";
         });
         _controller.clear();
     }

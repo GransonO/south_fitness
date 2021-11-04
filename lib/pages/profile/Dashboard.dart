@@ -30,7 +30,7 @@ class _DashboardState extends State<Dashboard> {
   bool isUploading = false;
   bool loadingState = true;
 
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   var username = "";
   var email = "";
   var team = "";
@@ -39,7 +39,6 @@ class _DashboardState extends State<Dashboard> {
 
   String id = '';
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
-  File avatarImageFile;
 
   var caloriesCount = 0.0;
   var pointsCount = 0.0;
@@ -58,15 +57,15 @@ class _DashboardState extends State<Dashboard> {
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      team = prefs.getString("team");
-      image = prefs.getString("image");
-      user_id = prefs.getString("user_id");
-      img = prefs.getString("institute_logo");
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      team = prefs.getString("team")!;
+      image = prefs.getString("image")!;
+      user_id = prefs.getString("user_id")!;
+      img = prefs.getString("institute_logo")!;
 
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });
@@ -564,16 +563,7 @@ class _DashboardState extends State<Dashboard> {
                                         borderRadius: BorderRadius.all(Radius.circular(50)),
                                         child: Stack(
                                           children: [
-                                            avatarImageFile != null ? Container(
-                                              height: _height(17),
-                                              width: _height(17),
-                                              child: Image.file(
-                                                avatarImageFile,
-                                                height: _height(17),
-                                                width: _height(17),
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ) : Container(
+                                            Container(
                                               height: _height(17),
                                               width: _height(17),
                                               child: Image.network(
@@ -1016,7 +1006,7 @@ class _DashboardState extends State<Dashboard> {
                     Spacer(),
                     InkWell(
                       onTap: (){
-                        _scaffoldKey.currentState.openDrawer();
+                        _scaffoldKey.currentState!.openDrawer();
                       },
                       child: Icon(Icons.menu, size: 30, color: mainColor,),
                     ),

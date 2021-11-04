@@ -21,7 +21,7 @@ class Reader extends StatefulWidget {
 
 class _ReaderState extends State<Reader> {
 
-  var reader;
+  var reader = {};
   _ReaderState(blog){
     reader = blog;
   }
@@ -35,7 +35,7 @@ class _ReaderState extends State<Reader> {
   var comment = "Tell us what's on your mind";
   bool addComment = false;
   bool isPosting = false;
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   @override
@@ -48,10 +48,10 @@ class _ReaderState extends State<Reader> {
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      image = prefs.getString("image");
-      user_id = prefs.getString("user_id");
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      image = prefs.getString("image")!;
+      user_id = prefs.getString("user_id")!;
       comments = reader["comments"];
     });
   }
@@ -165,6 +165,36 @@ class _ReaderState extends State<Reader> {
                             ),
                           ),
                           SizedBox( height: _height(2)),
+                          addComment ? Container(): InkWell(
+                            onTap: (){
+                              setState(() {
+                                addComment = true;
+                              });
+                            },
+                            child: Card(
+                              color: Colors.lightGreen,
+                              elevation: 3.0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              shadowColor: Colors.grey[100],
+                              child: Container(
+                                width: _width(100),
+                                height: _height(5),
+                                padding: EdgeInsets.all(5),
+                                child: Center(
+                                  child: Text(
+                                    "Add Comment",
+                                    style: GoogleFonts.rubik(
+                                        fontSize: 13,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500
+                                    ),
+                                  ),
+                                )
+                              ),
+                            ),
+                          ),
                           addComment ? Card(
                             color: Colors.white,
                             elevation: 3.0,
@@ -192,6 +222,67 @@ class _ReaderState extends State<Reader> {
                               ),
                             ),
                           ) : Container(),
+                          addComment ? InkWell(
+                            onTap: () async {
+                              if(comment == "Tell us what's on your mind"){
+                                Fluttertoast.showToast(msg: "Enter your comment before posting");
+                                return;
+                              }
+                              // post comment $ refresh
+                              setState(() {
+                                isPosting = true;
+                              });
+                              var result = await HomeResources().postBlogComment(
+                                  {
+                                    "blog_id": reader["blog_id"],
+                                    "username": "$username",
+                                    "uploader_id": "$user_id",
+                                    "body": comment,
+                                    "user_image": "$image"
+                                  }
+                              );
+                              if(result){
+                                Fluttertoast.showToast(msg: "Posting success", backgroundColor: Colors.green, textColor: Colors.white);
+                                setState(() {
+                                  addComment = false;
+                                  isPosting = false;
+                                  comment = "Tell us what's on your mind";
+                                });
+                                getComments();
+                              }else{
+                                Fluttertoast.showToast(msg: "Posting error, try again later", backgroundColor: Colors.red, textColor: Colors.white);
+                                setState(() {
+                                  isPosting = false;
+                                });
+                              }
+                            },
+                            child: Card(
+                              color: Colors.lightGreen,
+                              elevation: 3.0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              shadowColor: Colors.grey[100],
+                              child: Container(
+                                  width: _width(100),
+                                  height: _height(5),
+                                  padding: EdgeInsets.all(5),
+                                  child: Center(
+                                    child: isPosting ? SpinKitThreeBounce(
+                                      size: 15,
+                                      color: Colors.white,
+                                    ) : Text(
+                                      "Post Comment",
+                                      style: GoogleFonts.rubik(
+                                          fontSize: 13,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500
+                                      ),
+                                    ),
+                                  )
+                              ),
+                            ),
+                          ) : Container(),
                           Column(
                             children: displayComments(),
                           ),
@@ -205,53 +296,6 @@ class _ReaderState extends State<Reader> {
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: isPosting ? SpinKitThreeBounce(
-          size: 15,
-          color: Colors.white,
-        ) : Icon(addComment ? Icons.send : Icons.add, color: Colors.white),
-        backgroundColor: Colors.lightGreen,
-        onPressed: () async {
-          if(addComment == true){
-            if(comment == "Tell us what's on your mind"){
-              Fluttertoast.showToast(msg: "Enter your comment before posting");
-              return;
-            }
-            // post comment $ refresh
-            setState(() {
-              isPosting = true;
-            });
-            var result = await HomeResources().postBlogComment(
-                {
-                  "blog_id": reader["blog_id"],
-                  "username": "$username",
-                  "uploader_id": "$user_id",
-                  "body": comment,
-                  "user_image": "$image"
-                }
-            );
-            if(result){
-              Fluttertoast.showToast(msg: "Posting success", backgroundColor: Colors.green, textColor: Colors.white);
-              setState(() {
-                addComment = false;
-                isPosting = false;
-                comment = "Tell us what's on your mind";
-              });
-              getComments();
-            }else{
-              Fluttertoast.showToast(msg: "Posting error, try again later", backgroundColor: Colors.red, textColor: Colors.white);
-              setState(() {
-                isPosting = false;
-              });
-            }
-          }else{
-            setState(() {
-              addComment = true;
-              isPosting = false;
-            });
-          }
-        },
       ),
     );
   }

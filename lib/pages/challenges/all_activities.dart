@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/pages/challenges/challenge_details.dart';
-import 'package:south_fitness/pages/home/sessions.dart';
 import 'package:south_fitness/services/net.dart';
 
 import '../common.dart';
@@ -18,7 +17,7 @@ class _AllActivitiesState extends State<AllActivities> {
   var email = "";
   var user_id = "";
   var img = "";
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
 
   bool joined = false;
   bool isLoading = false;
@@ -42,14 +41,14 @@ class _AllActivitiesState extends State<AllActivities> {
     });
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      image = prefs.getString("image") != null ? prefs.getString("image") : image;
-      user_id = prefs.getString("user_id");
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      image = (prefs.getString("image") != null ? prefs.getString("image") : image)!;
+      user_id = prefs.getString("user_id")!;
 
-      img = prefs.getString("institute_logo");
+      img = prefs.getString("institute_logo")!;
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });
@@ -140,7 +139,7 @@ class _AllActivitiesState extends State<AllActivities> {
                   Spacer(),
                   InkWell(
                     onTap: (){
-                      _scaffoldKey.currentState.openDrawer();
+                      _scaffoldKey.currentState!.openDrawer();
                     },
                     child: Icon(Icons.menu, size: 30, color: mainColor,),
                   ),

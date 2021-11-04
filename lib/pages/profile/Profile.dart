@@ -30,7 +30,7 @@ class _ProfileState extends State<Profile> {
   bool login = false;
   bool loadingState = true;
 
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   final format = DateFormat("yyyy-MM-dd");
   var date = new DateTime.now();
 
@@ -43,7 +43,8 @@ class _ProfileState extends State<Profile> {
 
   Color mainColor = Colors.white;
   String id = '';
-  File avatarImageFile;
+  late File avatarImageFile;
+  var avatarImagePath = "";
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   @override
@@ -58,26 +59,29 @@ class _ProfileState extends State<Profile> {
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      firstname = prefs.getString("firstname");
-      lastname = prefs.getString("lastname");
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      image = prefs.getString("image");
+      firstname = prefs.getString("first_name")!;
+      lastname = prefs.getString("last_name")!;
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      image = prefs.getString("image")!;
 
-      img = prefs.getString("institute_logo");
+      img = prefs.getString("institute_logo")!;
 
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });
   }
 
   getImage() async {
-    File image = await ImagePicker.pickImage(source: ImageSource.gallery);
-    var path = image.path;
+    final ImagePicker _picker = ImagePicker();
+    // Pick an image
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    var path = image!.path;
     setState(() {
-      avatarImageFile = image;
+      avatarImagePath = path;
+      avatarImageFile = File(path);
       isUploading = true;
     });
     cloudReviewUpload(path,"profile_image");
@@ -148,7 +152,7 @@ class _ProfileState extends State<Profile> {
                                       borderRadius: BorderRadius.all(Radius.circular(50)),
                                       child: Stack(
                                         children: [
-                                          avatarImageFile != null ? Container(
+                                          avatarImagePath != "" ? Container(
                                             height: _height(15),
                                             width: _height(15),
                                             child: Image.file(
@@ -421,7 +425,7 @@ class _ProfileState extends State<Profile> {
                                       );
                                     },
                                     onChanged: ((value){
-                                      birthDate = value;
+                                      birthDate = value!;
                                     }),
                                   ),
                                 ),
@@ -725,7 +729,7 @@ class _ProfileState extends State<Profile> {
                       Spacer(),
                       InkWell(
                         onTap: (){
-                          _scaffoldKey.currentState.openDrawer();
+                          _scaffoldKey.currentState!.openDrawer();
                         },
                         child: Icon(Icons.menu, size: 30, color: mainColor,),
                       ),

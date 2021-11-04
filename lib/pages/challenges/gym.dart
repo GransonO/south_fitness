@@ -13,7 +13,7 @@ class _GymState extends State<Gym> {
 
   var username = "";
   var email = "";
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   bool loadingState = true;
 
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
@@ -29,9 +29,9 @@ class _GymState extends State<Gym> {
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      image = prefs.getString("image");
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      image = prefs.getString("image")!;
       loadingState = false;
     });
   }
@@ -249,7 +249,7 @@ class _GymState extends State<Gym> {
                   Spacer(),
                   InkWell(
                     onTap: (){
-                      _scaffoldKey.currentState.openDrawer();
+                      _scaffoldKey.currentState!.openDrawer();
                     },
                     child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
                   ),

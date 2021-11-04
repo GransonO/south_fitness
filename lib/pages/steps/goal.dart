@@ -15,7 +15,7 @@ class Goals extends StatefulWidget {
 
 class _GoalsState extends State<Goals> {
 
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   List items = [];
   List selectedItems = [];
   List selectedNums = [];
@@ -26,7 +26,7 @@ class _GoalsState extends State<Goals> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });

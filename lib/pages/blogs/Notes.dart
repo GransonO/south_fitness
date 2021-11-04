@@ -18,7 +18,7 @@ class _NotesState extends State<Notes> {
 
   var username = "";
   var email = "";
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   var blogList = [];
   bool loading = true;
   bool loadingState = true;
@@ -38,12 +38,12 @@ class _NotesState extends State<Notes> {
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      image = prefs.getString("image");
-      img = prefs.getString("institute_logo");
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      image = prefs.getString("image")!;
+      img = prefs.getString("institute_logo")!;
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });
@@ -233,7 +233,7 @@ class _NotesState extends State<Notes> {
                   Spacer(),
                   InkWell(
                     onTap: (){
-                      _scaffoldKey.currentState.openDrawer();
+                      _scaffoldKey.currentState!.openDrawer();
                     },
                     child: Icon(Icons.menu, size: 30, color: Colors.lightGreen,),
                   ),

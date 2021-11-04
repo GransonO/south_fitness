@@ -2,6 +2,7 @@ import 'package:agora_rtc_engine/rtc_engine.dart' as rtc_engine_x;
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:south_fitness/pages/video_call/videoRating.dart';
 
@@ -10,11 +11,11 @@ import '../common.dart';
 class VideoPlayer extends StatefulWidget {
 
   /// non-modifiable channel name of the page
-  String channelName;
-  String passedToken;
-  String appID;
-  int theUid;
-  var element;
+  late String channelName;
+  late String passedToken;
+  late String appID;
+  late int theUid;
+  late var element;
 
   /// Creates a call page with given channel name.
   /// ("token", "appId", "channelName")
@@ -35,15 +36,15 @@ class _VideoPlayerState extends State<VideoPlayer> {
   final _infoStrings = <String>[];
   bool muted = true;
   bool hideVideo = true;
-  rtc_engine_x.RtcEngine _engine;
+  late rtc_engine_x.RtcEngine _engine;
 
-  var APP_ID;
-  var Token;
-  var channelName;
-  var userUID;
+  late var APP_ID;
+  late var Token;
+  late var channelName;
+  late var userUID;
   rtc_engine_x.ClientRole _role = rtc_engine_x.ClientRole.Broadcaster;
 
-  var element;
+  late var element;
 
   _VideoPlayerState(channel, passedToken, appID, theUid, telement){
     APP_ID = appID;
@@ -69,7 +70,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
   }
@@ -89,7 +90,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
     if (APP_ID.isEmpty) {
       setState(() {
         _infoStrings.add(
-          'APP_ID missing, please provide your APP_ID in settings.dart',
+          'appID missing, please provide your appID in settings.dart',
         );
         _infoStrings.add('Agora Engine is not starting');
       });
@@ -100,9 +101,11 @@ class _VideoPlayerState extends State<VideoPlayer> {
     _addAgoraEventHandlers();
     await _engine.enableWebSdkInteroperability(true);
     rtc_engine_x.VideoEncoderConfiguration configuration = rtc_engine_x.VideoEncoderConfiguration();
-    configuration.dimensions = rtc_engine_x.VideoDimensions(1920, 1080);
+    configuration.dimensions = rtc_engine_x.VideoDimensions(height: 1920, width: 1080);
     await _engine.setVideoEncoderConfiguration(configuration);
     await _engine.joinChannel(Token, channelName, null, userUID);
+
+    await _engine.enableLocalVideo(true);
   }
 
   /// Create agora sdk instance and initialize
@@ -162,7 +165,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   /// Video view wrapper
   Widget _videoView(view) {
-    return Expanded(child: Container(child: view));
+    return Container(child: view);
   }
 
   /// Video view row wrapper
@@ -211,6 +214,41 @@ class _VideoPlayerState extends State<VideoPlayer> {
       default:
     }
     return Container();
+  }
+
+
+  /// Video layout wrapper
+  Widget _viewRowsX() {
+    final views = _getRenderViews();
+    return Container(
+        child: views.length > 1 ? Column(
+          children: [
+            Container(
+              height: _height(40),
+              width: _width(100),
+              child: _videoView(views[0]),
+            ),
+            ClipRRect(
+            borderRadius: BorderRadius.all(Radius.circular(25)),
+              child: Container(
+                  height: _height(50),
+                  width: _width(100),
+                  child: GridView.count(
+                      scrollDirection: Axis.vertical,
+                      primary: false,
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      children: _addVideoToUi(views)
+                  )
+              ),
+            ),
+          ],
+        ) : Stack(
+          children: [
+            _videoView(views[0]),
+          ],
+        )
+    );
   }
 
   /// Toolbar layout
@@ -290,7 +328,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
             itemCount: _infoStrings.length,
             itemBuilder: (BuildContext context, int index) {
               if (_infoStrings.isEmpty) {
-                return null;
+                return Text("");
               }
               return Padding(
                 padding: const EdgeInsets.symmetric(
@@ -352,53 +390,58 @@ class _VideoPlayerState extends State<VideoPlayer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        height: _height(100),
-        width: _width(100),
-        color: Colors.black,
-        child: Column(
-          children: [
-            SizedBox(height: _height(5),),
-            Center(
-              child: InkWell(
-                onTap: () async {
-                  await _engine.leaveChannel();
-                  Common().newActivity(context, VideoRating(element, true));
-                },
-                child: Container(
-                    height: _height(5),
-                    width: _height(5),
-                    decoration: BoxDecoration(
-                        color: Color.fromARGB(25,255,255,255),
-                        borderRadius: BorderRadius.all(Radius.circular(50))
-                    ),
-                    child: Center(child: Icon(Icons.close, color: Colors.white))
-                ),
-              ),
-            ),
-            Spacer(),
-            Container(
-              height: _height(80),
-              width: _width(95),
-              margin: EdgeInsets.only(top: _height(1), bottom: _height(4)),
-              child: ClipRRect(
-                borderRadius: BorderRadius.all(Radius.circular(15)),
-                child: Center(
-                  child: Stack(
-                    children: <Widget>[
-                      _viewRows(),
-                      _panel(),
-                      _toolbar(),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Spacer(),
-          ],
+      body: SafeArea(
+        child: Container(
+          height: _height(100),
+          width: _width(100),
+          color: Colors.black,
+          child: Stack(
+            children: <Widget>[
+              _viewRowsX(),
+              // _panel(),
+              _toolbar(),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  _addVideoToUi(List videoList){
+    var children = <Widget>[];
+    videoList.forEach((element) {
+      if(videoList.indexOf(element) != 0){
+        children.add(
+          Container(
+            height: _height(20),
+            width: _height(20),
+            child: Card(
+              elevation: 3.0,
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25.0),
+              ),
+              shadowColor: Colors.yellow.shade300,
+              child: Stack(
+                  children: [
+                    Center(
+                        child: SpinKitPulse(color: Colors.yellow.shade300)
+                    ),
+                    ClipRRect(
+                      borderRadius: BorderRadius.all(Radius.circular(25)),
+                      child: _videoView(element),
+                    ),
+                  ]
+              ),
+            ),
+          ),
+        );
+      }
+    });
+    children.add(
+      SizedBox( height: _height(10)),
+    );
+    return children;
   }
 
   _height(size){

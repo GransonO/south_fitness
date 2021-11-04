@@ -16,7 +16,7 @@ class _GenderState extends State<Gender> {
   bool male = false;
   bool female = false;
   bool loadingState = true;
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
 
   var weight = 55;
   var lheight = 110;
@@ -26,7 +26,7 @@ class _GenderState extends State<Gender> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });

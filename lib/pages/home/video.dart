@@ -21,10 +21,10 @@ class _ReadyVideoState extends State<ReadyVideo> {
   var email = "";
   var user_id = "";
   var team = "";
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
 
-  VideoPlayerController _controller;
-  Future<void> _initializeVideoPlayerFuture;
+  late VideoPlayerController _controller;
+  late Future<void> _initializeVideoPlayerFuture;
 
   var allVideos = [];
   var liveVideos = [];
@@ -51,14 +51,14 @@ class _ReadyVideoState extends State<ReadyVideo> {
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      image = prefs.getString("image");
-      user_id = prefs.getString("user_id");
-      team = prefs.getString("team");
-      img = prefs.getString("institute_logo");
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      image = prefs.getString("image")!;
+      user_id = prefs.getString("user_id")!;
+      team = prefs.getString("team")!;
+      img = prefs.getString("institute_logo")!;
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });
@@ -414,7 +414,7 @@ class _ReadyVideoState extends State<ReadyVideo> {
                   Spacer(),
                   InkWell(
                     onTap: (){
-                      _scaffoldKey.currentState.openDrawer();
+                      _scaffoldKey.currentState!.openDrawer();
                     },
                     child: Icon(Icons.menu, size: 30, color: mainColor,),
                   ),

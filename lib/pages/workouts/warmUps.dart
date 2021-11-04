@@ -11,8 +11,8 @@ class WarmUps extends StatefulWidget {
 
 class _WarmUpsState extends State<WarmUps> {
   bool personal = false;
-  VideoPlayerController _controller;
-  Future<void> _initializeVideoPlayerFuture;
+  late VideoPlayerController _controller;
+  late Future<void> _initializeVideoPlayerFuture;
 
   @override
   void initState() {

@@ -53,7 +53,7 @@ class _DailyRunState extends State<DailyRun> {
   bool showCalories = false;
   var challengeData = {};
 
-  StreamSubscription _getPositionSubscription;
+  late StreamSubscription _getPositionSubscription;
 
   _DailyRunState(value, lat, long){
     state = value;
@@ -67,7 +67,7 @@ class _DailyRunState extends State<DailyRun> {
   Color mainColor = Colors.white;
   var distanceInKm = 0.0;
 
-  GoogleMapController mapController;
+  late GoogleMapController mapController;
   Map<MarkerId, Marker> markers = {};
   Map<PolylineId, Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
@@ -76,18 +76,18 @@ class _DailyRunState extends State<DailyRun> {
 
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
-  Stream<StepCount> _stepCountStream;
-  Stream<PedestrianStatus> _pedestrianStatusStream;
+  late Stream<StepCount> _stepCountStream;
+  late Stream<PedestrianStatus> _pedestrianStatusStream;
   String _status = '?';
   var _steps = 0;
   String team = "";
 
-  var marker;
-  var movingMarker;
-  var mapTarget;
+  late var marker;
+  late var movingMarker;
+  late var mapTarget;
   bool showMaps = false;
 
-  Timer _timer;
+  late Timer _timer;
   int seconds = 0;
   int minutes = 0;
   int hours = 0;
@@ -95,7 +95,7 @@ class _DailyRunState extends State<DailyRun> {
   var secDis = "00";
   var minDis = "00";
   var hourDis = "00";
-  BitmapDescriptor bitmap;
+  late BitmapDescriptor bitmap;
 
   var duration = 0; // time covered in seconds
 
@@ -103,10 +103,10 @@ class _DailyRunState extends State<DailyRun> {
   var email = "";
   var user_id = "";
   var startTime = DateTime.now();
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
 
-  bool serviceEnabled;
-  LocationPermission permission;
+  late bool serviceEnabled;
+  late LocationPermission permission;
   var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
   final Map<String, Marker> _markers = {};
@@ -135,14 +135,14 @@ class _DailyRunState extends State<DailyRun> {
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      team = prefs.getString("team");
-      image = prefs.getString("image");
-      user_id = prefs.getString("user_id");
-      img = prefs.getString("institute_logo");
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      team = prefs.getString("team")!;
+      image = prefs.getString("image")!;
+      user_id = prefs.getString("user_id")!;
+      img = prefs.getString("institute_logo")!;
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });
@@ -587,7 +587,7 @@ class _DailyRunState extends State<DailyRun> {
                     Spacer(),
                     InkWell(
                       onTap: (){
-                        _scaffoldKey.currentState.openDrawer();
+                        _scaffoldKey.currentState!.openDrawer();
                       },
                       child: Icon(Icons.menu, size: 30, color: mainColor,),
                     ),
@@ -674,7 +674,7 @@ class _DailyRunState extends State<DailyRun> {
                 setState(() {
                   if(prevLat == 0.0 ){
                     // Starting point
-                    distanceInKm = double.parse((Geolocator.distanceBetween(startLatitude, startLong, position.latitude, position.longitude) / 1000).toStringAsFixed(2));
+                    distanceInKm = double.parse((Geolocator.distanceBetween(startLatitude!, startLong!, position.latitude, position.longitude) / 1000).toStringAsFixed(2));
                   }else{
                     // Subsequent calls
                     distanceInKm = distanceInKm + double.parse((Geolocator.distanceBetween(prevLat, prevLon, position.latitude, position.longitude) / 1000).toStringAsFixed(2));
@@ -711,7 +711,7 @@ class _DailyRunState extends State<DailyRun> {
 
 
   postChallengeData() async {
-    _getPositionSubscription?.cancel();
+    _getPositionSubscription.cancel();
     setState(() {
       postToServer = true;
 
@@ -784,7 +784,7 @@ class _DailyRunState extends State<DailyRun> {
       showCalories = true;
     });
 
-    return ((weightMultiple * weight) + ((velocity * velocity) / height) * (standardMultiple) * (weight)).toDouble();
+    return ((weightMultiple * weight!) + ((velocity * velocity) / height!) * (standardMultiple) * (weight)).toDouble();
   }
 
 }

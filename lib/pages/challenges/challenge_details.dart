@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:south_fitness/pages/home/suggested_details.dart';
 import 'package:south_fitness/services/net.dart';
 import 'package:video_player/video_player.dart';
 
@@ -10,7 +9,7 @@ import '../common.dart';
 
 class ChallengeDetails extends StatefulWidget {
 
-  var element;
+  var element = {};
   bool isJoined = false;
   ChallengeDetails(theElement, joined){
     element = theElement;
@@ -30,7 +29,7 @@ class _ChallengeDetailsState extends State<ChallengeDetails> {
   bool isJoined = false;
 
   bool joinLoader = false;
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   Color mainColor = Colors.white;
   var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
@@ -39,8 +38,8 @@ class _ChallengeDetailsState extends State<ChallengeDetails> {
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  VideoPlayerController _controller;
-  Future<void> _initializeVideoPlayerFuture;
+  late VideoPlayerController _controller;
+  late Future<void> _initializeVideoPlayerFuture;
   bool play = false;
   bool loadingState = true;
   var theElement = {};
@@ -61,14 +60,14 @@ class _ChallengeDetailsState extends State<ChallengeDetails> {
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      image = prefs.getString("image");
-      user_id = prefs.getString("user_id");
-      team = prefs.getString("team");
-      img = prefs.getString("institute_logo");
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      image = prefs.getString("image")!;
+      user_id = prefs.getString("user_id")!;
+      team = prefs.getString("team")!;
+      img = prefs.getString("institute_logo")!;
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });
@@ -394,7 +393,7 @@ class _ChallengeDetailsState extends State<ChallengeDetails> {
                   Spacer(),
                   InkWell(
                     onTap: () {
-                      _scaffoldKey.currentState.openDrawer();
+                      _scaffoldKey.currentState!.openDrawer();
                     },
                     child: Icon(
                       Icons.menu, size: 30, color: mainColor,),

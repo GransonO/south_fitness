@@ -26,7 +26,7 @@ class _ChatsState extends State<Chats> {
   var alias = "";
   var institution = "";
   var institution_id = "";
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   bool chats = true;
   bool loadingState = true;
   bool clubs = false;
@@ -47,7 +47,7 @@ class _ChatsState extends State<Chats> {
   var generalImage =
       "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618138330/South_Fitness/ic_launcher.png";
 
-  File groupImageFile;
+  late File groupImageFile;
   bool isUploading = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
@@ -62,15 +62,15 @@ class _ChatsState extends State<Chats> {
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      image = prefs.getString("image");
-      user_id = prefs.getString("user_id");
-      institution = prefs.getString("institution");
-      institution_id = prefs.getString("institution_id");
-      img = prefs.getString("institute_logo");
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      image = prefs.getString("image")!;
+      user_id = prefs.getString("user_id")!;
+      institution = prefs.getString("institution")!;
+      institution_id = prefs.getString("institution_id")!;
+      img = prefs.getString("institute_logo")!;
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });
@@ -90,10 +90,12 @@ class _ChatsState extends State<Chats> {
   }
 
   getImage() async {
-    File image = await ImagePicker.pickImage(source: ImageSource.gallery);
-    var path = image.path;
+    final ImagePicker _picker = ImagePicker();
+    // Pick an image
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    var path = image!.path;
     setState(() {
-      groupImageFile = image;
+      groupImageFile = File(path);
       isUploading = true;
     });
     cloudReviewUpload(path, "group_image");
@@ -247,7 +249,7 @@ class _ChatsState extends State<Chats> {
                   Spacer(),
                   InkWell(
                     onTap: () {
-                      _scaffoldKey.currentState.openDrawer();
+                      _scaffoldKey.currentState!.openDrawer();
                     },
                     child: Icon(
                       Icons.menu,

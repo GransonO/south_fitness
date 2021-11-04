@@ -24,7 +24,7 @@ class _LoginState extends State<Login> {
   String password = "";
   String email = "";
   bool login = false;
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   bool _obscurePass = true;
   bool fetchingSettings = false;
 
@@ -57,7 +57,7 @@ class _LoginState extends State<Login> {
     }else{
       var isLoggedIn = prefs.getBool("isLoggedIn") != null ? prefs.getBool("isLoggedIn") : false;
       print("------------------------------------------------------------$email");
-      if(isLoggedIn){
+      if(isLoggedIn!){
         Common().newActivity(context, HomeView());
       }
     }

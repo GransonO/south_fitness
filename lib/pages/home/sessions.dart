@@ -40,10 +40,10 @@ class _SessionState extends State<Session> {
   var type = "";
   bool isStarted = false;
 
-  VideoPlayerController _controller;
-  Future<void> _initializeVideoPlayerFuture;
+  late VideoPlayerController _controller;
+  late Future<void> _initializeVideoPlayerFuture;
 
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   var username = "";
   var email = "";
   var link = "";
@@ -85,13 +85,13 @@ class _SessionState extends State<Session> {
   getTeam() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      img = prefs.getString("institute_logo");
-      team = prefs.getString("team").trim();
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      image = prefs.getString("image");
+      img = prefs.getString("institute_logo")!;
+      team = prefs.getString("team")!.trim();
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      image = prefs.getString("image")!;
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });
@@ -377,7 +377,7 @@ class _SessionState extends State<Session> {
                     Spacer(),
                     InkWell(
                       onTap: (){
-                        _scaffoldKey.currentState.openDrawer();
+                        _scaffoldKey.currentState!.openDrawer();
                       },
                       child: Icon(Icons.menu, size: 30, color: mainColor,),
                     ),
@@ -507,7 +507,7 @@ class _SessionState extends State<Session> {
 
   _selectColor(index){
     if(index < 3){
-      return Color.fromARGB((255 - ((index + 1) * 40)) ,110,180,63);
+      return Color.fromARGB((255 - ((index + 1) * 40)).toInt() ,110,180,63);
     }else{
       return Color.fromARGB(20,110,180,63);
     }

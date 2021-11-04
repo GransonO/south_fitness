@@ -7,7 +7,7 @@ import 'package:south_fitness/services/net.dart';
 import '../common.dart';
 
 class Competitors extends StatefulWidget {
-  String name;
+  late String name;
   Competitors(name){
     this.name = name;
   }
@@ -16,7 +16,7 @@ class Competitors extends StatefulWidget {
 }
 
 class _CompetitorsState extends State<Competitors> {
-  String team;
+  String team = "";
   List teamsData = [];
 
 
@@ -24,7 +24,7 @@ class _CompetitorsState extends State<Competitors> {
     this.team = name;
   }
 
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   var username = "";
   var email = "";
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
@@ -45,13 +45,13 @@ class _CompetitorsState extends State<Competitors> {
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      image = prefs.getString("image");
-      img = prefs.getString("institute_logo");
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      image = prefs.getString("image")!;
+      img = prefs.getString("institute_logo")!;
 
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });
@@ -142,7 +142,7 @@ class _CompetitorsState extends State<Competitors> {
                     Spacer(),
                     InkWell(
                       onTap: (){
-                        _scaffoldKey.currentState.openDrawer();
+                        _scaffoldKey.currentState!.openDrawer();
                       },
                       child: Icon(Icons.menu, size: 30, color: mainColor,),
                     ),
@@ -239,7 +239,8 @@ class _CompetitorsState extends State<Competitors> {
 
   _selectColor(index){
     if(index < 3){
-      return Color.fromARGB((255 - (index * 30)) ,110,180,63);
+      var x = index * 30;
+      return Color.fromARGB((255 - x).toInt() ,110,180,63);
     }else{
       return Color.fromARGB(20,110,180,63);
     }

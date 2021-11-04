@@ -18,7 +18,7 @@ class _ResetPageState extends State<PasswordUpdate> {
   var email = "", resetCode = "", newPass = "", confPass = "";
   bool login = false;
   bool reset = false;
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   
   @override
   void initState() {
@@ -30,7 +30,7 @@ class _ResetPageState extends State<PasswordUpdate> {
   checkUsage() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      email = prefs.getString("email");
+      email = prefs.getString("email")!;
     });
   }
 

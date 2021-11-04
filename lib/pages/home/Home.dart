@@ -29,15 +29,15 @@ class _HomeState extends State<HomeView> {
   var email = "";
   var user_id = "";
   var team = "";
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   var dayName = "";
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
-  bool serviceEnabled;
-  LocationPermission permission;
+  late bool serviceEnabled;
+  late LocationPermission permission;
 
-  double currentLong;
-  double currentLat;
+  late double currentLong;
+  late double currentLat;
   bool loading = true;
 
 
@@ -50,8 +50,8 @@ class _HomeState extends State<HomeView> {
   var allPastActivities = [];
   var activityList = [];
 
-  VideoPlayerController _controller;
-  Future<void> _initializeVideoPlayerFuture;
+  late VideoPlayerController _controller;
+  late Future<void> _initializeVideoPlayerFuture;
   bool play = false;
   bool joinLoader = false;
   var theElement = {};
@@ -75,11 +75,11 @@ class _HomeState extends State<HomeView> {
     prefs = await SharedPreferences.getInstance();
     setState(() {
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
     });
 
-    user_id = prefs.getString("user_id");
+    user_id = prefs.getString("user_id")!;
     var institution_id = prefs.getString("institution_id");
 
     var suggestions = await HomeResources().getSuggestedActivities();
@@ -88,17 +88,17 @@ class _HomeState extends State<HomeView> {
     var pastActivities = await HomeResources().getTodayActivities(user_id);
     print("==========HOME======institution_id=============================$institution_id");
     setState(() {
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      image = prefs.getString("image");
-      team = prefs.getString("team");
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      image = prefs.getString("image")!;
+      team = prefs.getString("team")!;
       prefs.setBool("isLoggedIn", true);
       allVideos = upcomingVideos;
       activityList = suggestions;
       loading = false;
       allPastActivities = pastActivities;
 
-      img = prefs.getString("institute_logo");
+      img = prefs.getString("institute_logo")!;
       loadingState = false;
     });
   }
@@ -714,7 +714,7 @@ class _HomeState extends State<HomeView> {
                   ),
                 ),
                 Container(
-                  height: _height(10),
+                  height: _height(8),
                   color: Colors.white,
                   child: Row(
                     children: [
@@ -722,7 +722,7 @@ class _HomeState extends State<HomeView> {
                       Spacer(),
                       InkWell(
                         onTap: (){
-                          _scaffoldKey.currentState.openDrawer();
+                          _scaffoldKey.currentState!.openDrawer();
                         },
                         child: Icon(Icons.menu, size: 30, color: mainColor),
                       ),

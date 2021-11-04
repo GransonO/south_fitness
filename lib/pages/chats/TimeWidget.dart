@@ -5,8 +5,9 @@ import '../common.dart';
 
 class TimeWidget extends StatefulWidget {
 
-  String GroupId;
+  String GroupId = "";
   bool isGeneral = false;
+
   TimeWidget(chatID, general){
     GroupId = chatID;
     isGeneral = general;
@@ -18,20 +19,22 @@ class TimeWidget extends StatefulWidget {
 
 class _TimeWidgetState extends State<TimeWidget> {
 
-  var groupID;
+  var groupID = "";
   bool isGeneral = false;
+
   _TimeWidgetState(GroupId, general){
     groupID = GroupId;
     isGeneral = general;
   }
 
-  String value;
+  String value = "";
   checkLastMessage() async {
     CollectionReference chats =
     FirebaseFirestore.instance.collection(groupID);
     var data = await chats.orderBy("epoch_time", descending: true).limit(1).get();
+    var result = data.docs[0].data();
     setState(() {
-      value = data.docs[0].data()["created_at"];
+      // value = result != null ? result["created_at"] : "--";
     });
   }
 
@@ -45,7 +48,8 @@ class _TimeWidgetState extends State<TimeWidget> {
   @override
   Widget build(BuildContext context) {
     return Text(
-        value != null ? Common().timeStringFormatter(value).toString() : "--",
+        // value != null ? Common().timeStringFormatter(value).toString() : "--",
+        "--",
         style: TextStyle(fontSize: 8, color: isGeneral ? Colors.white : Colors.grey)
     );
   }

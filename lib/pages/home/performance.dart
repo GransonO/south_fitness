@@ -19,7 +19,7 @@ class _PerformanceState extends State<Performance> {
 
   var teamClicked = false;
 
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   var username = "";
   var email = "";
   var team = "";
@@ -42,13 +42,13 @@ class _PerformanceState extends State<Performance> {
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      team = prefs.getString("team");
-      image = prefs.getString("image");
-      img = prefs.getString("institute_logo");
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      team = prefs.getString("team")!;
+      image = prefs.getString("image")!;
+      img = prefs.getString("institute_logo")!;
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });
@@ -135,7 +135,7 @@ class _PerformanceState extends State<Performance> {
                     Spacer(),
                     InkWell(
                       onTap: (){
-                        _scaffoldKey.currentState.openDrawer();
+                        _scaffoldKey.currentState!.openDrawer();
                       },
                       child: Icon(Icons.menu, size: 30, color: mainColor,),
                     ),
@@ -259,7 +259,7 @@ class _PerformanceState extends State<Performance> {
 
   _selectColor(index){
     if(index < 3){
-      return Color.fromARGB((255 - (index * 30)) ,110,180,63);
+      return Color.fromARGB((255 - (index * 30)).toInt() ,110,180,63);
     }else{
       return Color.fromARGB(20,110,180,63);
     }

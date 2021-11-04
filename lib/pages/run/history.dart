@@ -19,7 +19,7 @@ class _ChallengeHistoryState extends State<ChallengeHistory> {
   var email = "";
   bool loading = true;
   bool loadingState = true;
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
   var image = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
   List history = [];
 
@@ -35,12 +35,12 @@ class _ChallengeHistoryState extends State<ChallengeHistory> {
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      image = prefs.getString("image");
-      img = prefs.getString("institute_logo");
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      image = prefs.getString("image")!;
+      img = prefs.getString("institute_logo")!;
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });
@@ -94,7 +94,7 @@ class _ChallengeHistoryState extends State<ChallengeHistory> {
                   Spacer(),
                   InkWell(
                     onTap: (){
-                      _scaffoldKey.currentState.openDrawer();
+                      _scaffoldKey.currentState!.openDrawer();
                     },
                     child: Icon(Icons.menu, size: 30, color: mainColor,),
                   ),
@@ -136,7 +136,7 @@ class _ChallengeHistoryState extends State<ChallengeHistory> {
                     begin: Alignment.topRight,
                     end: Alignment.bottomLeft,
                     colors: [
-                      element["challengeType"] == "Walking" ? mainColor : element["challengeType"] == "Running" ? Colors.orange[100] : Colors.tealAccent[100],
+                      Colors.orange,
                       Color.fromARGB(105,229,227,228)]),
                 borderRadius: BorderRadius.all(Radius.circular(15))
             ),

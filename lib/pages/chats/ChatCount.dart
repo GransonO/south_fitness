@@ -5,7 +5,7 @@ import '../common.dart';
 
 class ChatCount extends StatefulWidget {
 
-  String GroupId;
+  String GroupId = "";
   ChatCount(chatID){
     GroupId = chatID;
   }
@@ -16,12 +16,12 @@ class ChatCount extends StatefulWidget {
 
 class _ChatCount extends State<ChatCount> {
 
-  var groupID;
+  var groupID = "";
   _ChatCount(GroupId){
     groupID = GroupId;
   }
 
-  String value;
+  String value = "";
   checkLastMessage() async {
     CollectionReference chats =
     FirebaseFirestore.instance.collection(groupID);

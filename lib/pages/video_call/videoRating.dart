@@ -31,8 +31,8 @@ class _VideoRatingState extends State<VideoRating> {
     isVideo = video;
   }
 
-  VideoPlayerController _controller;
-  Future<void> _initializeVideoPlayerFuture;
+  late VideoPlayerController _controller;
+  late Future<void> _initializeVideoPlayerFuture;
   bool play = false;
   bool loadingState = true;
   bool rateLoading = false;
@@ -43,7 +43,7 @@ class _VideoRatingState extends State<VideoRating> {
   var email = "";
   var user_id = "";
   var team = "";
-  SharedPreferences prefs;
+  late SharedPreferences prefs;
 
   @override
   void initState() {
@@ -63,13 +63,13 @@ class _VideoRatingState extends State<VideoRating> {
   setPrefs() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      username = prefs.getString("username");
-      email = prefs.getString("email");
-      user_id = prefs.getString("user_id");
-      team = prefs.getString("team");
-      img = prefs.getString("institute_logo");
+      username = prefs.getString("username")!;
+      email = prefs.getString("email")!;
+      user_id = prefs.getString("user_id")!;
+      team = prefs.getString("team")!;
+      img = prefs.getString("institute_logo")!;
       var institutePrimaryColor = prefs.getString("institute_primary_color");
-      List colors = institutePrimaryColor.split(",");
+      List colors = institutePrimaryColor!.split(",");
       mainColor = Color.fromARGB(255,int.parse(colors[0]),int.parse(colors[1]),int.parse(colors[2]));
       loadingState = false;
     });
