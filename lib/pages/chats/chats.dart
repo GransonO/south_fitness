@@ -601,8 +601,7 @@ class _ChatsState extends State<Chats> {
                         ),
                       ),
                     ),
-                  )
-                : Container(),
+                  ) : Container(),
             checking
                 ? Center(
                     child:
@@ -627,7 +626,7 @@ class _ChatsState extends State<Chats> {
     return InkWell(
       onTap: () {
         Common().newActivity(context,
-            chatView(element["group_id"], "${element["group_title"]}"));
+            ChatView(element["group_id"], "${element["group_title"]}"));
       },
       child: Container(
         height: _height(10),
@@ -739,8 +738,7 @@ class _ChatsState extends State<Chats> {
             prefs.setString("alias", result["alias"]);
             Common().newActivity(
                 context,
-                chatView(
-                    "bb79a16c-8f40-11e-8dbb-f45c89b7cf75", "General channel"));
+                ChatView("SF-bb79a16c-GENERAL-11e-8dbb-f45c89b7cf75", "General Channel"));
           } else {
             // Request user to join
             setState(() {
@@ -878,7 +876,7 @@ class _ChatsState extends State<Chats> {
       prefs.setString("alias", alias);
       Fluttertoast.showToast(msg: "Joined success");
       Common().newActivity(context,
-          chatView("bb79a16c-8f40-11e-8dbb-f45c89b7cf75", "General channel"));
+          ChatView("bb79a16c-8f40-11e-8dbb-f45c89b7cf75", "General channel"));
     } else {
       Fluttertoast.showToast(msg: "An error occurred when joining the group");
     }

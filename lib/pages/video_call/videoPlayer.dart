@@ -106,6 +106,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
     await _engine.joinChannel(Token, channelName, null, userUID);
 
     await _engine.enableLocalVideo(true);
+    await _engine.muteLocalAudioStream(muted);
+    await _engine.muteLocalVideoStream(hideVideo);
   }
 
   /// Create agora sdk instance and initialize

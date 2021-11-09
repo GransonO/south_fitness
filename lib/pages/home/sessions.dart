@@ -77,11 +77,22 @@ class _SessionState extends State<Session> {
     );
 
     _initializeVideoPlayerFuture = _controller.initialize();
+    getPermissions();
     getTeam();
     getVideoCallDetails();
   }
   var img = "https://res.cloudinary.com/dolwj4vkq/image/upload/v1618227174/South_Fitness/profile_images/GREEN_AVATAR.jpg";
 
+  getPermissions() async {
+    bool camera = await Permission.camera.isGranted;
+    if(!camera){
+      await Permission.camera.request();
+    }
+    bool microphone = await Permission.microphone.isGranted;
+    if(!microphone){
+      await Permission.microphone.request();
+    }
+  }
   getTeam() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {

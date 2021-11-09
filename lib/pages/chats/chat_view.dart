@@ -12,26 +12,26 @@ import 'package:uuid/uuid.dart';
 
 import '../common.dart';
 
-class chatView extends StatefulWidget {
+class ChatView extends StatefulWidget {
 
   var groupId;
   var groupName;
 
-  chatView(id, name){
+  ChatView(id, name){
     groupId = id;
     groupName = name;
   }
 
   @override
-  _chatViewState createState() => _chatViewState(groupId, groupName);
+  _ChatViewState createState() => _ChatViewState(groupId, groupName);
 }
 
-class _chatViewState extends State<chatView> {
+class _ChatViewState extends State<ChatView> {
 
   late var groupId;
   late var groupName;
 
-  _chatViewState(id, name){
+  _ChatViewState(id, name){
     groupId = id;
     groupName = name;
   }
@@ -77,7 +77,7 @@ class _chatViewState extends State<chatView> {
       user_id = prefs.getString("user_id")!;
       var alias = prefs.getString("alias");
       img = prefs.getString("institute_logo")!;
-      if(groupId == "bb79a16c-8f40-11e-8dbb-f45c89b7cf75"){
+      if(groupId == "SF-bb79a16c-GENERAL-11e-8dbb-f45c89b7cf75"){
         // Is general chat
         username = alias!;
       }
@@ -653,16 +653,16 @@ class _chatViewState extends State<chatView> {
         "message_id": Uuid().v4().toString(),
         "username": username,
         "created_at": "${theDate.year}-${theDate.month}-${theDate.day} ${theDate.hour}:${theDate.minute}:${theDate.second}",
-        "epoch_time": theDate.microsecondsSinceEpoch
+        "epoch_time": theDate.millisecondsSinceEpoch
       });
 
-        setState(() {
-          posting = false;
-          chatImage = false;
-          chatImageUrl = "no image";
-          message = "";
-        });
-        _controller.clear();
+      setState(() {
+        posting = false;
+        chatImage = false;
+        chatImageUrl = "no image";
+        message = "";
+      });
+      _controller.clear();
     }
   }
 }
